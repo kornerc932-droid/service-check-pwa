@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Service Check – Wartungsprotokoll</title>
+<style>
+:root { --bg:#f5f7fa; --fg:#1f2a34; --muted:#6b7b8c; --accent:#3b5a78; --card:#ffffff; --line:#d9e0e7; }
+*{box-sizing:border-box} html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial,sans-serif;}
+header{position:sticky;top:0;z-index:10;background:var(--bg);border-bottom:1px solid var(--line);padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between}
+h1{font-size:18px;margin:0;}
+.container{padding:16px;max-width:900px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 12px;margin:12px 0}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+.input{flex:1;min-width:220px;display:flex;flex-direction:column;gap:6px}
+.input label{font-size:12px;color:var(--muted)}
+.input input, .input textarea, .input select{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fff}
+.details{border-top:1px dashed var(--line);margin-top:8px;padding-top:8px}
+summary{font-weight:600;cursor:pointer;list-style:none}
+summary::marker{display:none}
+.badge{display:inline-flex;gap:6px}
+.badge button{border:1px solid var(--line);border-radius:999px;padding:6px 10px;background:#fff;font-size:12px}
+.badge button.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap}
+button.primary{background:var(--accent);border:none;color:#fff;border-radius:10px;padding:10px 12px}
+button.ghost{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.note{font-size:12px;color:var(--muted)}
+@media print{
+  header, .toolbar { display:none !important; }
+  body{background:#fff}
+  .container{max-width:none;margin:0;padding:0}
+  .card{break-inside:avoid;border:1px solid #999}
+  .input input, .input textarea{border:1px solid #999}
+  @page { size: A4 portrait; margin: 12mm; }
+}
+</style>
+</head>
+<body>
+  <header>
+    <h1>Service Check – Wartungsprotokoll</h1>
+    <div class="toolbar">
+      <button class="ghost" id="save">Speichern</button>
+      <button class="ghost" id="clear">Entwurf löschen</button>
+      <button class="primary" id="print">Drucken / PDF</button>
+    </div>
+  </header>
+  <main class="container">
+    <section class="card">
+      <h2 style="margin:6px 0 12px 0;font-size:16px;">Kopfbereich</h2>
+      <div id="header"></div>
+      <div class="note" style="margin-top:8px;">Nur App-Branding. Firmenlogo folgt später über Anmeldung.</div>
+    </section>
+
+    <section id="sections"></section>
+
+    <section class="card" style="margin-bottom:60px">
+      <h2 style="margin:6px 0 12px 0;font-size:16px;">Unterschriften</h2>
+      <div class="row">
+        <div class="input"><label>Unterschrift Prüfer</label><input placeholder="Name / Unterschrift"></div>
+        <div class="input"><label>Unterschrift Kunde</label><input placeholder="Name / Unterschrift"></div>
+        <div class="input"><label>Datum</label><input type="date"></div>
+      </div>
+    </section>
+
+    <div class="note">© <span id="year"></span> Service Check</div>
+  </main>
+
+<script>
+const TEMPLATE = {
+  "title": "RBG 1-Mast (Tandem) – Wartungsprotokoll",
+  "orientationNote": "Links/Rechts = Ansicht vom Schaltschrank Richtung Hubrahmen",
+  "headerFields": [
+    {"key":"projekt","label":"Projekt"},
+    {"key":"anlagenteil","label":"Anlagenteil"},
+    {"key":"datum","label":"Datum"},
+    {"key":"betriebsstunden","label":"Betriebsstunden"},
+    {"key":"durchfuehrender","label":"Durchführender"},
+    {"key":"auftragsnummer","label":"Auftragsnummer","optional":true},
+    {"key":"betreiber","label":"Betreiber","optional":true},
+    {"key":"herkunft","label":"Ursprung","optional":true}
+  ],
+  "sections": [
+    {"id":"gasse","title":"Gasse / Ausrüstung","items":[
+      {"id":"schleifleitung","label":"Schleifleitung / Abnehmer","fields":[{"type":"status"},{"type":"note"}]},
+      {"id":"fahrschiene","label":"Fahrschiene (Befestigung/Tragbild)","fields":[{"type":"status"},{"type":"note"}]},
+      {"id":"oberfuehrung","label":"Obere Führungsschiene (Befestigung)","fields":[{"type":"status"},{"type":"note"}]},
+      {"id":"puffer","label":"Puffer / Festanschläge (Befestigung)","fields":[{"type":"status"},{"type":"note"}]}
+    ]},
+    {"id":"fahrwerk","title":"Fahrwerk / Führungsrollen / Laufräder","items":[
+      {"id":"laufrad_vl","label":"Laufrad vorn links – Tragbild/Durchmesser","fields":[{"type":"status"},{"type":"measurement","label":"Durchmesser","unit":"mm"},{"type":"note"}]},
+      {"id":"laufrad_vr","label":"Laufrad vorn rechts – Tragbild/Durchmesser","fields":[{"type":"status"},{"type":"measurement","label":"Durchmesser","unit":"mm"},{"type":"note"}]},
+      {"id":"laufrad_hl","label":"Laufrad hinten links – Tragbild/Durchmesser","fields":[{"type":"status"},{"type":"measurement","label":"Durchmesser","unit":"mm"},{"type":"note"}]},
+      {"id":"laufrad_hr","label":"Laufrad hinten rechts – Tragbild/Durchmesser","fields":[{"type":"status"},{"type":"measurement","label":"Durchmesser","unit":"mm"},{"type":"note"}]},
+      {"id":"schienenraeumer","label":"Schienenräumer – Resthöhe","fields":[{"type":"status"},{"type":"measurement","label":"Resthöhe","unit":"mm"},{"type":"note"}]},
+      {"id":"fuehrungsrollen_unten","label":"Führungsrollen unten – Tragbild/Spiel","fields":[{"type":"status"},{"type":"measurement","label":"Spiel vorn","unit":"mm"},{"type":"measurement","label":"Spiel hinten","unit":"mm"},{"type":"note"}]},
+      {"id":"fuehrungsrollen_oben","label":"Führungsrollen oben – Tragbild/Spiel","fields":[{"type":"status"},{"type":"measurement","label":"Spiel","unit":"mm"},{"type":"note"}]}
+    ]},
+    {"id":"hubwerk","title":"Hubwerk","items":[
+      {"id":"befestigungen_allg","label":"Befestigungen (allg.)","fields":[{"type":"status"},{"type":"note"}]},
+      {"id":"als_bremse","label":"Bremse – Arbeitsluftspalt (nach Herstellervorgabe)","fields":[{"type":"status"},{"type":"measurement","label":"ALS","unit":"mm"},{"type":"note"}]},
+      {"id":"oeldichtheit","label":"Dichtungen / Öldichtheit","fields":[{"type":"status"},{"type":"note"}]},
+      {"id":"letzter_oelwechsel","label":"Letzter Ölwechsel","fields":[{"type":"date","label":"Datum"}]},
+      {"id":"naechster_oelwechsel","label":"Nächster Ölwechsel","fields":[{"type":"date","label":"Datum"}]},
+      {"id":"hubseil","label":"Hubseil – Sichtprüfung (ISO 4309), Ablegereife","fields":[{"type":"status"},{"type":"note"}]},
+      {"id":"seiltrommel","label":"Seiltrommel / Umlenkrollen – Rillung/Einlauftiefe","fields":[{"type":"status"},{"type":"measurement","label":"Einlauftiefe links","unit":"mm"},{"type":"measurement","label":"Einlauftiefe rechts","unit":"mm"},{"type":"note"}]},
+      {"id":"energiekette","label":"Energiekette – Kabel/Verbindung","fields":[{"type":"status"},{"type":"note"}]}
+    ]},
+    {"id":"tisch_kette_antrieb","title":"Teleskoptisch / Kettensystem / Antrieb","items":[
+      {"id":"kurvenrollen","label":"Kurvenrollen","fields":[{"type":"status"},{"type":"note"}]},
+      {"id":"schleifleisten","label":"Schleifleisten (einstellen falls nötig)","fields":[{"type":"status"},{"type":"note"}]},
+      {"id":"zahnstange","label":"Zahnstange / Rollen / Gleitleisten","fields":[{"type":"status"},{"type":"note"}]},
+      {"id":"stuetzrollen","label":"Stützrollen","fields":[{"type":"status"},{"type":"note"}]},
+      {"id":"getriebe","label":"Getriebe","fields":[{"type":"status"},{"type":"note"}]},
+      {"id":"ketten","label":"Ketten – nachspannen & schmieren","fields":[{"type":"status"},{"type":"note"}]},
+      {"id":"kettenspanner","label":"Kettenspanner","fields":[{"type":"status"},{"type":"note"}]},
+      {"id":"umlenkrollen","label":"Umlenkrollen / Kettenräder","fields":[{"type":"status"},{"type":"note"}]},
+      {"id":"kupplung","label":"Kupplung","fields":[{"type":"status"},{"type":"note"}]},
+      {"id":"gelenkwelle","label":"Gelenkwelle","fields":[{"type":"status"},{"type":"note"}]}
+    ]},
+    {"id":"wiederkehrende_pruefung","title":"Wiederkehrende Prüfung (Sicherheit)","items":[
+      {"id":"notauskette","label":"Not-Aus-Kette inkl. Verriegelungen – Funktionsprüfung","fields":[{"type":"status"},{"type":"note"}]},
+      {"id":"endpositionen","label":"Endpositionen Wartung/Semiautomatik anfahren","fields":[{"type":"status"},{"type":"note"}]},
+      {"id":"bremsweg","label":"Bremsweg (ohne Last, niedrige Geschwindigkeit)","fields":[{"type":"status"},{"type":"note"}]},
+      {"id":"fangsystem","label":"Fangsystem / Geschwindigkeitsbegrenzer / Gestänge","fields":[{"type":"status"},{"type":"note"}]},
+      {"id":"lastmesseinheit","label":"Lastmesseinheit (Über-/Unterlast) – Test","fields":[{"type":"status"},{"type":"note"}]},
+      {"id":"sensorik","label":"Sicherheitsrelevante Sensorik / Lichtschranken","fields":[{"type":"status"},{"type":"note"}]},
+      {"id":"pruefbuch","label":"Prüfbuch vorhanden und Eintrag vorgenommen","fields":[{"type":"status"},{"type":"note"}]},
+      {"id":"bedenken","label":"Bedenken gegen weiteren Betrieb","fields":[{"type":"status"},{"type":"note"}]}
+    ]},
+    {"id":"maengelliste","title":"Mängelliste","items":[
+      {"id":"maengel","label":"Mängel / Beanstandungen (Freitext)","fields":[{"type":"note"}]},
+      {"id":"schmierstoffe","label":"Wurden die Schmierstoffe zur Verfügung gestellt?","fields":[{"type":"yesno"}]}
+    ]}
+  ]
+};
+let STATE = { header:{}, items:{} };
+
+function qs(sel, el=document){ return el.querySelector(sel); }
+function qsa(sel, el=document){ return Array.from(el.querySelectorAll(sel)); }
+function loadState(){
+  try{ const raw=localStorage.getItem('serviceCheckDraft'); if(raw) STATE=JSON.parse(raw); }catch(e){}
+  if(!STATE.header) STATE.header={};
+  if(!STATE.items) STATE.items={};
+  if(!STATE.header.datum) STATE.header.datum = new Date().toISOString().slice(0,10);
+}
+function saveState(){ localStorage.setItem('serviceCheckDraft', JSON.stringify(STATE)); toast('Entwurf gespeichert.'); }
+function toast(msg){
+  const t=document.createElement('div'); t.textContent=msg;
+  Object.assign(t.style,{position:'fixed',bottom:'20px',left:'50%',transform:'translateX(-50%)',background:'#1f2a34',color:'#fff',padding:'8px 12px',borderRadius:'8px',zIndex:'9999',fontSize:'13px'});
+  document.body.appendChild(t); setTimeout(()=>t.remove(),1600);
+}
+function renderHeader(container){
+  const row=document.createElement('div'); row.className='row';
+  TEMPLATE.headerFields.forEach(f=>{
+    const wrap=document.createElement('div'); wrap.className='input';
+    const lab=document.createElement('label'); lab.textContent=f.label;
+    const inp=document.createElement('input'); inp.placeholder=f.label; inp.value=STATE.header[f.key]||'';
+    inp.oninput=()=>{ STATE.header[f.key]=inp.value; };
+    wrap.append(lab, inp); row.appendChild(wrap);
+  });
+  container.appendChild(row);
+  const note=document.createElement('div'); note.className='note'; note.textContent=TEMPLATE.orientationNote||'';
+  container.appendChild(note);
+}
+function fToDataURL(file){ return new Promise(res=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.readAsDataURL(file); }); }
+function renderSections(container){
+  TEMPLATE.sections.forEach(section=>{
+    const card=document.createElement('div'); card.className='card';
+    const details=document.createElement('details');
+    const summary=document.createElement('summary'); summary.textContent=section.title;
+    details.appendChild(summary);
+    section.items.forEach(item=>{
+      const wrap=document.createElement('div'); wrap.className='details';
+      const label=document.createElement('div'); label.textContent=item.label; label.style.marginBottom='6px'; label.style.fontWeight='500';
+      const tools=document.createElement('div'); tools.className='row';
+
+      // Status
+      const status=document.createElement('div'); status.className='badge';
+      [{k:'io',t:'i.O.'},{k:'fehler',t:'Fehler'},{k:'nv',t:'n.v.'}].forEach(opt=>{
+        const b=document.createElement('button'); b.textContent=opt.t;
+        const cur=STATE.items[item.id]?.status; if(cur===opt.k) b.classList.add('active');
+        b.onclick=()=>{ STATE.items[item.id]=STATE.items[item.id]||{}; STATE.items[item.id].status=opt.k;
+          qsa('button',status).forEach(x=>x.classList.remove('active')); b.classList.add('active'); };
+        status.appendChild(b);
+      });
+      tools.appendChild(status);
+
+      // Felder
+      (item.fields||[]).forEach(f=>{
+        if(f.type==='note'){
+          const w=document.createElement('div'); w.className='input'; w.style.minWidth='260px';
+          const lab=document.createElement('label'); lab.textContent='Bemerkung';
+          const ta=document.createElement('textarea'); ta.rows=2; ta.value=STATE.items[item.id]?.note||'';
+          ta.oninput=()=>{ STATE.items[item.id]=STATE.items[item.id]||{}; STATE.items[item.id].note=ta.value; };
+          w.append(lab, ta); tools.appendChild(w);
+        }
+        if(f.type==='measurement'){
+          const w=document.createElement('div'); w.className='input'; w.style.maxWidth='180px';
+          const lab=document.createElement('label'); lab.textContent=f.label+' ('+f.unit+')';
+          const inp=document.createElement('input'); inp.type='number'; inp.value=STATE.items[item.id]?.[f.label]||'';
+          inp.oninput=()=>{ STATE.items[item.id]=STATE.items[item.id]||{}; STATE.items[item.id][f.label]=inp.value; };
+          w.append(lab, inp); tools.appendChild(w);
+        }
+        if(f.type==='date'){
+          const w=document.createElement('div'); w.className='input'; w.style.maxWidth='200px';
+          const lab=document.createElement('label'); lab.textContent=f.label;
+          const inp=document.createElement('input'); inp.type='date'; inp.value=STATE.items[item.id]?.[f.label]||'';
+          inp.oninput=()=>{ STATE.items[item.id]=STATE.items[item.id]||{}; STATE.items[item.id][f.label]=inp.value; };
+          w.append(lab, inp); tools.appendChild(w);
+        }
+        if(f.type==='yesno'){
+          const w=document.createElement('div'); w.className='input'; w.style.maxWidth='180px';
+          const lab=document.createElement('label'); lab.textContent='Ja/Nein';
+          const sel=document.createElement('select'); sel.innerHTML='<option value=\"\">–</option><option>Ja</option><option>Nein</option>';
+          sel.value=STATE.items[item.id]?.yesno||'';
+          sel.onchange=()=>{ STATE.items[item.id]=STATE.items[item.id]||{}; STATE.items[item.id].yesno=sel.value; };
+          w.append(lab, sel); tools.appendChild(w);
+        }
+      });
+
+      // Foto (optional) – wird im Entwurf gespeichert (base64)
+      const photoWrap=document.createElement('div'); photoWrap.className='input'; photoWrap.style.maxWidth='260px';
+      const photoLab=document.createElement('label'); photoLab.textContent='Foto (optional)';
+      const photo=document.createElement('input'); photo.type='file'; photo.accept='image/*;capture=camera';
+      const preview=document.createElement('img'); preview.style.maxWidth='120px'; preview.style.border='1px solid #ccc'; preview.style.borderRadius='6px'; preview.style.marginTop='6px';
+      if(STATE.items[item.id]?.photo){ preview.src=STATE.items[item.id].photo; photoWrap.appendChild(preview); }
+      photo.onchange=async ()=>{ const f=photo.files?.[0]; if(!f) return; const b64=await fToDataURL(f);
+        STATE.items[item.id]=STATE.items[item.id]||{}; STATE.items[item.id].photo=b64; preview.src=b64; if(!preview.parentNode) photoWrap.appendChild(preview); };
+      photoWrap.append(photoLab, photo); tools.appendChild(photoWrap);
+
+      wrap.append(label, tools);
+      details.appendChild(wrap);
+    });
+    card.appendChild(details);
+    container.appendChild(card);
+  });
+}
+function printPdf(){ window.print(); }
+window.addEventListener('DOMContentLoaded', ()=>{
+  loadState(); qs('#year').textContent=new Date().getFullYear();
+  const h=qs('#header'); renderHeader(h);
+  const s=qs('#sections'); renderSections(s);
+  qs('#save').addEventListener('click', saveState);
+  qs('#print').addEventListener('click', printPdf);
+  qs('#clear').addEventListener('click', ()=>{ if(confirm('Entwurf wirklich löschen?')){ localStorage.removeItem('serviceCheckDraft'); location.reload(); } });
+});
+</script>
+</body>
+</html>

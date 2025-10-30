@@ -1,54 +1,90 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Service Check – Wartungsprotokoll</title>
-<style>
-:root { --bg:#f5f7fa; --fg:#1f2a34; --muted:#6b7b8c; --accent:#3b5a78; --card:#ffffff; --line:#d9e0e7; }
-*{box-sizing:border-box} html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial,sans-serif;}
-header{position:sticky;top:0;z-index:10;background:var(--bg);border-bottom:1px solid var(--line);padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between}
-h1{font-size:18px;margin:0;}
-.container{padding:16px;max-width:900px;margin:0 auto}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 12px;margin:12px 0}
-.row{display:flex;gap:12px;flex-wrap:wrap}
-.input{flex:1;min-width:220px;display:flex;flex-direction:column;gap:6px}
-.input label{font-size:12px;color:var(--muted)}
-.input input, .input textarea, .input select{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fff}
-.details{border-top:1px dashed var(--line);margin-top:8px;padding-top:8px}
-summary{font-weight:600;cursor:pointer;list-style:none}
-summary::marker{display:none}
-.badge{display:inline-flex;gap:6px}
-.badge button{border:1px solid var(--line);border-radius:999px;padding:6px 10px;background:#fff;font-size:12px}
-.badge button.active{background:var(--accent);border-color:var(--accent);color:#fff}
-.toolbar{display:flex;gap:8px;flex-wrap:wrap}
-button.primary{background:var(--accent);border:none;color:#fff;border-radius:10px;padding:10px 12px}
-button.ghost{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
-.note{font-size:12px;color:var(--muted)}
-@media print{
-  header, .toolbar { display:none !important; }
-  body{background:#fff}
-  .container{max-width:none;margin:0;padding:0}
-  .card{break-inside:avoid;border:1px solid #999}
-  .input input, .input textarea{border:1px solid #999}
-  @page { size: A4 portrait; margin: 12mm; }
-}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Service Check – Wartungsprotokoll</title>
+  <style>
+    :root { --bg:#f5f7fa; --fg:#1f2a34; --muted:#6b7b8c; --accent:#3b5a78; --card:#ffffff; --line:#d9e0e7; }
+    body.dark { --bg:#11161b; --fg:#e6ecf2; --muted:#9db0c2; --accent:#6aa0d1; --card:#1a232b; --line:#2a3642; }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial,sans-serif;}
+    header{position:sticky;top:0;z-index:10;background:var(--bg);border-bottom:1px solid var(--line);padding:12px 16px;display:flex;gap:8px;align-items:center;justify-content:space-between}
+    h1{font-size:18px;margin:0;}
+    .container{padding:16px;max-width:900px;margin:0 auto}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 12px;margin:12px 0}
+    .row{display:flex;gap:12px;flex-wrap:wrap}
+    .input{flex:1;min-width:220px;display:flex;flex-direction:column;gap:6px}
+    .input label{font-size:12px;color:var(--muted)}
+    .req label::after{content:" *";color:#c0392b}
+    .input input, .input textarea, .input select{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fff;color:#111}
+    body.dark .input input, body.dark .input textarea, body.dark .input select{background:#0e1419;color:#e6ecf2;border-color:#2a3642}
+    .details{border-top:1px dashed var(--line);margin-top:8px;padding-top:8px}
+    summary{font-weight:600;cursor:pointer;list-style:none}
+    summary::marker{display:none}
+    .badge{display:inline-flex;gap:6px;align-items:center}
+    .chip{border:1px solid var(--line);border-radius:999px;padding:6px 10px;background:#fff;font-size:12px;cursor:pointer}
+    .chip.active{background:var(--accent);border-color:var(--accent);color:#fff}
+    .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    button.primary{background:var(--accent);border:none;color:#fff;border-radius:10px;padding:10px 12px;cursor:pointer}
+    button.ghost{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer}
+    .note{font-size:12px;color:var(--muted)}
+    .sep{height:1px;background:var(--line);margin:10px 0}
+    .printOnly{display:none}
+    .sig-pad{border:1px dashed var(--line); border-radius:8px; padding:8px}
+    .sig-canvas{width:100%; height:160px; background:#fff; border:1px solid var(--line); border-radius:6px; touch-action: none;}
+    .sig-tools{display:flex; gap:8px; margin-top:6px;}
+    .checkbox{display:flex; align-items:center; gap:6px; font-size:14px;}
+    @media print{
+      header, .toolbar { display:none !important; }
+      .printOnly{display:block}
+      body{background:#fff;color:#000}
+      .container{max-width:none;margin:0;padding:0}
+      .card{break-inside:avoid;border:1px solid #999}
+      .input input, .input textarea{border:1px solid #999}
+      @page { size: A4 portrait; margin: 12mm; }
+    }
+  </style>
 </head>
 <body>
   <header>
     <h1>Service Check – Wartungsprotokoll</h1>
     <div class="toolbar">
+      <button class="ghost" id="toggleTheme" title="Hell/Dunkel">🌗</button>
+      <button class="ghost" id="expandAll">Alle öffnen</button>
+      <button class="ghost" id="collapseAll">Alle schließen</button>
+      <span class="sep" style="width:1px"></span>
       <button class="ghost" id="save">Speichern</button>
+      <button class="ghost" id="export">Export (JSON)</button>
+      <label class="ghost" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer">
+        Import <input id="import" type="file" accept="application/json" style="display:none">
+      </label>
       <button class="ghost" id="clear">Entwurf löschen</button>
       <button class="primary" id="print">Drucken / PDF</button>
     </div>
   </header>
+
   <main class="container">
+    <div class="printOnly" style="margin-bottom:8px;">
+      <div style="font-weight:700">Service Check – Wartungsprotokoll</div>
+      <div style="font-size:12px">Erstellt am: <span id="printedAt"></span></div>
+    </div>
+
+    <!-- 1) Kopfbereich -> Wartungsprotokoll -->
     <section class="card">
-      <h2 style="margin:6px 0 12px 0;font-size:16px;">Kopfbereich</h2>
+      <h2 style="margin:6px 0 12px 0;font-size:16px;">Wartungsprotokoll</h2>
       <div id="header"></div>
-      <div class="note" style="margin-top:8px;">Nur App-Branding. Firmenlogo folgt später über Anmeldung.</div>
+    </section>
+
+    <!-- 4) Separates Info-Feld -->
+    <section class="card">
+      <details id="infoDetails">
+        <summary>ℹ️ Hinweise anzeigen/ausblenden</summary>
+        <div class="details">
+          <div class="note" style="margin-bottom:6px;">Links/Rechts = Ansicht vom Schaltschrank Richtung Hubrahmen</div>
+          <div class="note">i.O. = in Ordnung ; Fehler = Mangel ; n.v. = nicht vorhanden</div>
+        </div>
+      </details>
     </section>
 
     <section id="sections"></section>
@@ -56,9 +92,24 @@ button.ghost{background:#fff;border:1px solid var(--line);border-radius:10px;pad
     <section class="card" style="margin-bottom:60px">
       <h2 style="margin:6px 0 12px 0;font-size:16px;">Unterschriften</h2>
       <div class="row">
-        <div class="input"><label>Unterschrift Prüfer</label><input placeholder="Name / Unterschrift"></div>
-        <div class="input"><label>Unterschrift Kunde</label><input placeholder="Name / Unterschrift"></div>
-        <div class="input"><label>Datum</label><input type="date"></div>
+        <div class="input sig-pad">
+          <label>Unterschrift Prüfer</label>
+          <canvas id="sig1" class="sig-canvas"></canvas>
+          <div class="sig-tools">
+            <button class="ghost" id="sig1_clear">Löschen</button>
+          </div>
+        </div>
+        <div class="input sig-pad">
+          <label>Unterschrift Kunde</label>
+          <canvas id="sig2" class="sig-canvas"></canvas>
+          <div class="sig-tools">
+            <button class="ghost" id="sig2_clear">Löschen</button>
+          </div>
+        </div>
+        <div class="input">
+          <label>Datum (TT/MM/JJJJ)</label>
+          <input id="sigDate" placeholder="TT/MM/JJJJ">
+        </div>
       </div>
     </section>
 
@@ -66,184 +117,295 @@ button.ghost{background:#fff;border:1px solid var(--line);border-radius:10px;pad
   </main>
 
 <script>
-const TEMPLATE = {
-  "title": "RBG 1-Mast (Tandem) – Wartungsprotokoll",
-  "orientationNote": "Links/Rechts = Ansicht vom Schaltschrank Richtung Hubrahmen",
-  "headerFields": [
-    {"key":"projekt","label":"Projekt"},
-    {"key":"anlagenteil","label":"Anlagenteil"},
-    {"key":"datum","label":"Datum"},
-    {"key":"betriebsstunden","label":"Betriebsstunden"},
-    {"key":"durchfuehrender","label":"Durchführender"},
-    {"key":"auftragsnummer","label":"Auftragsnummer","optional":true},
-    {"key":"betreiber","label":"Betreiber","optional":true},
-    {"key":"herkunft","label":"Ursprung","optional":true}
-  ],
-  "sections": [
-    {"id":"gasse","title":"Gasse / Ausrüstung","items":[
-      {"id":"schleifleitung","label":"Schleifleitung / Abnehmer","fields":[{"type":"status"},{"type":"note"}]},
-      {"id":"fahrschiene","label":"Fahrschiene (Befestigung/Tragbild)","fields":[{"type":"status"},{"type":"note"}]},
-      {"id":"oberfuehrung","label":"Obere Führungsschiene (Befestigung)","fields":[{"type":"status"},{"type":"note"}]},
-      {"id":"puffer","label":"Puffer / Festanschläge (Befestigung)","fields":[{"type":"status"},{"type":"note"}]}
+  const REQUIRED_HEADER_KEYS = ['projekt','anlagenteil','datum','durchfuehrender'];
+
+  // 3) Ursprung entfernt
+  const HEADER_FIELDS = [
+    {key:'projekt', label:'Projekt'},
+    {key:'anlagenteil', label:'Anlagenteil'},
+    {key:'datum', label:'Datum (TT/MM/JJJJ)'},
+    {key:'betriebsstunden', label:'Betriebsstunden'},
+    {key:'durchfuehrender', label:'Durchführender'},
+    {key:'auftragsnummer', label:'Auftragsnummer', optional:true},
+    {key:'betreiber', label:'Betreiber', optional:true}
+  ];
+
+  const SECTIONS = [
+    { id:'gasse', title:'Gasse / Ausrüstung', items:[
+      {id:'schleifleitung', label:'Schleifleitung / Stromabnehmer', fields:[{type:'status'},{type:'note'}]},
+      {id:'fahrschiene', label:'Fahrschiene (Befestigung/Tragbild)', fields:[{type:'status'},{type:'note'}]},
+      {id:'oberfuehrung', label:'Obere Führungsschiene (Befestigung, Verbindungen)', fields:[{type:'status'},{type:'note'}]},
+      {id:'puffer', label:'Puffer / Festanschläge (Befestigung)', fields:[{type:'status'},{type:'note'}]}
     ]},
-    {"id":"fahrwerk","title":"Fahrwerk / Führungsrollen / Laufräder","items":[
-      {"id":"laufrad_vl","label":"Laufrad vorn links – Tragbild/Durchmesser","fields":[{"type":"status"},{"type":"measurement","label":"Durchmesser","unit":"mm"},{"type":"note"}]},
-      {"id":"laufrad_vr","label":"Laufrad vorn rechts – Tragbild/Durchmesser","fields":[{"type":"status"},{"type":"measurement","label":"Durchmesser","unit":"mm"},{"type":"note"}]},
-      {"id":"laufrad_hl","label":"Laufrad hinten links – Tragbild/Durchmesser","fields":[{"type":"status"},{"type":"measurement","label":"Durchmesser","unit":"mm"},{"type":"note"}]},
-      {"id":"laufrad_hr","label":"Laufrad hinten rechts – Tragbild/Durchmesser","fields":[{"type":"status"},{"type":"measurement","label":"Durchmesser","unit":"mm"},{"type":"note"}]},
-      {"id":"schienenraeumer","label":"Schienenräumer – Resthöhe","fields":[{"type":"status"},{"type":"measurement","label":"Resthöhe","unit":"mm"},{"type":"note"}]},
-      {"id":"fuehrungsrollen_unten","label":"Führungsrollen unten – Tragbild/Spiel","fields":[{"type":"status"},{"type":"measurement","label":"Spiel vorn","unit":"mm"},{"type":"measurement","label":"Spiel hinten","unit":"mm"},{"type":"note"}]},
-      {"id":"fuehrungsrollen_oben","label":"Führungsrollen oben – Tragbild/Spiel","fields":[{"type":"status"},{"type":"measurement","label":"Spiel","unit":"mm"},{"type":"note"}]}
+
+    { id:'fahrwagen', title:'Fahrwagen / Führungsrollen / Laufräder', items:[
+      {id:'fw_befestigung', label:'Fahrwerk – Befestigung', fields:[{type:'status'},{type:'note'}]},
+      {id:'fw_motor', label:'Fahrwerk – Motor', fields:[{type:'status'},{type:'note'}]},
+      {id:'fw_drehmomentstuetze', label:'Fahrwerk – Drehmomentstütze', fields:[{type:'status'},{type:'note'}]},
+
+      {id:'fr_hl', label:'Führungsrolle Fahrwagen hinten links', fields:[{type:'status'},{type:'measurement',label:'Spaltmaß',unit:'mm'},{type:'note'}]},
+      {id:'fr_hr', label:'Führungsrolle Fahrwagen hinten rechts', fields:[{type:'status'},{type:'measurement',label:'Spaltmaß',unit:'mm'},{type:'note'}]},
+      {id:'fr_vl', label:'Führungsrolle Fahrwagen vorn links', fields:[{type:'status'},{type:'measurement',label:'Spaltmaß',unit:'mm'},{type:'note'}]},
+      {id:'fr_vr', label:'Führungsrolle Fahrwagen vorn rechts', fields:[{type:'status'},{type:'measurement',label:'Spaltmaß',unit:'mm'},{type:'note'}]},
+
+      {id:'lr_angetrieben', label:'Laufrad angetrieben', fields:[{type:'status'},{type:'measurement',label:'Einlauftiefe',unit:'mm'},{type:'note'}]},
+      {id:'lr_nichtangetrieben', label:'Laufrad nicht angetrieben', fields:[{type:'status'},{type:'measurement',label:'Einlauftiefe',unit:'mm'},{type:'note'}]}
     ]},
-    {"id":"hubwerk","title":"Hubwerk","items":[
-      {"id":"befestigungen_allg","label":"Befestigungen (allg.)","fields":[{"type":"status"},{"type":"note"}]},
-      {"id":"als_bremse","label":"Bremse – Arbeitsluftspalt (nach Herstellervorgabe)","fields":[{"type":"status"},{"type":"measurement","label":"ALS","unit":"mm"},{"type":"note"}]},
-      {"id":"oeldichtheit","label":"Dichtungen / Öldichtheit","fields":[{"type":"status"},{"type":"note"}]},
-      {"id":"letzter_oelwechsel","label":"Letzter Ölwechsel","fields":[{"type":"date","label":"Datum"}]},
-      {"id":"naechster_oelwechsel","label":"Nächster Ölwechsel","fields":[{"type":"date","label":"Datum"}]},
-      {"id":"hubseil","label":"Hubseil – Sichtprüfung (ISO 4309), Ablegereife","fields":[{"type":"status"},{"type":"note"}]},
-      {"id":"seiltrommel","label":"Seiltrommel / Umlenkrollen – Rillung/Einlauftiefe","fields":[{"type":"status"},{"type":"measurement","label":"Einlauftiefe links","unit":"mm"},{"type":"measurement","label":"Einlauftiefe rechts","unit":"mm"},{"type":"note"}]},
-      {"id":"energiekette","label":"Energiekette – Kabel/Verbindung","fields":[{"type":"status"},{"type":"note"}]}
+
+    { id:'hubwerk', title:'Hubwerk', items:[
+      {id:'befestigungen_allg', label:'Befestigungen (allg.)', fields:[{type:'status'},{type:'note'}]},
+      {id:'als_bremse', label:'Bremse – Arbeitsluftspalt (nach Herstellervorgabe)', fields:[{type:'status'},{type:'measurement',label:'ALS',unit:'mm'},{type:'note'}]},
+      {id:'oeldichtheit', label:'Dichtungen / Öldichtheit', fields:[{type:'status'},{type:'note'}]},
+
+      {id:'hubseil', label:'Hubseil – Sichtprüfung (ISO 4309), Ablegereife', fields:[{type:'status'},{type:'measurement',label:'Seildicke',unit:'mm'},{type:'note'}]},
+
+      {id:'seiltrommel_rillung', label:'Seiltrommel – Seilrillung kontrollieren', fields:[{type:'status'},{type:'note'}]},
+      {id:'seiltrommel_lagerung', label:'Seiltrommel – Lagerung nachschmieren', fields:[{type:'status'},{type:'lubricated'},{type:'note'}]},
+
+      {id:'uml_kopftraverse', label:'Seilumlenkrollen – Kopftraverse (Einlauftiefe prüfen, nachschmieren)', fields:[{type:'status'},{type:'measurement',label:'Einlauftiefe',unit:'mm'},{type:'lubricated'},{type:'note'}]},
+      {id:'uml_kopftraverse_vorne', label:'Seilumlenkrollen – Kopftraverse vorne (Einlauftiefe prüfen, nachschmieren)', fields:[{type:'status'},{type:'measurement',label:'Einlauftiefe',unit:'mm'},{type:'lubricated'},{type:'note'}]},
+      {id:'uml_hubrahmen', label:'Seilumlenkrollen – Hubrahmen (Einlauftiefe prüfen, nachschmieren)', fields:[{type:'status'},{type:'measurement',label:'Einlauftiefe',unit:'mm'},{type:'lubricated'},{type:'note'}]},
+
+      {id:'energiekette', label:'Energiekette/Schleifleitung – Beschädigungen kontrollieren', fields:[{type:'status'},{type:'note'}]},
+      {id:'energiekette_uebergaenge', label:'Energiekette/Schleifleitung – Übergänge kontrollieren', fields:[{type:'status'},{type:'note'}]},
+      {id:'energiekette_festpunkte', label:'Energiekette/Schleifleitung – Festpunkte Festsitz prüfen', fields:[{type:'status'},{type:'note'}]}
     ]},
-    {"id":"tisch_kette_antrieb","title":"Teleskoptisch / Kettensystem / Antrieb","items":[
-      {"id":"kurvenrollen","label":"Kurvenrollen","fields":[{"type":"status"},{"type":"note"}]},
-      {"id":"schleifleisten","label":"Schleifleisten (einstellen falls nötig)","fields":[{"type":"status"},{"type":"note"}]},
-      {"id":"zahnstange","label":"Zahnstange / Rollen / Gleitleisten","fields":[{"type":"status"},{"type":"note"}]},
-      {"id":"stuetzrollen","label":"Stützrollen","fields":[{"type":"status"},{"type":"note"}]},
-      {"id":"getriebe","label":"Getriebe","fields":[{"type":"status"},{"type":"note"}]},
-      {"id":"ketten","label":"Ketten – nachspannen & schmieren","fields":[{"type":"status"},{"type":"note"}]},
-      {"id":"kettenspanner","label":"Kettenspanner","fields":[{"type":"status"},{"type":"note"}]},
-      {"id":"umlenkrollen","label":"Umlenkrollen / Kettenräder","fields":[{"type":"status"},{"type":"note"}]},
-      {"id":"kupplung","label":"Kupplung","fields":[{"type":"status"},{"type":"note"}]},
-      {"id":"gelenkwelle","label":"Gelenkwelle","fields":[{"type":"status"},{"type":"note"}]}
+
+    { id:'tisch_kette_antrieb', title:'Teleskoptisch / Kettensystem / Antrieb', items:[
+      {id:'oberteilauflage', label:'Oberteilauflage', fields:[{type:'status'},{type:'note'}]},
+      {id:'kurvenrollen', label:'Kurvenrollen', fields:[{type:'status'},{type:'note'}]},
+      {id:'schleifleisten', label:'Schleifleisten (einstellen falls nötig)', fields:[{type:'status'},{type:'note'}]},
+      {id:'zahnstange', label:'Zahnstange / Rollen / Gleitleisten', fields:[{type:'status'},{type:'note'}]},
+      {id:'stuetzrollen', label:'Stützrollen', fields:[{type:'status'},{type:'note'}]},
+      {id:'getriebe', label:'Getriebe', fields:[{type:'status'},{type:'note'}]},
+      {id:'ketten', label:'Ketten – nachspannen & schmieren', fields:[{type:'status'},{type:'lubricated'},{type:'note'}]},
+      {id:'kettenspanner', label:'Kettenspanner', fields:[{type:'status'},{type:'note'}]},
+      {id:'umlenkrollen_ketten', label:'Umlenkrollen / Kettenräder', fields:[{type:'status'},{type:'lubricated'},{type:'note'}]},
+      {id:'kupplung', label:'Kupplung', fields:[{type:'status'},{type:'note'}]},
+      {id:'gelenkwelle', label:'Gelenkwelle', fields:[{type:'status'},{type:'note'}]}
     ]},
-    {"id":"wiederkehrende_pruefung","title":"Wiederkehrende Prüfung (Sicherheit)","items":[
-      {"id":"notauskette","label":"Not-Aus-Kette inkl. Verriegelungen – Funktionsprüfung","fields":[{"type":"status"},{"type":"note"}]},
-      {"id":"endpositionen","label":"Endpositionen Wartung/Semiautomatik anfahren","fields":[{"type":"status"},{"type":"note"}]},
-      {"id":"bremsweg","label":"Bremsweg (ohne Last, niedrige Geschwindigkeit)","fields":[{"type":"status"},{"type":"note"}]},
-      {"id":"fangsystem","label":"Fangsystem / Geschwindigkeitsbegrenzer / Gestänge","fields":[{"type":"status"},{"type":"note"}]},
-      {"id":"lastmesseinheit","label":"Lastmesseinheit (Über-/Unterlast) – Test","fields":[{"type":"status"},{"type":"note"}]},
-      {"id":"sensorik","label":"Sicherheitsrelevante Sensorik / Lichtschranken","fields":[{"type":"status"},{"type":"note"}]},
-      {"id":"pruefbuch","label":"Prüfbuch vorhanden und Eintrag vorgenommen","fields":[{"type":"status"},{"type":"note"}]},
-      {"id":"bedenken","label":"Bedenken gegen weiteren Betrieb","fields":[{"type":"status"},{"type":"note"}]}
+
+    { id:'wiederkehrende_pruefung', title:'Wiederkehrende Prüfung (Sicherheit)', items:[
+      {id:'notauskette', label:'Not-Aus-Kette inkl. Verriegelungen – Funktionsprüfung', fields:[{type:'status'},{type:'note'}]},
+      {id:'endpositionen', label:'Endpositionen Wartung/Semiautomatik anfahren', fields:[{type:'status'},{type:'note'}]},
+      {id:'bremsweg', label:'Bremsweg (ohne Last, niedrige Geschwindigkeit)', fields:[{type:'status'},{type:'note'}]},
+      {id:'fangsystem', label:'Fangsystem / Geschwindigkeitsbegrenzer / Gestänge', fields:[{type:'status'},{type:'note'}]},
+      {id:'lastmesseinheit', label:'Lastmesseinheit (Über-/Unterlast) – Test', fields:[{type:'status'},{type:'note'}]},
+      {id:'sensorik', label:'Sicherheitsrelevante Sensorik / Lichtschranken', fields:[{type:'status'},{type:'note'}]},
+      {id:'pruefbuch', label:'Prüfbuch vorhanden und Eintrag vorgenommen', fields:[{type:'status'},{type:'note'}]},
+      {id:'bedenken', label:'Bedenken gegen weiteren Betrieb', fields:[{type:'status'},{type:'note'}]}
     ]},
-    {"id":"maengelliste","title":"Mängelliste","items":[
-      {"id":"maengel","label":"Mängel / Beanstandungen (Freitext)","fields":[{"type":"note"}]},
-      {"id":"schmierstoffe","label":"Wurden die Schmierstoffe zur Verfügung gestellt?","fields":[{"type":"yesno"}]}
+
+    { id:'maengelliste', title:'Mängelliste', items:[
+      {id:'maengel', label:'Mängel / Beanstandungen (Freitext)', fields:[{type:'note'}]},
+      {id:'schmierstoffe', label:'Wurden die Schmierstoffe zur Verfügung gestellt?', fields:[{type:'yesno'}]}
     ]}
-  ]
-};
-let STATE = { header:{}, items:{} };
+  ];
 
-function qs(sel, el=document){ return el.querySelector(sel); }
-function qsa(sel, el=document){ return Array.from(el.querySelectorAll(sel)); }
-function loadState(){
-  try{ const raw=localStorage.getItem('serviceCheckDraft'); if(raw) STATE=JSON.parse(raw); }catch(e){}
-  if(!STATE.header) STATE.header={};
-  if(!STATE.items) STATE.items={};
-  if(!STATE.header.datum) STATE.header.datum = new Date().toISOString().slice(0,10);
-}
-function saveState(){ localStorage.setItem('serviceCheckDraft', JSON.stringify(STATE)); toast('Entwurf gespeichert.'); }
-function toast(msg){
-  const t=document.createElement('div'); t.textContent=msg;
-  Object.assign(t.style,{position:'fixed',bottom:'20px',left:'50%',transform:'translateX(-50%)',background:'#1f2a34',color:'#fff',padding:'8px 12px',borderRadius:'8px',zIndex:'9999',fontSize:'13px'});
-  document.body.appendChild(t); setTimeout(()=>t.remove(),1600);
-}
-function renderHeader(container){
-  const row=document.createElement('div'); row.className='row';
-  TEMPLATE.headerFields.forEach(f=>{
-    const wrap=document.createElement('div'); wrap.className='input';
-    const lab=document.createElement('label'); lab.textContent=f.label;
-    const inp=document.createElement('input'); inp.placeholder=f.label; inp.value=STATE.header[f.key]||'';
-    inp.oninput=()=>{ STATE.header[f.key]=inp.value; };
-    wrap.append(lab, inp); row.appendChild(wrap);
-  });
-  container.appendChild(row);
-  const note=document.createElement('div'); note.className='note'; note.textContent=TEMPLATE.orientationNote||'';
-  container.appendChild(note);
-}
-function fToDataURL(file){ return new Promise(res=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.readAsDataURL(file); }); }
-function renderSections(container){
-  TEMPLATE.sections.forEach(section=>{
-    const card=document.createElement('div'); card.className='card';
-    const details=document.createElement('details');
-    const summary=document.createElement('summary'); summary.textContent=section.title;
-    details.appendChild(summary);
-    section.items.forEach(item=>{
-      const wrap=document.createElement('div'); wrap.className='details';
-      const label=document.createElement('div'); label.textContent=item.label; label.style.marginBottom='6px'; label.style.fontWeight='500';
-      const tools=document.createElement('div'); tools.className='row';
+  let STATE = { header: {}, items: {}, signatures: {sig1: null, sig2: null}, datum_ddmmyyyy: null };
+  let saveTimer = null;
 
-      // Status
-      const status=document.createElement('div'); status.className='badge';
-      [{k:'io',t:'i.O.'},{k:'fehler',t:'Fehler'},{k:'nv',t:'n.v.'}].forEach(opt=>{
-        const b=document.createElement('button'); b.textContent=opt.t;
-        const cur=STATE.items[item.id]?.status; if(cur===opt.k) b.classList.add('active');
-        b.onclick=()=>{ STATE.items[item.id]=STATE.items[item.id]||{}; STATE.items[item.id].status=opt.k;
-          qsa('button',status).forEach(x=>x.classList.remove('active')); b.classList.add('active'); };
-        status.appendChild(b);
-      });
-      tools.appendChild(status);
+  function qs(sel, el=document){ return el.querySelector(sel); }
+  function qsa(sel, el=document){ return Array.from(el.querySelectorAll(sel)); }
+  function debounceSave(){ if(saveTimer) clearTimeout(saveTimer); saveTimer=setTimeout(saveState,400); }
+  function toDDMMYYYY(d){ const pad=n=>String(n).padStart(2,'0'); return pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear(); }
+  function isValidDDMMYYYY(s){ return /^\d{2}\/\d{2}\/\d{4}$/.test(s); }
 
-      // Felder
-      (item.fields||[]).forEach(f=>{
-        if(f.type==='note'){
-          const w=document.createElement('div'); w.className='input'; w.style.minWidth='260px';
-          const lab=document.createElement('label'); lab.textContent='Bemerkung';
-          const ta=document.createElement('textarea'); ta.rows=2; ta.value=STATE.items[item.id]?.note||'';
-          ta.oninput=()=>{ STATE.items[item.id]=STATE.items[item.id]||{}; STATE.items[item.id].note=ta.value; };
-          w.append(lab, ta); tools.appendChild(w);
-        }
-        if(f.type==='measurement'){
-          const w=document.createElement('div'); w.className='input'; w.style.maxWidth='180px';
-          const lab=document.createElement('label'); lab.textContent=f.label+' ('+f.unit+')';
-          const inp=document.createElement('input'); inp.type='number'; inp.value=STATE.items[item.id]?.[f.label]||'';
-          inp.oninput=()=>{ STATE.items[item.id]=STATE.items[item.id]||{}; STATE.items[item.id][f.label]=inp.value; };
-          w.append(lab, inp); tools.appendChild(w);
-        }
-        if(f.type==='date'){
-          const w=document.createElement('div'); w.className='input'; w.style.maxWidth='200px';
-          const lab=document.createElement('label'); lab.textContent=f.label;
-          const inp=document.createElement('input'); inp.type='date'; inp.value=STATE.items[item.id]?.[f.label]||'';
-          inp.oninput=()=>{ STATE.items[item.id]=STATE.items[item.id]||{}; STATE.items[item.id][f.label]=inp.value; };
-          w.append(lab, inp); tools.appendChild(w);
-        }
-        if(f.type==='yesno'){
-          const w=document.createElement('div'); w.className='input'; w.style.maxWidth='180px';
-          const lab=document.createElement('label'); lab.textContent='Ja/Nein';
-          const sel=document.createElement('select'); sel.innerHTML='<option value=\"\">–</option><option>Ja</option><option>Nein</option>';
-          sel.value=STATE.items[item.id]?.yesno||'';
-          sel.onchange=()=>{ STATE.items[item.id]=STATE.items[item.id]||{}; STATE.items[item.id].yesno=sel.value; };
-          w.append(lab, sel); tools.appendChild(w);
-        }
-      });
+  function loadState(){
+    try{ const raw=localStorage.getItem('serviceCheckDraft'); if(raw) STATE=JSON.parse(raw); }catch(e){}
+    if(!STATE.header) STATE.header={};
+    if(!STATE.items) STATE.items={};
+    if(!STATE.signatures) STATE.signatures={sig1:null, sig2:null};
+    if(!STATE.header.datum) STATE.header.datum = toDDMMYYYY(new Date());
+    if(!STATE.datum_ddmmyyyy) STATE.datum_ddmmyyyy = STATE.header.datum;
+  }
+  function saveState(){ localStorage.setItem('serviceCheckDraft', JSON.stringify(STATE)); toast('Entwurf gespeichert.'); }
+  function exportJson(){ const blob=new Blob([JSON.stringify(STATE,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='service_check_export.json'; a.click(); URL.revokeObjectURL(url); }
+  function importJson(file){ const r=new FileReader(); r.onload=()=>{ try{ STATE=JSON.parse(r.result); location.reload(); }catch(e){ alert('Ungültige JSON-Datei.'); } }; r.readAsText(file); }
+  function toast(msg){ const t=document.createElement('div'); t.textContent=msg; Object.assign(t.style,{position:'fixed',bottom:'20px',left:'50%',transform:'translateX(-50%)',background:'#1f2a34',color:'#fff',padding:'8px 12px',borderRadius:'8px',zIndex:'9999',fontSize:'13px'}); document.body.appendChild(t); setTimeout(()=>t.remove(),1200); }
 
-      // Foto (optional) – wird im Entwurf gespeichert (base64)
-      const photoWrap=document.createElement('div'); photoWrap.className='input'; photoWrap.style.maxWidth='260px';
-      const photoLab=document.createElement('label'); photoLab.textContent='Foto (optional)';
-      const photo=document.createElement('input'); photo.type='file'; photo.accept='image/*;capture=camera';
-      const preview=document.createElement('img'); preview.style.maxWidth='120px'; preview.style.border='1px solid #ccc'; preview.style.borderRadius='6px'; preview.style.marginTop='6px';
-      if(STATE.items[item.id]?.photo){ preview.src=STATE.items[item.id].photo; photoWrap.appendChild(preview); }
-      photo.onchange=async ()=>{ const f=photo.files?.[0]; if(!f) return; const b64=await fToDataURL(f);
-        STATE.items[item.id]=STATE.items[item.id]||{}; STATE.items[item.id].photo=b64; preview.src=b64; if(!preview.parentNode) photoWrap.appendChild(preview); };
-      photoWrap.append(photoLab, photo); tools.appendChild(photoWrap);
-
-      wrap.append(label, tools);
-      details.appendChild(wrap);
+  function renderHeader(container){
+    const row=document.createElement('div'); row.className='row';
+    HEADER_FIELDS.forEach(f=>{
+      const wrap=document.createElement('div'); wrap.className='input' + (REQUIRED_HEADER_KEYS.includes(f.key) ? ' req' : '');
+      const lab=document.createElement('label'); lab.textContent=f.label;
+      const inp=document.createElement('input'); inp.placeholder=f.label;
+      if(f.key==='datum'){
+        inp.type='text'; inp.inputMode='numeric'; inp.maxLength=10; inp.placeholder='TT/MM/JJJJ';
+        inp.value=STATE.datum_ddmmyyyy || toDDMMYYYY(new Date());
+        inp.oninput=()=>{ let v=inp.value.replace(/[^0-9]/g,''); if(v.length>2) v=v.slice(0,2)+'/'+v.slice(2); if(v.length>5) v=v.slice(0,5)+'/'+v.slice(5,9); inp.value=v; STATE.header.datum=v; STATE.datum_ddmmyyyy=v; debounceSave(); };
+        inp.onblur=()=>{ if(!isValidDDMMYYYY(inp.value)) alert('Bitte Datum als TT/MM/JJJJ eingeben.'); };
+      } else {
+        inp.value=STATE.header[f.key]||''; inp.oninput=()=>{ STATE.header[f.key]=inp.value; debounceSave(); };
+      }
+      wrap.append(lab, inp); row.appendChild(wrap);
     });
-    card.appendChild(details);
-    container.appendChild(card);
+    container.appendChild(row);
+  }
+
+  function fToDataURLScaled(file, maxSide=1600, quality=0.75){
+    return new Promise((resolve)=>{
+      const r=new FileReader();
+      r.onload=()=>{
+        const img=new Image();
+        img.onload=()=>{
+          let w=img.width,h=img.height;
+          if(w>h && w>maxSide){ h=Math.round(h*maxSide/w); w=maxSide; }
+          else if(h>maxSide){ w=Math.round(w*maxSide/h); h=maxSide; }
+          const cv=document.createElement('canvas'); cv.width=w; cv.height=h;
+          const cx=cv.getContext('2d'); cx.drawImage(img,0,0,w,h);
+          resolve(cv.toDataURL('image/jpeg', quality));
+        };
+        img.src=r.result;
+      };
+      r.readAsDataURL(file);
+    });
+  }
+
+  function renderSections(container){
+    SECTIONS.forEach(section=>{
+      const card=document.createElement('div'); card.className='card';
+      const details=document.createElement('details');
+      const summary=document.createElement('summary'); summary.textContent=section.title;
+      details.appendChild(summary);
+
+      section.items.forEach(item=>{
+        const wrap=document.createElement('div'); wrap.className='details';
+        const label=document.createElement('div'); label.textContent=item.label; label.style.marginBottom='6px'; label.style.fontWeight='500';
+        const tools=document.createElement('div'); tools.className='row';
+
+        const hasStatus=(item.fields||[]).some(f=>f.type==='status');
+        if(hasStatus){
+          const status=document.createElement('div'); status.className='badge';
+          [{k:'io',t:'i.O.'},{k:'fehler',t:'Fehler'},{k:'nv',t:'n.v.'}].forEach(opt=>{
+            const b=document.createElement('button'); b.className='chip'; b.textContent=opt.t;
+            const cur=STATE.items[item.id]?.status; if(cur===opt.k) b.classList.add('active');
+            b.onclick=()=>{ STATE.items[item.id]=STATE.items[item.id]||{}; STATE.items[item.id].status=opt.k; qsa('.chip',status).forEach(x=>x.classList.remove('active')); b.classList.add('active'); debounceSave(); };
+            status.appendChild(b);
+          });
+          tools.appendChild(status);
+        }
+
+        (item.fields||[]).forEach(f=>{
+          if(f.type==='note'){
+            const w=document.createElement('div'); w.className='input'; w.style.minWidth='260px';
+            const lab=document.createElement('label'); lab.textContent='Bemerkung';
+            const ta=document.createElement('textarea'); ta.rows=2; ta.value=STATE.items[item.id]?.note||'';
+            ta.oninput=()=>{ STATE.items[item.id]=STATE.items[item.id]||{}; STATE.items[item.id].note=ta.value; debounceSave(); };
+            w.append(lab, ta); tools.appendChild(w);
+          }
+          if(f.type==='measurement'){
+            const w=document.createElement('div'); w.className='input'; w.style.maxWidth='180px';
+            const lab=document.createElement('label'); lab.textContent=f.label+' ('+f.unit+')';
+            const inp=document.createElement('input'); inp.type='number'; inp.value=STATE.items[item.id]?.[f.label]||'';
+            inp.oninput=()=>{ STATE.items[item.id]=STATE.items[item.id]||{}; STATE.items[item.id][f.label]=inp.value; debounceSave(); };
+            w.append(lab, inp); tools.appendChild(w);
+          }
+          if(f.type==='date'){
+            const w=document.createElement('div'); w.className='input'; w.style.maxWidth='200px';
+            const lab=document.createElement('label'); lab.textContent=f.label;
+            const inp=document.createElement('input'); inp.type='date'; inp.value=STATE.items[item.id]?.[f.label]||'';
+            inp.oninput=()=>{ STATE.items[item.id]=STATE.items[item.id]||{}; STATE.items[item.id][f.label]=inp.value; debounceSave(); };
+            w.append(lab, inp); tools.appendChild(w);
+          }
+          if(f.type==='yesno'){
+            const w=document.createElement('div'); w.className='input'; w.style.maxWidth='180px';
+            const lab=document.createElement('label'); lab.textContent='Ja/Nein';
+            const sel=document.createElement('select'); sel.innerHTML='<option value="">–</option><option>Ja</option><option>Nein</option>';
+            sel.value=STATE.items[item.id]?.yesno||'';
+            sel.onchange=()=>{ STATE.items[item.id]=STATE.items[item.id]||{}; STATE.items[item.id].yesno=sel.value; debounceSave(); };
+            w.append(lab, sel); tools.appendChild(w);
+          }
+          if(f.type==='lubricated'){
+            const w=document.createElement('div'); w.className='input'; w.style.maxWidth='200px';
+            const lab=document.createElement('label'); lab.textContent='';
+            const box=document.createElement('div'); box.className='checkbox';
+            const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=!!STATE.items[item.id]?.geschmiert;
+            const span=document.createElement('span'); span.textContent='geschmiert';
+            cb.onchange=()=>{ STATE.items[item.id]=STATE.items[item.id]||{}; STATE.items[item.id].geschmiert=cb.checked; debounceSave(); };
+            box.append(cb, span); w.append(lab, box); tools.appendChild(w);
+          }
+        });
+
+        const photoWrap=document.createElement('div'); photoWrap.className='input'; photoWrap.style.maxWidth='260px';
+        const photoLab=document.createElement('label'); photoLab.textContent='Foto (optional)';
+        const photo=document.createElement('input'); photo.type='file'; photo.accept='image/*;capture=camera';
+        const preview=document.createElement('img'); preview.style.maxWidth='120px'; preview.style.border='1px solid var(--line)'; preview.style.borderRadius='6px'; preview.style.marginTop='6px';
+        if(STATE.items[item.id]?.photo){ preview.src=STATE.items[item.id].photo; photoWrap.appendChild(preview); }
+        photo.onchange=async ()=>{ const f=photo.files?.[0]; if(!f) return;
+          const b64=await fToDataURLScaled(f,1600,0.75);
+          STATE.items[item.id]=STATE.items[item.id]||{}; STATE.items[item.id].photo=b64; preview.src=b64;
+          if(!preview.parentNode) photoWrap.appendChild(preview); debounceSave(); };
+        photoWrap.append(photoLab, photo); tools.appendChild(photoWrap);
+
+        wrap.append(label, tools);
+        details.appendChild(wrap);
+      });
+
+      card.appendChild(details);
+      container.appendChild(card);
+    });
+  }
+
+  function signaturePad(canvasId, clearBtnId, key){
+    const canvas=qs('#'+canvasId);
+    const clearBtn=qs('#'+clearBtnId);
+    const ctx=canvas.getContext('2d');
+    function resize(){
+      const ratio=Math.max(window.devicePixelRatio||1,1);
+      const rect=canvas.getBoundingClientRect();
+      canvas.width=rect.width*ratio; canvas.height=rect.height*ratio;
+      ctx.scale(ratio,ratio); ctx.lineWidth=2; ctx.lineCap='round'; ctx.strokeStyle='#111';
+      if(STATE.signatures[key]){ const img=new Image(); img.onload=()=>ctx.drawImage(img,0,0,rect.width,rect.height); img.src=STATE.signatures[key]; }
+    }
+    let drawing=false,lastX=0,lastY=0;
+    function start(x,y){ drawing=true; lastX=x; lastY=y; }
+    function move(x,y){ if(!drawing) return; ctx.beginPath(); ctx.moveTo(lastX,lastY); ctx.lineTo(x,y); ctx.stroke(); lastX=x; lastY=y; }
+    function end(){ drawing=false; STATE.signatures[key]=canvas.toDataURL('image/png'); debounceSave(); }
+    function getPos(e){ const r=canvas.getBoundingClientRect(); const x=(e.touches?e.touches[0].clientX:e.clientX)-r.left; const y=(e.touches?e.touches[0].clientY:e.clientY)-r.top; return {x,y}; }
+    window.addEventListener('resize',resize);
+    resize();
+    canvas.addEventListener('mousedown', e=>{const p=getPos(e); start(p.x,p.y);});
+    canvas.addEventListener('mousemove', e=>{const p=getPos(e); move(p.x,p.y);});
+    window.addEventListener('mouseup', end);
+    canvas.addEventListener('touchstart', e=>{const p=getPos(e); start(p.x,p.y); e.preventDefault();});
+    canvas.addEventListener('touchmove', e=>{const p=getPos(e); move(p.x,p.y); e.preventDefault();});
+    canvas.addEventListener('touchend', end);
+    clearBtn.addEventListener('click', ()=>{ ctx.clearRect(0,0,canvas.width,canvas.height); STATE.signatures[key]=null; debounceSave(); });
+  }
+
+  function validateRequired(){
+    const missing = REQUIRED_HEADER_KEYS.filter(k => !(STATE.header[k] && String(STATE.header[k]).trim().length));
+    if(missing.includes('datum') && !isValidDDMMYYYY(STATE.header['datum']||'')) { alert('Bitte Datum als TT/MM/JJJJ eingeben.'); return false; }
+    if(missing.length){ alert('Bitte Pflichtfelder ausfüllen: ' + missing.join(', ')); return false; }
+    return true;
+  }
+  function expandAll(open){ qsa('details').forEach(d=>d.open=open); }
+
+  let STATE = { header: {}, items: {}, signatures: {sig1: null, sig2: null}, datum_ddmmyyyy: null };
+
+  window.addEventListener('DOMContentLoaded', ()=>{
+    document.body.classList.toggle('dark', window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    loadState();
+    qs('#year').textContent=new Date().getFullYear();
+
+    renderHeader(qs('#header'));
+    renderSections(qs('#sections'));
+
+    signaturePad('sig1','sig1_clear','sig1');
+    signaturePad('sig2','sig2_clear','sig2');
+
+    const sd=qs('#sigDate'); const nowFmt=toDDMMYYYY(new Date()); sd.value=nowFmt; sd.oninput=()=>{ STATE.header['datum_unterschrift']=sd.value; debounceSave(); };
+
+    qs('#save').addEventListener('click', saveState);
+    qs('#export').addEventListener('click', exportJson);
+    qs('#import').addEventListener('change', e=> e.target.files[0] && importJson(e.target.files[0]));
+    qs('#clear').addEventListener('click', ()=>{ if(confirm('Entwurf wirklich löschen?')){ localStorage.removeItem('serviceCheckDraft'); location.reload(); } });
+    qs('#print').addEventListener('click', ()=>{ if(validateRequired()){ qs('#printedAt').textContent=new Date().toLocaleString(); window.print(); } });
+    qs('#expandAll').addEventListener('click', ()=>expandAll(true));
+    qs('#collapseAll').addEventListener('click', ()=>expandAll(false));
+    qs('#toggleTheme').addEventListener('click', ()=>document.body.classList.toggle('dark'));
   });
-}
-function printPdf(){ window.print(); }
-window.addEventListener('DOMContentLoaded', ()=>{
-  loadState(); qs('#year').textContent=new Date().getFullYear();
-  const h=qs('#header'); renderHeader(h);
-  const s=qs('#sections'); renderSections(s);
-  qs('#save').addEventListener('click', saveState);
-  qs('#print').addEventListener('click', printPdf);
-  qs('#clear').addEventListener('click', ()=>{ if(confirm('Entwurf wirklich löschen?')){ localStorage.removeItem('serviceCheckDraft'); location.reload(); } });
-});
 </script>
 </body>
 </html>

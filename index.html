@@ -3,15 +3,17 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Service Check – Wartungsprotokoll</title>
+  <title>Service Check – App</title>
   <style>
-    :root { --bg:#f5f7fa; --fg:#1f2a34; --muted:#6b7b8c; --accent:#3b5a78; --card:#ffffff; --line:#d9e0e7; }
-    body.dark { --bg:#11161b; --fg:#e6ecf2; --muted:#9db0c2; --accent:#6aa0d1; --card:#1a232b; --line:#2a3642; }
+    :root { --bg:#f5f7fa; --fg:#1f2a34; --muted:#6b7b8c; --accent:#3b5a78; --card:#ffffff; --line:#d9e0e7; --ok:#1b8e3e; --warn:#c0392b; }
+    body.dark { --bg:#0f1419; --fg:#e6ecf2; --muted:#9db0c2; --accent:#6aa0d1; --card:#1b242d; --line:#2a3642; }
     *{box-sizing:border-box}
     html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial,sans-serif;}
     header{position:sticky;top:0;z-index:10;background:var(--bg);border-bottom:1px solid var(--line);padding:12px 16px;display:flex;gap:8px;align-items:center;justify-content:space-between}
     h1{font-size:18px;margin:0;}
-    .container{padding:16px;max-width:900px;margin:0 auto}
+    .title{display:flex;align-items:center;gap:8px}
+    .title small{color:var(--muted);font-weight:500}
+    .container{padding:16px;max-width:980px;margin:0 auto}
     .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 12px;margin:12px 0}
     .row{display:flex;gap:12px;flex-wrap:wrap}
     .input{flex:1;min-width:220px;display:flex;flex-direction:column;gap:6px}
@@ -19,15 +21,14 @@
     .req label::after{content:" *";color:#c0392b}
     .input input, .input textarea, .input select{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fff;color:#111}
     body.dark .input input, body.dark .input textarea, body.dark .input select{background:#0e1419;color:#e6ecf2;border-color:#2a3642}
-    .details{border-top:1px dashed var(--line);margin-top:8px;padding-top:8px}
-    summary{font-weight:600;cursor:pointer;list-style:none}
-    summary::marker{display:none}
-    .badge{display:inline-flex;gap:6px;align-items:center}
-    .chip{border:1px solid var(--line);border-radius:999px;padding:6px 10px;background:#fff;font-size:12px;cursor:pointer}
-    .chip.active{background:var(--accent);border-color:var(--accent);color:#fff}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+    .tile{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;cursor:pointer;display:flex;flex-direction:column;gap:8px}
+    .tile:hover{outline:2px solid var(--accent);}
     .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
     button.primary{background:var(--accent);border:none;color:#fff;border-radius:10px;padding:10px 12px;cursor:pointer}
     button.ghost{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer}
+    button.icon{padding:8px 10px}
+    button[disabled]{opacity:0.5;cursor:not-allowed}
     .note{font-size:12px;color:var(--muted)}
     .sep{height:1px;background:var(--line);margin:10px 0}
     .printOnly{display:none}
@@ -35,8 +36,13 @@
     .sig-canvas{width:100%; height:160px; background:#fff; border:1px solid var(--line); border-radius:6px; touch-action: none;}
     .sig-tools{display:flex; gap:8px; margin-top:6px;}
     .checkbox{display:flex; align-items:center; gap:6px; font-size:14px;}
+    .banner{border:1px solid var(--line); background:#fff3; padding:10px 12px; border-radius:10px}
+    .banner.ok{border-color:#bfe6cc;background:#ecfff1;color:var(--ok)}
+    .banner.warn{border-color:#f4c7c7;background:#fff0f0;color:var(--warn)}
+    .footer-actions{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding:12px 16px;display:flex;gap:8px;flex-wrap:wrap}
+    a.link{color:inherit}
     @media print{
-      header, .toolbar { display:none !important; }
+      header, .toolbar, .footer-actions, .banner, .startOnly, .authOnly, .homeOnly, .specsOnly { display:none !important; }
       .printOnly{display:block}
       body{background:#fff;color:#000}
       .container{max-width:none;margin:0;padding:0}
@@ -44,82 +50,45 @@
       .input input, .input textarea{border:1px solid #999}
       @page { size: A4 portrait; margin: 12mm; }
     }
+    /* Einstellungen Modal */
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.4);z-index:1000}
+    .modal.open{display:flex}
+    .modal-card{background:var(--card);border:1px solid var(--line);border-radius:12px;max-width:800px;width:92%;padding:12px}
   </style>
 </head>
 <body>
   <header>
-    <h1>Service Check – Wartungsprotokoll</h1>
+    <div class="title">
+      <button class="ghost icon" id="backBtn" title="Zurück">⬅️</button>
+      <h1 id="appTitle">Service Check</h1>
+      <small id="subtitle"></small>
+    </div>
     <div class="toolbar">
-      <button class="ghost" id="toggleTheme" title="Hell/Dunkel">🌗</button>
-      <button class="ghost" id="expandAll">Alle öffnen</button>
-      <button class="ghost" id="collapseAll">Alle schließen</button>
-      <span class="sep" style="width:1px"></span>
-      <button class="ghost" id="save">Speichern</button>
-      <button class="ghost" id="export">Export (JSON)</button>
-      <label class="ghost" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer">
-        Import <input id="import" type="file" accept="application/json" style="display:none">
-      </label>
-      <button class="ghost" id="clear">Entwurf löschen</button>
-      <button class="primary" id="print">Drucken / PDF</button>
+      <button class="ghost icon" id="toggleTheme" title="Hell/Dunkel">🌗</button>
+      <button class="ghost icon" id="settingsBtn" title="Einstellungen">⚙️</button>
     </div>
   </header>
 
-  <main class="container">
-    <div class="printOnly" style="margin-bottom:8px;">
-      <div style="font-weight:700">Service Check – Wartungsprotokoll</div>
-      <div style="font-size:12px">Erstellt am: <span id="printedAt"></span></div>
-    </div>
+  <main class="container" id="content"></main>
 
-    <!-- 1) Kopfbereich -> Wartungsprotokoll -->
-    <section class="card">
-      <h2 style="margin:6px 0 12px 0;font-size:16px;">Wartungsprotokoll</h2>
-      <div id="header"></div>
-    </section>
-
-    <!-- 4) Separates Info-Feld -->
-    <section class="card">
-      <details id="infoDetails">
-        <summary>ℹ️ Hinweise anzeigen/ausblenden</summary>
-        <div class="details">
-          <div class="note" style="margin-bottom:6px;">Links/Rechts = Ansicht vom Schaltschrank Richtung Hubrahmen</div>
-          <div class="note">i.O. = in Ordnung ; Fehler = Mangel ; n.v. = nicht vorhanden</div>
-        </div>
-      </details>
-    </section>
-
-    <section id="sections"></section>
-
-    <section class="card" style="margin-bottom:60px">
-      <h2 style="margin:6px 0 12px 0;font-size:16px;">Unterschriften</h2>
-      <div class="row">
-        <div class="input sig-pad">
-          <label>Unterschrift Prüfer</label>
-          <canvas id="sig1" class="sig-canvas"></canvas>
-          <div class="sig-tools">
-            <button class="ghost" id="sig1_clear">Löschen</button>
-          </div>
-        </div>
-        <div class="input sig-pad">
-          <label>Unterschrift Kunde</label>
-          <canvas id="sig2" class="sig-canvas"></canvas>
-          <div class="sig-tools">
-            <button class="ghost" id="sig2_clear">Löschen</button>
-          </div>
-        </div>
-        <div class="input">
-          <label>Datum (TT/MM/JJJJ)</label>
-          <input id="sigDate" placeholder="TT/MM/JJJJ">
-        </div>
+  <!-- Einstellungen Modal -->
+  <div class="modal" id="settingsModal" aria-hidden="true">
+    <div class="modal-card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h2 style="margin:6px 0 12px 0;font-size:16px;">Einstellungen</h2>
+        <button class="ghost icon" id="closeSettings">✖️</button>
       </div>
-    </section>
-
-    <div class="note">© <span id="year"></span> Service Check</div>
-  </main>
+      <div class="note" style="margin-bottom:8px">Pflichtfelder mit * – erforderlich zum Drucken/Export.</div>
+      <div id="settingsForm"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
+        <button class="ghost" id="settingsSave">Speichern</button>
+      </div>
+    </div>
+  </div>
 
 <script>
+  // ---------------- CONFIG ----------------
   const REQUIRED_HEADER_KEYS = ['projekt','anlagenteil','datum','durchfuehrender'];
-
-  // 3) Ursprung entfernt
   const HEADER_FIELDS = [
     {key:'projekt', label:'Projekt'},
     {key:'anlagenteil', label:'Anlagenteil'},
@@ -130,7 +99,8 @@
     {key:'betreiber', label:'Betreiber', optional:true}
   ];
 
-  const SECTIONS = [
+  // RBG Protokoll (dein bisheriges, angepasst)
+  const PROTOCOL_SECTIONS_RBG = [
     { id:'gasse', title:'Gasse / Ausrüstung', items:[
       {id:'schleifleitung', label:'Schleifleitung / Stromabnehmer', fields:[{type:'status'},{type:'note'}]},
       {id:'fahrschiene', label:'Fahrschiene (Befestigung/Tragbild)', fields:[{type:'status'},{type:'note'}]},
@@ -202,69 +172,373 @@
     ]}
   ];
 
-  let STATE = { header: {}, items: {}, signatures: {sig1: null, sig2: null}, datum_ddmmyyyy: null };
-  let saveTimer = null;
+  // Beispiel-Abschnitte für Fördertechnik (erweiterbar)
+  const PROTOCOL_SECTIONS_FT = [
+    { id:'antrieb', title:'Antriebsstation', items:[
+      {id:'ft_motor', label:'Motor / Getriebe', fields:[{type:'status'},{type:'note'}]},
+      {id:'ft_gek', label:'Kettenspanner / Riemenspannung', fields:[{type:'status'},{type:'lubricated'},{type:'note'}]},
+      {id:'ft_schutz', label:'Schutzabdeckungen', fields:[{type:'status'},{type:'note'}]}
+    ]},
+    { id:'umlenk', title:'Umlenkstation', items:[
+      {id:'ft_rollen', label:'Umlenkrollen / Lager', fields:[{type:'status'},{type:'lubricated'},{type:'note'}]},
+      {id:'ft_festigkeit', label:'Befestigungen', fields:[{type:'status'},{type:'note'}]}
+    ]},
+    { id:'strecke', title:'Förderstrecke', items:[
+      {id:'ft_bahnen', label:'Rollen / Bänder / Ketten', fields:[{type:'status'},{type:'note'}]},
+      {id:'ft_sens', label:'Sensorik / Lichtschranken', fields:[{type:'status'},{type:'note'}]},
+      {id:'ft_kabel', label:'Energieführung / Kabel / Übergänge', fields:[{type:'status'},{type:'note'}]}
+    ]},
+    { id:'sicherheit', title:'Sicherheit', items:[
+      {id:'ft_notaus', label:'Not-Aus / Verriegelungen', fields:[{type:'status'},{type:'note'}]},
+      {id:'ft_betrieb', label:'Bedenken gegen Betrieb', fields:[{type:'status'},{type:'note'}]}
+    ]},
+    { id:'maengel', title:'Mängelliste', items:[
+      {id:'ft_maengel', label:'Mängel / Beanstandungen (Freitext)', fields:[{type:'note'}]},
+      {id:'ft_schmierstoffe', label:'Wurden die Schmierstoffe zur Verfügung gestellt?', fields:[{type:'yesno'}]}
+    ]}
+  ];
 
-  function qs(sel, el=document){ return el.querySelector(sel); }
-  function qsa(sel, el=document){ return Array.from(el.querySelectorAll(sel)); }
-  function debounceSave(){ if(saveTimer) clearTimeout(saveTimer); saveTimer=setTimeout(saveState,400); }
-  function toDDMMYYYY(d){ const pad=n=>String(n).padStart(2,'0'); return pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear(); }
-  function isValidDDMMYYYY(s){ return /^\d{2}\/\d{2}\/\d{4}$/.test(s); }
+  const PROTOCOLS = {
+    rbg: {
+      name: 'Regalbediengerät',
+      specs: [
+        {key:'mast', label:'Mast', type:'select', options:['Ein-Mast','Zwei-Mast']},
+        {key:'teleskoptisch', label:'Teleskoptisch', type:'select', options:['einfach','doppelt']},
+        {key:'nutzlast', label:'Nutzlast (kg)', type:'number'},
+        {key:'hubhoehe', label:'max. Hubhöhe (m)', type:'number'},
+        {key:'fahrweg', label:'Fahrweg (m)', type:'number'}
+      ],
+      sections: PROTOCOL_SECTIONS_RBG
+    },
+    ft: {
+      name: 'Fördertechnik',
+      specs: [
+        {key:'system', label:'System', type:'select', options:['Rollenbahn','Gurtförderer','Kettenförderer','Heber','Drehtisch']},
+        {key:'antrieb', label:'Antrieb', type:'select', options:['Motor / Getriebe','Direktantrieb']},
+        {key:'spurbreite', label:'Spurbreite (mm)', type:'number'},
+        {key:'geschwindigkeit', label:'Fördergeschwindigkeit (m/s)', type:'number'}
+      ],
+      sections: PROTOCOL_SECTIONS_FT
+    },
+    other: {
+      name: 'Andere Anlage',
+      specs: [
+        {key:'beschreibung', label:'Kurzbeschreibung', type:'text'},
+        {key:'hersteller', label:'Hersteller (optional)', type:'text'}
+      ],
+      sections: [
+        { id:'allg', title:'Allgemein', items:[
+          {id:'all_bef', label:'Befestigungen', fields:[{type:'status'},{type:'note'}]},
+          {id:'all_sens', label:'Sensorik', fields:[{type:'status'},{type:'note'}]}
+        ]},
+        { id:'sich', title:'Sicherheit', items:[
+          {id:'all_not', label:'Not-Aus', fields:[{type:'status'},{type:'note'}]}
+        ]},
+        { id:'mgl', title:'Mängelliste', items:[
+          {id:'all_m', label:'Mängel (Freitext)', fields:[{type:'note'}]}
+        ]}
+      ]
+    }
+  };
+
+  // ---------------- STATE ----------------
+  let STATE = {
+    user: null, // {name, email, pin} – lokal
+    header: {}, // Kopfdaten → Einstellungen
+    specs: {},  // pro Anlage
+    protocolType: null, // 'rbg' | 'ft' | 'other'
+    items: {},  // Protokoll-Felder
+    signatures: {sig1:null, sig2:null},
+    datum_ddmmyyyy: null,
+    page: 'start'
+  };
+  let saveTimer=null;
+
+  // ---------------- HELPERS ----------------
+  const $ = (sel, el=document)=>el.querySelector(sel);
+  const $$ = (sel, el=document)=>Array.from(el.querySelectorAll(sel));
+  const pad=(n)=>String(n).padStart(2,'0');
+  const toDDMMYYYY=(d)=> pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear();
+  const validDate=(s)=> /^\d{2}\/\d{2}\/\d{4}$/.test(s);
+
+  function toast(msg){
+    const t=document.createElement('div');
+    t.textContent=msg;
+    Object.assign(t.style,{position:'fixed',bottom:'20px',left:'50%',transform:'translateX(-50%)',background:'#1f2a34',color:'#fff',padding:'8px 12px',borderRadius:'8px',zIndex:'9999',fontSize:'13px'});
+    document.body.appendChild(t); setTimeout(()=>t.remove(),1200);
+  }
+
+  function keyFor(type){ return 'serviceCheckDraft:'+type; }
+  function saveState(){
+    localStorage.setItem('serviceCheckUser', JSON.stringify(STATE.user||{}));
+    const p = STATE.protocolType || 'default';
+    localStorage.setItem(keyFor(p), JSON.stringify({
+      header: STATE.header, specs: STATE.specs, items: STATE.items, signatures: STATE.signatures, datum_ddmmyyyy: STATE.datum_ddmmyyyy
+    }));
+    toast('Gespeichert');
+  }
+  function debounceSave(){ if(saveTimer) clearTimeout(saveTimer); saveTimer = setTimeout(saveState, 400); }
 
   function loadState(){
-    try{ const raw=localStorage.getItem('serviceCheckDraft'); if(raw) STATE=JSON.parse(raw); }catch(e){}
-    if(!STATE.header) STATE.header={};
-    if(!STATE.items) STATE.items={};
-    if(!STATE.signatures) STATE.signatures={sig1:null, sig2:null};
-    if(!STATE.header.datum) STATE.header.datum = toDDMMYYYY(new Date());
-    if(!STATE.datum_ddmmyyyy) STATE.datum_ddmmyyyy = STATE.header.datum;
-  }
-  function saveState(){ localStorage.setItem('serviceCheckDraft', JSON.stringify(STATE)); toast('Entwurf gespeichert.'); }
-  function exportJson(){ const blob=new Blob([JSON.stringify(STATE,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='service_check_export.json'; a.click(); URL.revokeObjectURL(url); }
-  function importJson(file){ const r=new FileReader(); r.onload=()=>{ try{ STATE=JSON.parse(r.result); location.reload(); }catch(e){ alert('Ungültige JSON-Datei.'); } }; r.readAsText(file); }
-  function toast(msg){ const t=document.createElement('div'); t.textContent=msg; Object.assign(t.style,{position:'fixed',bottom:'20px',left:'50%',transform:'translateX(-50%)',background:'#1f2a34',color:'#fff',padding:'8px 12px',borderRadius:'8px',zIndex:'9999',fontSize:'13px'}); document.body.appendChild(t); setTimeout(()=>t.remove(),1200); }
-
-  function renderHeader(container){
-    const row=document.createElement('div'); row.className='row';
-    HEADER_FIELDS.forEach(f=>{
-      const wrap=document.createElement('div'); wrap.className='input' + (REQUIRED_HEADER_KEYS.includes(f.key) ? ' req' : '');
-      const lab=document.createElement('label'); lab.textContent=f.label;
-      const inp=document.createElement('input'); inp.placeholder=f.label;
-      if(f.key==='datum'){
-        inp.type='text'; inp.inputMode='numeric'; inp.maxLength=10; inp.placeholder='TT/MM/JJJJ';
-        inp.value=STATE.datum_ddmmyyyy || toDDMMYYYY(new Date());
-        inp.oninput=()=>{ let v=inp.value.replace(/[^0-9]/g,''); if(v.length>2) v=v.slice(0,2)+'/'+v.slice(2); if(v.length>5) v=v.slice(0,5)+'/'+v.slice(5,9); inp.value=v; STATE.header.datum=v; STATE.datum_ddmmyyyy=v; debounceSave(); };
-        inp.onblur=()=>{ if(!isValidDDMMYYYY(inp.value)) alert('Bitte Datum als TT/MM/JJJJ eingeben.'); };
+    try{ const u=JSON.parse(localStorage.getItem('serviceCheckUser')||'null'); if(u && u.name) STATE.user=u; }catch(e){}
+    const p = STATE.protocolType || 'rbg';
+    try{
+      const raw=localStorage.getItem(keyFor(p));
+      if(raw){
+        const obj=JSON.parse(raw);
+        STATE.header=obj.header||{};
+        STATE.specs=obj.specs||{};
+        STATE.items=obj.items||{};
+        STATE.signatures=obj.signatures||{sig1:null,sig2:null};
+        STATE.datum_ddmmyyyy=obj.datum_ddmmyyyy||toDDMMYYYY(new Date());
       } else {
-        inp.value=STATE.header[f.key]||''; inp.oninput=()=>{ STATE.header[f.key]=inp.value; debounceSave(); };
+        // Defaults
+        STATE.header={};
+        STATE.items={};
+        STATE.specs={};
+        STATE.signatures={sig1:null,sig2:null};
+        STATE.datum_ddmmyyyy=toDDMMYYYY(new Date());
+        STATE.header.datum = STATE.datum_ddmmyyyy;
       }
-      wrap.append(lab, inp); row.appendChild(wrap);
-    });
-    container.appendChild(row);
+    }catch(e){}
   }
 
-  function fToDataURLScaled(file, maxSide=1600, quality=0.75){
-    return new Promise((resolve)=>{
-      const r=new FileReader();
-      r.onload=()=>{
-        const img=new Image();
-        img.onload=()=>{
-          let w=img.width,h=img.height;
-          if(w>h && w>maxSide){ h=Math.round(h*maxSide/w); w=maxSide; }
-          else if(h>maxSide){ w=Math.round(w*maxSide/h); h=maxSide; }
-          const cv=document.createElement('canvas'); cv.width=w; cv.height=h;
-          const cx=cv.getContext('2d'); cx.drawImage(img,0,0,w,h);
-          resolve(cv.toDataURL('image/jpeg', quality));
-        };
-        img.src=r.result;
-      };
-      r.readAsDataURL(file);
+  function clearDraft(){
+    if(!STATE.protocolType) return;
+    localStorage.removeItem(keyFor(STATE.protocolType));
+    loadState(); render();
+  }
+
+  // ---------------- NAV ----------------
+  function setTitle(title, subtitle=''){
+    $('#appTitle').textContent = title || 'Service Check';
+    $('#subtitle').textContent = subtitle ? '· '+subtitle : '';
+  }
+  function navigate(page){
+    STATE.page = page;
+    render();
+  }
+
+  // ---------------- UI RENDERERS ----------------
+  function render(){
+    const root = $('#content'); root.innerHTML='';
+    // top controls visibility
+    $('#backBtn').style.display = (STATE.page==='start'||STATE.page==='home') ? 'none' : 'inline-flex';
+    $('#settingsBtn').style.display = (STATE.page==='protocol'||STATE.page==='home'||STATE.page==='specs') ? 'inline-flex' : 'none';
+
+    if(STATE.page==='start'){ renderStart(root); return; }
+    if(STATE.page==='auth'){ renderAuth(root); return; }
+    if(STATE.page==='home'){ renderHome(root); return; }
+    if(STATE.page==='specs'){ renderSpecs(root); return; }
+    if(STATE.page==='protocol'){ renderProtocol(root); return; }
+  }
+
+  function renderStart(root){
+    setTitle('Service Check','Start');
+    const card=document.createElement('section'); card.className='card';
+    card.innerHTML=`
+      <h2 style="margin:6px 0 12px 0;font-size:16px;">Willkommen</h2>
+      <p>Diese App speichert Daten lokal (offline). Für Team-Funktionen/Cloud später.</p>
+      <div class="row startOnly">
+        <button class="primary" id="startAuth">Anmelden / Registrieren</button>
+        <button class="ghost" id="skipToHome">Ohne Anmeldung fortfahren</button>
+      </div>
+    `;
+    root.appendChild(card);
+    $('#startAuth').onclick=()=>navigate('auth');
+    $('#skipToHome').onclick=()=>{ if(!STATE.user){ STATE.user={name:'Gast'}; } navigate('home'); };
+  }
+
+  function renderAuth(root){
+    setTitle('Service Check','Anmeldung');
+    const card=document.createElement('section'); card.className='card';
+    const name=STATE.user?.name||''; const email=STATE.user?.email||'';
+    card.innerHTML=`
+      <div class="row authOnly">
+        <div class="input req"><label>Dein Name</label><input id="name" placeholder="Name" value="${name}"></div>
+        <div class="input"><label>E-Mail (optional)</label><input id="email" placeholder="email@example.com" value="${email}"></div>
+        <div class="input req"><label>PIN (4-stellig, lokal)</label><input id="pin" inputmode="numeric" maxlength="4" placeholder="****"></div>
+      </div>
+      <div class="note">Hinweis: Die Anmeldung ist <b>lokal</b> (nur auf diesem Gerät). Kein Server.</div>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="primary" id="doLogin">Weiter</button>
+      </div>
+    `;
+    root.appendChild(card);
+    $('#doLogin').onclick=()=>{
+      const n=$('#name').value.trim(); const p=$('#pin').value.trim();
+      if(!n || p.length!==4){ alert('Bitte Name und 4-stellige PIN eingeben.'); return; }
+      STATE.user={name:n, email:$('#email').value.trim()||undefined, pin:p};
+      saveState(); navigate('home');
+    };
+  }
+
+  function renderHome(root){
+    setTitle('Service Check','Hauptmenü');
+    const card=document.createElement('section'); card.className='card';
+    card.innerHTML=`
+      <div class="note homeOnly">Angemeldet als: <b>${STATE.user?.name||'Gast'}</b></div>
+      <h2 style="margin:6px 0 12px 0;font-size:16px;">Was möchtest du prüfen?</h2>
+      <div class="grid" id="tiles"></div>
+    `;
+    root.appendChild(card);
+    const grid=$('#tiles');
+    Object.entries(PROTOCOLS).forEach(([k,v])=>{
+      const t=document.createElement('div'); t.className='tile'; t.innerHTML=`<div style="font-weight:600">${v.name}</div><div class="note">Neues Protokoll erstellen</div>`;
+      t.onclick=()=>{ STATE.protocolType=k; loadState(); navigate('specs'); };
+      grid.appendChild(t);
     });
   }
 
-  function renderSections(container){
-    SECTIONS.forEach(section=>{
-      const card=document.createElement('div'); card.className='card';
+  function renderSpecs(root){
+    const proto = PROTOCOLS[STATE.protocolType];
+    setTitle('Service Check', proto.name+' · Spezifikation');
+    const card=document.createElement('section'); card.className='card';
+    const wrap=document.createElement('div'); wrap.className='row specsOnly';
+    proto.specs.forEach(f=>{
+      const box=document.createElement('div'); box.className='input';
+      const lab=document.createElement('label'); lab.textContent=f.label;
+      let field;
+      if(f.type==='select'){
+        field=document.createElement('select');
+        field.innerHTML = '<option value="">–</option>' + f.options.map(o=>`<option>${o}</option>`).join('');
+        field.value = STATE.specs[f.key] || '';
+        field.onchange=()=>{ STATE.specs[f.key]=field.value; debounceSave(); };
+      } else {
+        field=document.createElement('input'); field.type=f.type||'text';
+        field.value = STATE.specs[f.key]||'';
+        field.oninput=()=>{ STATE.specs[f.key]=field.value; debounceSave(); };
+      }
+      box.append(lab, field); wrap.appendChild(box);
+    });
+    card.appendChild(wrap);
+    const actions=document.createElement('div'); actions.style.display='flex'; actions.style.gap='8px'; actions.style.marginTop='10px';
+    const next=document.createElement('button'); next.className='primary'; next.textContent='Weiter zum Protokoll';
+    next.onclick=()=>navigate('protocol');
+    actions.appendChild(next);
+    card.appendChild(actions);
+    root.appendChild(card);
+  }
+
+  // -------- PROTOKOLL --------
+  function renderProtocol(root){
+    const proto = PROTOCOLS[STATE.protocolType];
+    setTitle('Service Check', proto.name+' · Protokoll');
+
+    // Hinweise / Status
+    const infoCard=document.createElement('section'); infoCard.className='card';
+    const ready = validateRequiredHeadersOnly();
+    infoCard.innerHTML = `
+      <div class="banner ${ready?'ok':'warn'}">
+        ${ready ? 'Pflichtfelder in Einstellungen vollständig.' : 'Bitte Pflichtfelder in den Einstellungen ausfüllen, um Drucken/Export zu aktivieren.'}
+      </div>
+      <details style="margin-top:8px">
+        <summary>ℹ️ Hinweise anzeigen/ausblenden</summary>
+        <div class="details">
+          <div class="note" style="margin-bottom:6px;">Links/Rechts = Ansicht vom Schaltschrank Richtung Hubrahmen</div>
+          <div class="note">i.O. = in Ordnung ; Fehler = Mangel ; n.v. = nicht vorhanden</div>
+        </div>
+      </details>
+    `;
+    root.appendChild(infoCard);
+
+    // SPEZIFIKATION kompakt darstellen
+    const specCard=document.createElement('section'); specCard.className='card';
+    specCard.innerHTML='<h2 style="margin:6px 0 12px 0;font-size:16px;">Spezifikation</h2>';
+    const srow=document.createElement('div'); srow.className='row';
+    PROTOCOLS[STATE.protocolType].specs.forEach(f=>{
+      const val = STATE.specs[f.key] || '–';
+      const div=document.createElement('div'); div.className='input'; div.innerHTML=`<label>${f.label}</label><input disabled value="${val}">`;
+      srow.appendChild(div);
+    });
+    specCard.appendChild(srow);
+    root.appendChild(specCard);
+
+    // ABSCHNITTE
+    const sectionsWrap=document.createElement('div'); sectionsWrap.id='sections';
+    root.appendChild(sectionsWrap);
+    renderSectionsInto(sectionsWrap, proto.sections);
+
+    // SIGNATUREN
+    const sigCard=document.createElement('section'); sigCard.className='card';
+    sigCard.innerHTML='<h2 style="margin:6px 0 12px 0;font-size:16px;">Unterschriften</h2>';
+    const sigRow=document.createElement('div'); sigRow.className='row';
+    sigRow.appendChild(signatureBlock('Prüfer','sig1'));
+    sigRow.appendChild(signatureBlock('Kunde','sig2'));
+    const dateBox=document.createElement('div'); dateBox.className='input'; dateBox.innerHTML=`<label>Datum (TT/MM/JJJJ)</label><input id="sigDate" placeholder="TT/MM/JJJJ">`;
+    sigRow.appendChild(dateBox);
+    sigCard.appendChild(sigRow);
+    root.appendChild(sigCard);
+    const sd = $('#sigDate'); const nowFmt = toDDMMYYYY(new Date()); sd.value = STATE.header['datum_unterschrift'] || nowFmt;
+    sd.oninput = ()=>{ STATE.header['datum_unterschrift'] = sd.value; debounceSave(); };
+
+    // FOOTER ACTIONS
+    const footer=document.createElement('div'); footer.className='footer-actions';
+    footer.innerHTML=`
+      <button class="ghost" id="save">Speichern</button>
+      <button class="ghost" id="export">Export (JSON)</button>
+      <label class="ghost" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer">
+        Import <input id="import" type="file" accept="application/json" style="display:none">
+      </label>
+      <button class="ghost" id="clear">Entwurf löschen</button>
+      <span style="flex:1"></span>
+      <button class="primary" id="print" disabled>Drucken / PDF</button>
+    `;
+    root.appendChild(footer);
+
+    function updateFooterActions(){
+      const ok = validateRequiredHeadersOnly();
+      $('#print').disabled = !ok;
+    }
+    updateFooterActions();
+
+    // events
+    $('#save').onclick=saveState;
+    $('#export').onclick=()=>{
+      const blob = new Blob([JSON.stringify({
+        header: STATE.header, specs: STATE.specs, items: STATE.items, protocolType: STATE.protocolType
+      },null,2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download='service_check_export.json'; a.click(); URL.revokeObjectURL(url);
+    };
+    $('#import').addEventListener('change', e=>{
+      const f=e.target.files?.[0]; if(!f) return;
+      const r = new FileReader();
+      r.onload = ()=>{ try{ const o=JSON.parse(r.result);
+          STATE.header=o.header||STATE.header;
+          STATE.specs=o.specs||STATE.specs;
+          STATE.items=o.items||STATE.items;
+          STATE.protocolType=o.protocolType||STATE.protocolType;
+          saveState(); render();
+        }catch(err){ alert('Ungültige JSON-Datei.'); } };
+      r.readAsText(f);
+    });
+    $('#clear').onclick=()=>{ if(confirm('Entwurf wirklich löschen?')) clearDraft(); };
+    $('#print').onclick=()=>{
+      if(!validateRequiredHeadersOnly()){ alert('Bitte Pflichtfelder in den Einstellungen ausfüllen.'); return; }
+      window.print();
+    };
+
+    // observer, falls im Einstellungs-Modal geändert
+    window._updateFooterActions = updateFooterActions;
+  }
+
+  function signatureBlock(labelText,key){
+    const wrap=document.createElement('div'); wrap.className='input sig-pad';
+    const lab=document.createElement('label'); lab.textContent='Unterschrift '+labelText;
+    const canvas=document.createElement('canvas'); canvas.id='cv_'+key; canvas.className='sig-canvas';
+    const tools=document.createElement('div'); tools.className='sig-tools';
+    const clear=document.createElement('button'); clear.className='ghost'; clear.textContent='Löschen';
+    tools.appendChild(clear);
+    wrap.append(lab, canvas, tools);
+    setTimeout(()=>signaturePad(canvas.id, clear, key), 0);
+    return wrap;
+  }
+
+  // Render sections/items
+  function renderSectionsInto(container, sections){
+    sections.forEach(section=>{
+      const card=document.createElement('section'); card.className='card';
       const details=document.createElement('details');
       const summary=document.createElement('summary'); summary.textContent=section.title;
       details.appendChild(summary);
@@ -274,13 +548,13 @@
         const label=document.createElement('div'); label.textContent=item.label; label.style.marginBottom='6px'; label.style.fontWeight='500';
         const tools=document.createElement('div'); tools.className='row';
 
-        const hasStatus=(item.fields||[]).some(f=>f.type==='status');
+        const hasStatus = (item.fields||[]).some(f=>f.type==='status');
         if(hasStatus){
           const status=document.createElement('div'); status.className='badge';
           [{k:'io',t:'i.O.'},{k:'fehler',t:'Fehler'},{k:'nv',t:'n.v.'}].forEach(opt=>{
             const b=document.createElement('button'); b.className='chip'; b.textContent=opt.t;
             const cur=STATE.items[item.id]?.status; if(cur===opt.k) b.classList.add('active');
-            b.onclick=()=>{ STATE.items[item.id]=STATE.items[item.id]||{}; STATE.items[item.id].status=opt.k; qsa('.chip',status).forEach(x=>x.classList.remove('active')); b.classList.add('active'); debounceSave(); };
+            b.onclick=()=>{ STATE.items[item.id]=STATE.items[item.id]||{}; STATE.items[item.id].status=opt.k; $$('.chip',status).forEach(x=>x.classList.remove('active')); b.classList.add('active'); debounceSave(); };
             status.appendChild(b);
           });
           tools.appendChild(status);
@@ -301,13 +575,6 @@
             inp.oninput=()=>{ STATE.items[item.id]=STATE.items[item.id]||{}; STATE.items[item.id][f.label]=inp.value; debounceSave(); };
             w.append(lab, inp); tools.appendChild(w);
           }
-          if(f.type==='date'){
-            const w=document.createElement('div'); w.className='input'; w.style.maxWidth='200px';
-            const lab=document.createElement('label'); lab.textContent=f.label;
-            const inp=document.createElement('input'); inp.type='date'; inp.value=STATE.items[item.id]?.[f.label]||'';
-            inp.oninput=()=>{ STATE.items[item.id]=STATE.items[item.id]||{}; STATE.items[item.id][f.label]=inp.value; debounceSave(); };
-            w.append(lab, inp); tools.appendChild(w);
-          }
           if(f.type==='yesno'){
             const w=document.createElement('div'); w.className='input'; w.style.maxWidth='180px';
             const lab=document.createElement('label'); lab.textContent='Ja/Nein';
@@ -315,6 +582,13 @@
             sel.value=STATE.items[item.id]?.yesno||'';
             sel.onchange=()=>{ STATE.items[item.id]=STATE.items[item.id]||{}; STATE.items[item.id].yesno=sel.value; debounceSave(); };
             w.append(lab, sel); tools.appendChild(w);
+          }
+          if(f.type==='date'){
+            const w=document.createElement('div'); w.className='input'; w.style.maxWidth='200px';
+            const lab=document.createElement('label'); lab.textContent=f.label;
+            const inp=document.createElement('input'); inp.type='date'; inp.value=STATE.items[item.id]?.[f.label]||'';
+            inp.oninput=()=>{ STATE.items[item.id]=STATE.items[item.id]||{}; STATE.items[item.id][f.label]=inp.value; debounceSave(); };
+            w.append(lab, inp); tools.appendChild(w);
           }
           if(f.type==='lubricated'){
             const w=document.createElement('div'); w.className='input'; w.style.maxWidth='200px';
@@ -327,15 +601,15 @@
           }
         });
 
+        // Foto
         const photoWrap=document.createElement('div'); photoWrap.className='input'; photoWrap.style.maxWidth='260px';
         const photoLab=document.createElement('label'); photoLab.textContent='Foto (optional)';
         const photo=document.createElement('input'); photo.type='file'; photo.accept='image/*;capture=camera';
         const preview=document.createElement('img'); preview.style.maxWidth='120px'; preview.style.border='1px solid var(--line)'; preview.style.borderRadius='6px'; preview.style.marginTop='6px';
         if(STATE.items[item.id]?.photo){ preview.src=STATE.items[item.id].photo; photoWrap.appendChild(preview); }
         photo.onchange=async ()=>{ const f=photo.files?.[0]; if(!f) return;
-          const b64=await fToDataURLScaled(f,1600,0.75);
-          STATE.items[item.id]=STATE.items[item.id]||{}; STATE.items[item.id].photo=b64; preview.src=b64;
-          if(!preview.parentNode) photoWrap.appendChild(preview); debounceSave(); };
+          const b64=await fileToScaledDataURL(f,1600,0.75); STATE.items[item.id]=STATE.items[item.id]||{};
+          STATE.items[item.id].photo=b64; preview.src=b64; if(!preview.parentNode) photoWrap.appendChild(preview); debounceSave(); };
         photoWrap.append(photoLab, photo); tools.appendChild(photoWrap);
 
         wrap.append(label, tools);
@@ -347,9 +621,29 @@
     });
   }
 
-  function signaturePad(canvasId, clearBtnId, key){
-    const canvas=qs('#'+canvasId);
-    const clearBtn=qs('#'+clearBtnId);
+  // Image helper
+  function fileToScaledDataURL(file, maxSide=1600, quality=0.75){
+    return new Promise((resolve)=>{
+      const r=new FileReader();
+      r.onload=()=>{
+        const img=new Image();
+        img.onload=()=>{
+          let w=img.width,h=img.height;
+          if(w>h && w>maxSide){ h=Math.round(h*maxSide/w); w=maxSide; }
+          else if(h>maxSide){ w=Math.round(w*maxSide/h); h=maxSide; }
+          const cv=document.createElement('canvas'); cv.width=w; cv.height=h;
+          const cx=cv.getContext('2d'); cx.drawImage(img,0,0,w,h);
+          resolve(cv.toDataURL('image/jpeg', quality));
+        };
+        img.src=r.result;
+      };
+      r.readAsDataURL(file);
+    });
+  }
+
+  // Signature pad
+  function signaturePad(canvasId, clearBtn, key){
+    const canvas=document.getElementById(canvasId);
     const ctx=canvas.getContext('2d');
     function resize(){
       const ratio=Math.max(window.devicePixelRatio||1,1);
@@ -371,39 +665,66 @@
     canvas.addEventListener('touchstart', e=>{const p=getPos(e); start(p.x,p.y); e.preventDefault();});
     canvas.addEventListener('touchmove', e=>{const p=getPos(e); move(p.x,p.y); e.preventDefault();});
     canvas.addEventListener('touchend', end);
-    clearBtn.addEventListener('click', ()=>{ ctx.clearRect(0,0,canvas.width,canvas.height); STATE.signatures[key]=null; debounceSave(); });
+    clearBtn.onclick=()=>{ ctx.clearRect(0,0,canvas.width,canvas.height); STATE.signatures[key]=null; debounceSave(); };
   }
 
-  function validateRequired(){
+  // ---------------- Einstellungen (Modal) ----------------
+  function openSettings(){
+    // build form
+    const box = $('#settingsForm'); box.innerHTML='';
+    const row = document.createElement('div'); row.className='row';
+    HEADER_FIELDS.forEach(f=>{
+      const w=document.createElement('div'); w.className='input'+(REQUIRED_HEADER_KEYS.includes(f.key)?' req':'');
+      const lab=document.createElement('label'); lab.textContent=f.label;
+      const inp=document.createElement('input'); inp.placeholder=f.label;
+      if(f.key==='datum'){
+        inp.type='text'; inp.inputMode='numeric'; inp.maxLength=10; inp.placeholder='TT/MM/JJJJ';
+        inp.value=STATE.datum_ddmmyyyy || toDDMMYYYY(new Date());
+        inp.oninput=()=>{ let v=inp.value.replace(/[^0-9]/g,''); if(v.length>2) v=v.slice(0,2)+'/'+v.slice(2); if(v.length>5) v=v.slice(0,5)+'/'+v.slice(5,9);
+          inp.value=v; STATE.header.datum=v; STATE.datum_ddmmyyyy=v; debounceSave(); maybeUpdateFooter(); };
+        inp.onblur=()=>{ if(!validDate(inp.value)) alert('Bitte Datum als TT/MM/JJJJ eingeben.'); };
+      } else {
+        inp.value=STATE.header[f.key]||'';
+        inp.oninput=()=>{ STATE.header[f.key]=inp.value; debounceSave(); maybeUpdateFooter(); };
+      }
+      w.append(lab, inp); row.appendChild(w);
+    });
+    box.appendChild(row);
+    $('#settingsModal').classList.add('open');
+    $('#settingsModal').setAttribute('aria-hidden','false');
+  }
+  function closeSettings(){
+    $('#settingsModal').classList.remove('open');
+    $('#settingsModal').setAttribute('aria-hidden','true');
+  }
+  function validateRequiredHeadersOnly(){
     const missing = REQUIRED_HEADER_KEYS.filter(k => !(STATE.header[k] && String(STATE.header[k]).trim().length));
-    if(missing.includes('datum') && !isValidDDMMYYYY(STATE.header['datum']||'')) { alert('Bitte Datum als TT/MM/JJJJ eingeben.'); return false; }
-    if(missing.length){ alert('Bitte Pflichtfelder ausfüllen: ' + missing.join(', ')); return false; }
-    return true;
+    if(missing.includes('datum') && !validDate(STATE.header['datum']||'')) return false;
+    return missing.length===0;
   }
-  function expandAll(open){ qsa('details').forEach(d=>d.open=open); }
+  function maybeUpdateFooter(){ if(typeof window._updateFooterActions==='function') window._updateFooterActions(); }
 
-
+  // ---------------- INIT ----------------
   window.addEventListener('DOMContentLoaded', ()=>{
     document.body.classList.toggle('dark', window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    // default auf RBG, damit Strukturen existieren
+    STATE.protocolType='rbg';
     loadState();
-    qs('#year').textContent=new Date().getFullYear();
+    STATE.page = STATE.user ? 'home' : 'start';
+    render();
 
-    renderHeader(qs('#header'));
-    renderSections(qs('#sections'));
-
-    signaturePad('sig1','sig1_clear','sig1');
-    signaturePad('sig2','sig2_clear','sig2');
-
-    const sd=qs('#sigDate'); const nowFmt=toDDMMYYYY(new Date()); sd.value=nowFmt; sd.oninput=()=>{ STATE.header['datum_unterschrift']=sd.value; debounceSave(); };
-
-    qs('#save').addEventListener('click', saveState);
-    qs('#export').addEventListener('click', exportJson);
-    qs('#import').addEventListener('change', e=> e.target.files[0] && importJson(e.target.files[0]));
-    qs('#clear').addEventListener('click', ()=>{ if(confirm('Entwurf wirklich löschen?')){ localStorage.removeItem('serviceCheckDraft'); location.reload(); } });
-    qs('#print').addEventListener('click', ()=>{ if(validateRequired()){ qs('#printedAt').textContent=new Date().toLocaleString(); window.print(); } });
-    qs('#expandAll').addEventListener('click', ()=>expandAll(true));
-    qs('#collapseAll').addEventListener('click', ()=>expandAll(false));
-    qs('#toggleTheme').addEventListener('click', ()=>document.body.classList.toggle('dark'));
+    // Header buttons
+    $('#toggleTheme').onclick=()=>document.body.classList.toggle('dark');
+    $('#settingsBtn').onclick=openSettings;
+    $('#closeSettings').onclick=closeSettings;
+    $('#settingsSave').onclick=()=>{ saveState(); closeSettings(); maybeUpdateFooter(); };
+    $('#backBtn').onclick=()=>{
+      if(STATE.page==='auth'){ navigate('start'); return; }
+      if(STATE.page==='home'){ navigate('start'); return; }
+      if(STATE.page==='specs'){ navigate('home'); return; }
+      if(STATE.page==='protocol'){ navigate('specs'); return; }
+      navigate('start');
+    };
   });
 </script>
 </body>

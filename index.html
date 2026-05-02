@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profi Service-Protokoll Manager</title>
+    <title>Service-Protokoll Master</title>
     <style>
         :root {
-            --primary: #1a252f;
+            --primary: #2c3e50;
             --accent: #3498db;
-            --success: #27ae60;
-            --bg: #f4f7f6;
-            --white: #ffffff;
+            --bg: #f1f2f6;
+            --card-bg: #ffffff;
+            --border: #dcdde1;
         }
 
         body {
@@ -18,14 +18,14 @@
             background-color: var(--bg);
             margin: 0;
             padding: 0;
-            color: #333;
+            color: #2f3640;
         }
 
         /* Header & Settings */
         header {
             background-color: var(--primary);
             color: white;
-            padding: 15px 25px;
+            padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -34,25 +34,25 @@
             z-index: 1000;
         }
 
-        .settings-dropdown select {
+        .settings-menu select {
+            padding: 6px;
+            border-radius: 4px;
             background: #34495e;
             color: white;
             border: 1px solid #5d6d7e;
-            padding: 8px;
-            border-radius: 4px;
         }
 
-        /* Navigation Grid */
+        /* Navigation Kacheln */
         .main-nav {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
             gap: 10px;
             padding: 15px;
-            background: #dfe6e9;
+            background: #dfe4ea;
         }
 
-        .nav-item {
-            background: var(--white);
+        .nav-card {
+            background: var(--card-bg);
             padding: 15px 5px;
             text-align: center;
             border-radius: 8px;
@@ -64,273 +64,310 @@
             transition: 0.2s;
         }
 
-        .nav-item:hover { background: #f0f3f5; transform: translateY(-2px); }
-        .nav-item.active { background: var(--accent); color: white; }
+        .nav-card:hover { transform: translateY(-3px); background: #f8f9fa; }
+        .nav-card.active { background: var(--accent); color: white; }
 
         /* Container */
-        .container {
+        .content-container {
             max-width: 1000px;
             margin: 20px auto;
-            padding: 0 15px;
-        }
-
-        .card {
-            background: var(--white);
+            background: var(--card-bg);
             padding: 30px;
             border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            min-height: 600px;
         }
 
         /* Aktions-Kasten */
-        .action-box {
-            margin-bottom: 25px;
+        .control-panel {
+            margin-bottom: 30px;
+            border: 2px solid var(--accent);
+            border-radius: 8px;
+            overflow: hidden;
         }
 
-        .toggle-btn {
+        .panel-trigger {
             width: 100%;
-            padding: 15px;
+            padding: 12px;
             background: var(--accent);
             color: white;
             border: none;
-            border-radius: 8px;
-            font-size: 1rem;
             font-weight: bold;
             cursor: pointer;
+            font-size: 1rem;
         }
 
-        #options-panel {
+        #panel-content {
             display: none;
-            background: #e1f5fe;
-            border: 2px solid var(--accent);
-            border-top: none;
             padding: 20px;
-            border-radius: 0 0 8px 8px;
+            background: #f0f9ff;
         }
 
-        /* Checklisten-Styling */
-        .check-group {
-            margin-bottom: 30px;
-            display: none; /* Wird per JS geschaltet */
-        }
+        /* Protokoll-Elemente */
+        .protocol-section { display: none; } /* Standardmäßig alle aus */
+        .protocol-section.active { display: block; }
 
-        .check-item {
+        .check-row {
             display: flex;
-            align-items: center;
-            padding: 12px;
+            align-items: flex-start;
+            padding: 12px 0;
             border-bottom: 1px solid #eee;
         }
 
-        .check-item:last-child { border: none; }
-
-        .check-item input[type="checkbox"] {
-            width: 22px;
-            height: 22px;
+        .check-row input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
             margin-right: 15px;
-            cursor: pointer;
+            margin-top: 2px;
         }
 
-        .check-item label { flex: 1; cursor: pointer; }
+        .check-row label { flex: 1; font-size: 0.95rem; line-height: 1.4; }
 
-        .status-select {
-            padding: 5px;
-            border-radius: 4px;
+        .comment-box {
+            width: 100%;
+            margin-top: 10px;
+            padding: 8px;
             border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: inherit;
         }
 
         /* Unterschriften */
-        #signature-section {
+        #sig-area {
             display: none;
-            margin-top: 40px;
+            margin-top: 50px;
             padding-top: 20px;
-            border-top: 3px double #ddd;
+            border-top: 3px double #aaa;
+        }
+
+        .sig-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
         }
 
         .sig-box {
-            border: 2px solid #333;
-            height: 180px;
-            background: #fff;
-            margin-top: 10px;
+            border: 1px solid #333;
+            height: 150px;
+            background: #fafafa;
             position: relative;
         }
 
         .sig-box::after {
-            content: "Hier unterschreiben";
+            content: "Digitale Unterschrift / Stempel";
             position: absolute;
-            bottom: 10px;
-            right: 10px;
-            font-size: 0.7rem;
-            color: #ccc;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ddd;
+            font-size: 0.8rem;
         }
 
+        /* Print Settings */
         @media print {
-            header, .main-nav, .toggle-btn, #options-panel, .status-select { display: none !important; }
-            .check-group { display: block !important; }
-            #signature-section { display: block !important; }
-            .card { box-shadow: none; border: none; }
+            header, .main-nav, .panel-trigger, #panel-content { display: none !important; }
+            .protocol-section { display: block !important; page-break-after: always; }
+            #sig-area { display: block !important; }
+            .content-container { box-shadow: none; width: 100%; }
         }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>Service App v2.0</h1>
-    <div class="settings-dropdown">
-        <select onchange="alert('Einstellungen werden geladen...')">
-            <option value="">⚙️ Optionen</option>
-            <option value="app">App Einstellungen</option>
-            <option value="user">Benutzerprofil</option>
+    <h1>Wartungs-Portal Pro</h1>
+    <div class="settings-menu">
+        <select onchange="alert('Einstellung geändert')">
+            <option value="">⚙️ System</option>
+            <option value="user">Benutzerdaten</option>
+            <option value="cloud">Synchronisation</option>
         </select>
     </div>
 </header>
 
 <nav class="main-nav">
-    <div class="nav-item" onclick="showTab('rbg')">RBG</div>
-    <div class="nav-item" onclick="showTab('foerder')">Fördertechnik</div>
-    <div class="nav-item" onclick="showTab('regal')">Regalprüfung</div>
-    <div class="nav-item" onclick="showTab('psaga')">PSAgA</div>
-    <div class="nav-item" onclick="showTab('andere')">Andere Anlage</div>
-    <div class="nav-item" onclick="showTab('montage')">Montage</div>
-    <div class="nav-item" onclick="showTab('stunden')">Stunden</div>
+    <div class="nav-card" onclick="openTab('rbg')">RBG</div>
+    <div class="nav-card" onclick="openTab('foerder')">Fördertechnik</div>
+    <div class="nav-card" onclick="openTab('regal')">Regalprüfung</div>
+    <div class="nav-card" onclick="openTab('psaga')">PSAgA</div>
+    <div class="nav-card" onclick="openTab('andere')">Andere Anlage</div>
+    <div class="nav-card" onclick="openTab('montage')">Montage-Bericht</div>
+    <div class="nav-card" onclick="openTab('stunden')">Stundenzettel</div>
 </nav>
 
-<div class="container">
-    <div class="card">
-        
-        <div class="action-box">
-            <button class="toggle-btn" onclick="toggleOptions()">Aktionen & Druckoptionen ▼</button>
-            <div id="options-panel">
-                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                    <button style="flex:1; padding: 10px;" onclick="window.print()">🖨️ PDF / Drucken</button>
-                    <button style="flex:1; padding: 10px;" onclick="alert('Daten gesichert!')">💾 Speichern</button>
-                </div>
-                <hr>
-                <label style="font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 10px;">
-                    <input type="checkbox" id="sig-toggle" onchange="toggleSigs()" style="transform: scale(1.4);">
-                    Unterschriften-Felder anzeigen
-                </label>
+<div class="content-container">
+
+    <!-- Aktions-Kasten (Export & Unterschriften-Steuerung) -->
+    <div class="control-panel">
+        <button class="panel-trigger" onclick="togglePanel()">Bericht-Optionen & Export ▼</button>
+        <div id="panel-content">
+            <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+                <button onclick="window.print()" style="flex:1; padding: 10px; cursor:pointer;">🖨️ PDF generieren</button>
+                <button onclick="alert('In Cloud gespeichert')" style="flex:1; padding: 10px; cursor:pointer;">☁️ Cloud Save</button>
             </div>
+            <hr>
+            <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-weight:bold;">
+                <input type="checkbox" id="sig-toggle" onchange="updateSigs()" style="transform: scale(1.3);">
+                Unterschriften-Felder am Ende einblenden
+            </label>
         </div>
-
-        <h2 id="active-title" style="color: var(--accent); border-bottom: 2px solid #eee; padding-bottom: 10px;">Bitte Modul wählen</h2>
-
-        <!-- REGALBEDIENGERÄTE -->
-        <div id="rbg" class="check-group">
-            <h3>Wartungspunkte RBG</h3>
-            <div class="check-item"><input type="checkbox"><label>Fahrantrieb: Motor und Getriebe prüfen</label></div>
-            <div class="check-item"><input type="checkbox"><label>Hubantrieb: Seile/Ketten auf Verschleiß prüfen</label></div>
-            <div class="check-item"><input type="checkbox"><label>Lastaufnahmemittel: Teleskopgabeln schmieren</label></div>
-            <div class="check-item"><input type="checkbox"><label>Sicherheitseinrichtungen: Not-Endschalter testen</label></div>
-            <div class="check-item"><input type="checkbox"><label>Schleifleitung/Stromabnehmer prüfen</label></div>
-            <div class="check-item"><input type="checkbox"><label>Pufferanschläge auf festen Sitz prüfen</label></div>
-        </div>
-
-        <!-- FÖRDERTECHNIK -->
-        <div id="foerder" class="check-group">
-            <h3>Wartungspunkte Fördertechnik</h3>
-            <div class="check-item"><input type="checkbox"><label>Rollenbahnen: Lagergeräusche prüfen</label></div>
-            <div class="check-item"><input type="checkbox"><label>Gurtförderer: Bandspannung & Tracking</label></div>
-            <div class="check-item"><input type="checkbox"><label>Kettenförderer: Kettenspannung & Schmierung</label></div>
-            <div class="check-item"><input type="checkbox"><label>Lichtschranken & Sensoren reinigen</label></div>
-            <div class="check-item"><input type="checkbox"><label>Antriebsriemen auf Risse prüfen</label></div>
-        </div>
-
-        <!-- REGALPRÜFUNG -->
-        <div id="regal" class="check-group">
-            <h3>Prüfung nach DIN EN 15635</h3>
-            <div class="check-item"><input type="checkbox"><label>Stützen auf Verformung prüfen (Lotrechtigkeit)</label></div>
-            <div class="check-item"><input type="checkbox"><label>Aushebelsicherungen vorhanden & eingerastet</label></div>
-            <div class="check-item"><input type="checkbox"><label>Belastungsschilder vorhanden & lesbar</label></div>
-            <div class="check-item"><input type="checkbox"><label>Bodenanker auf festen Sitz prüfen</label></div>
-            <div class="check-item"><input type="checkbox"><label>Fachwerkstreben auf Beschädigung prüfen</label></div>
-        </div>
-
-        <!-- PSAGA -->
-        <div id="psaga" class="check-group">
-            <h3>Jährliche PSAgA Prüfung</h3>
-            <div class="check-item"><input type="checkbox"><label>Auffanggurt: Gurtband & Nähte prüfen</label></div>
-            <div class="check-item"><input type="checkbox"><label>Verbindungsmittel: Falldämpfer unversehrt</label></div>
-            <div class="check-item"><input type="checkbox"><label>Karabiner: Verschlussfunktion prüfen</label></div>
-            <div class="check-item"><input type="checkbox"><label>Höhensicherungsgerät: Einzugsfunktion & Sperre</label></div>
-        </div>
-
-        <!-- ANDERE ANLAGE -->
-        <div id="andere" class="check-group">
-            <h3>Allgemeine Anlagenprüfung</h3>
-            <textarea style="width:100%; height:100px; border-radius:8px; padding:10px;" placeholder="Anlagenbeschreibung und Befund..."></textarea>
-            <div class="check-item"><input type="checkbox"><label>Gesamtzustand ordnungsgemäß</label></div>
-        </div>
-
-        <!-- MONTAGE -->
-        <div id="montage" class="check-group">
-            <h3>Montage-Bericht</h3>
-            <input type="text" placeholder="Bauteil / Bereich" style="width:100%; padding:10px; margin-bottom:10px;">
-            <div class="check-item"><input type="checkbox"><label>Montage nach Herstellervorgaben abgeschlossen</label></div>
-            <div class="check-item"><input type="checkbox"><label>Funktionstest erfolgreich durchgeführt</label></div>
-        </div>
-
-        <!-- STUNDENZETTEL -->
-        <div id="stunden" class="check-group">
-            <h3>Arbeitszeit-Erfassung</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <input type="time" placeholder="Beginn">
-                <input type="time" placeholder="Ende">
-            </div>
-            <input type="number" placeholder="Pause in Min." style="width:100%; margin-top:10px; padding:10px;">
-            <textarea style="width:100%; height:80px; margin-top:10px; padding:10px;" placeholder="Tätigkeitsbeschreibung..."></textarea>
-        </div>
-
-        <!-- UNTERSCHRIFTEN -->
-        <div id="signature-section">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                <div>
-                    <label>Unterschrift Servicetechniker</label>
-                    <div class="sig-box"></div>
-                </div>
-                <div>
-                    <label>Unterschrift Kunde / Betreiber</label>
-                    <div class="sig-box"></div>
-                </div>
-            </div>
-        </div>
-
     </div>
+
+    <h2 id="current-title">Willkommen im Service-System</h2>
+    <p id="welcome-text">Bitte wählen Sie oben eine Kategorie aus, um das entsprechende Protokoll zu laden.</p>
+
+    <!-- PROTOKOLL: REGALBEDIENGERÄTE -->
+    <div id="rbg" class="protocol-section">
+        <h3>Prüfung von Regalbediengeräten (RBG)</h3>
+        <div class="check-row"><input type="checkbox"><label>Fahrwerk: Räder auf Verschleiß und festen Sitz prüfen</label></div>
+        <div class="check-row"><input type="checkbox"><label>Hubwerk: Tragmittel (Seile/Ketten) auf Ablegereife prüfen</label></div>
+        <div class="check-row"><input type="checkbox"><label>Lastaufnahmemittel (LAM): Teleskopgabeln Endanschläge prüfen</label></div>
+        <div class="check-row"><input type="checkbox"><label>Antriebe: Getriebeölstand und Dichtigkeit prüfen</label></div>
+        <div class="check-row"><input type="checkbox"><label>Sicherheit: Not-Halt und Endschalter Funktionstest</label></div>
+        <div class="check-row"><input type="checkbox"><label>Schienenreinigung und Schmierung der Führungsschienen</label></div>
+        <div class="check-row"><input type="checkbox"><label>Elektrik: Schleifleitungen und Stromabnehmer-Kohlen prüfen</label></div>
+        <textarea class="comment-box" placeholder="Besondere Feststellungen RBG..."></textarea>
+    </div>
+
+    <!-- PROTOKOLL: FÖRDERTECHNIK -->
+    <div id="foerder" class="protocol-section">
+        <h3>Prüfung Fördertechnik (Rollen/Gurt/Kette)</h3>
+        <div class="check-row"><input type="checkbox"><label>Rollenbahnen: Rundlauf der Tragrollen prüfen</label></div>
+        <div class="check-row"><input type="checkbox"><label>Gurtförderer: Gurtspannung und Zentrierung korrigieren</label></div>
+        <div class="check-row"><input type="checkbox"><label>Kettenförderer: Kettenspannung und Verschleiß (Längung)</label></div>
+        <div class="check-row"><input type="checkbox"><label>Sensoren: Lichtschranken reinigen und ausrichten</label></div>
+        <div class="check-row"><input type="checkbox"><label>Motoren: Geräuschentwicklung und Wärmeentwicklung prüfen</label></div>
+        <div class="check-row"><input type="checkbox"><label>Übergabestellen: Freigängigkeit prüfen</label></div>
+        <textarea class="comment-box" placeholder="Mängelbericht Fördertechnik..."></textarea>
+    </div>
+
+    <!-- PROTOKOLL: REGALPRÜFUNG -->
+    <div id="regal" class="protocol-section">
+        <h3>Regalprüfung nach DIN EN 15635 (Expertenprüfung)</h3>
+        <div class="check-row"><input type="checkbox"><label>Regalstützen: Deformierung und Beschädigung prüfen</label></div>
+        <div class="check-row"><input type="checkbox"><label>Horizontale & Vertikale Verstrebungen auf festen Sitz</label></div>
+        <div class="check-row"><input type="checkbox"><label>Aushebelsicherungen (Sicherungsstifte) vollzählig?</label></div>
+        <div class="check-row"><input type="checkbox"><label>Fußplatten & Bodenanker: Festigkeit und Risse im Beton</label></div>
+        <div class="check-row"><input type="checkbox"><label>Belastungswarnschilder vorhanden und aktuell?</label></div>
+        <div class="check-row"><input type="checkbox"><label>Durchschubsicherungen vorhanden (falls erforderlich)?</label></div>
+        <textarea class="comment-box" placeholder="Gefährdungsbeurteilung (Grüne/Orange/Rote Gefahr)..."></textarea>
+    </div>
+
+    <!-- PROTOKOLL: PSAGA -->
+    <div id="psaga" class="protocol-section">
+        <h3>PSA gegen Absturz (Jährliche Sachkundigenprüfung)</h3>
+        <div class="check-row"><input type="checkbox"><label>Auffanggurt: Textilgewebe auf Schnitte/Risse prüfen</label></div>
+        <div class="check-row"><input type="checkbox"><label>Beschläge/Ösen: Korrosion oder Verformung?</label></div>
+        <div class="check-row"><input type="checkbox"><label>Falldämpfer: Reißpaket unversehrt (Indikator)?</label></div>
+        <div class="check-row"><input type="checkbox"><label>Verbindungselemente/Karabiner: Verschlussautomatik prüfen</label></div>
+        <div class="check-row"><input type="checkbox"><label>Höhensicherungsgerät (HSG): Seileinzug und Blockierfunktion</label></div>
+        <div class="check-row"><input type="checkbox"><label>Gültigkeit: Herstellungsdatum / Maximale Lebensdauer erreicht?</label></div>
+    </div>
+
+    <!-- PROTOKOLL: ANDERE ANLAGE -->
+    <div id="andere" class="protocol-section">
+        <h3>Sonderprüfung / Sonstige Anlagen</h3>
+        <input type="text" placeholder="Anlagentyp / Bezeichnung" style="width:100%; padding:10px; margin-bottom:20px;">
+        <div class="check-row"><input type="checkbox"><label>Allgemeiner mechanischer Zustand i.O.</label></div>
+        <div class="check-row"><input type="checkbox"><label>Elektrische Komponenten geprüft</label></div>
+        <div class="check-row"><input type="checkbox"><label>Sicherheitsfunktionen einzeln getestet</label></div>
+        <textarea class="comment-box" rows="10" placeholder="Detaillierte Prüfschritte und Ergebnisse hier manuell eintragen..."></textarea>
+    </div>
+
+    <!-- PROTOKOLL: MONTAGE-BERICHT -->
+    <div id="montage" class="protocol-section">
+        <h3>Montage- / Umbaubericht</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
+            <input type="text" placeholder="Baustellenname" style="padding:8px;">
+            <input type="text" placeholder="Projektnummer" style="padding:8px;">
+        </div>
+        <div class="check-row"><input type="checkbox"><label>Aufbau nach technischer Zeichnung erfolgt</label></div>
+        <div class="check-row"><input type="checkbox"><label>Verschraubungen mit Drehmoment geprüft</label></div>
+        <div class="check-row"><input type="checkbox"><label>Inbetriebnahme erfolgt / Probelauf ohne Last</label></div>
+        <div class="check-row"><input type="checkbox"><label>Baustelle besenrein hinterlassen</label></div>
+        <textarea class="comment-box" placeholder="Eingebaute Ersatzteile / Materialien..."></textarea>
+    </div>
+
+    <!-- PROTOKOLL: STUNDENZETTEL -->
+    <div id="stunden" class="protocol-section">
+        <h3>Arbeits- und Reisezeitnachweis</h3>
+        <table style="width:100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background:#eee;">
+                    <th style="padding:10px; border:1px solid #ccc;">Datum</th>
+                    <th style="padding:10px; border:1px solid #ccc;">Von</th>
+                    <th style="padding:10px; border:1px solid #ccc;">Bis</th>
+                    <th style="padding:10px; border:1px solid #ccc;">KM</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="border:1px solid #ccc;"><input type="date" style="width:95%; border:none;"></td>
+                    <td style="border:1px solid #ccc;"><input type="time" style="width:95%; border:none;"></td>
+                    <td style="border:1px solid #ccc;"><input type="time" style="width:95%; border:none;"></td>
+                    <td style="border:1px solid #ccc;"><input type="number" style="width:95%; border:none;"></td>
+                </tr>
+            </tbody>
+        </table>
+        <textarea class="comment-box" placeholder="Tätigkeitsbeschreibung / Besondere Vorkommnisse..."></textarea>
+    </div>
+
+    <!-- UNTERSCHRIFTEN BEREICH -->
+    <div id="sig-area">
+        <div class="sig-grid">
+            <div>
+                <p><strong>Unterschrift Techniker</strong></p>
+                <div class="sig-box"></div>
+            </div>
+            <div>
+                <p><strong>Unterschrift Kunde</strong></p>
+                <div class="sig-box"></div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <script>
-    function toggleOptions() {
-        const panel = document.getElementById('options-panel');
+    // Tab Logik
+    function openTab(tabId) {
+        // Alle ausblenden
+        const sections = document.querySelectorAll('.protocol-section');
+        sections.forEach(s => s.classList.remove('active'));
+        
+        const navs = document.querySelectorAll('.nav-card');
+        navs.forEach(n => n.classList.remove('active'));
+
+        // Gewähltes einblenden
+        document.getElementById(tabId).classList.add('active');
+        document.getElementById('welcome-text').style.display = 'none';
+        
+        // Titel anpassen
+        const titleMap = {
+            'rbg': '⚙️ Regalbediengeräte Wartung',
+            'foerder': '📦 Fördertechnik Inspektion',
+            'regal': '📋 Regalprüfung DIN EN 15635',
+            'psaga': '🛡️ PSAgA Prüfung',
+            'andere': '🔧 Sonderprüfung',
+            'montage': '🏗️ Montagebericht',
+            'stunden': '🕒 Zeitnachweis'
+        };
+        document.getElementById('current-title').innerText = titleMap[tabId];
+
+        // Nav-Highlight
+        event.currentTarget.classList.add('active');
+    }
+
+    // Aktions-Kasten klappen
+    function togglePanel() {
+        const panel = document.getElementById('panel-content');
         panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
     }
 
-    function toggleSigs() {
+    // Unterschriften anzeigen
+    function updateSigs() {
         const isChecked = document.getElementById('sig-toggle').checked;
-        document.getElementById('signature-section').style.display = isChecked ? 'block' : 'none';
-    }
-
-    function showTab(id) {
-        // Alle Gruppen verstecken
-        const groups = document.querySelectorAll('.check-group');
-        groups.forEach(g => g.style.display = 'none');
-        
-        // Gewählte Gruppe zeigen
-        document.getElementById(id).style.display = 'block';
-        
-        // Titel aktualisieren
-        const titles = {
-            'rbg': 'Regalbediengeräte Wartung',
-            'foerder': 'Fördertechnik Inspektion',
-            'regal': 'Regalprüfung nach Norm',
-            'psaga': 'PSAgA Prüfung',
-            'andere': 'Andere Anlage',
-            'montage': 'Montage Bericht',
-            'stunden': 'Arbeitszeit Erfassung'
-        };
-        document.getElementById('active-title').innerText = titles[id];
-
-        // Nav-Styling
-        const items = document.querySelectorAll('.nav-item');
-        items.forEach(item => item.classList.remove('active'));
-        event.currentTarget.classList.add('active');
+        document.getElementById('sig-area').style.display = isChecked ? 'block' : 'none';
     }
 </script>
 

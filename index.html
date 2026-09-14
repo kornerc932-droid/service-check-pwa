@@ -1,375 +1,721 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Service-Protokoll Master</title>
-    <style>
-        :root {
-            --primary: #2c3e50;
-            --accent: #3498db;
-            --bg: #f1f2f6;
-            --card-bg: #ffffff;
-            --border: #dcdde1;
-        }
-
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background-color: var(--bg);
-            margin: 0;
-            padding: 0;
-            color: #2f3640;
-        }
-
-        /* Header & Settings */
-        header {
-            background-color: var(--primary);
-            color: white;
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .settings-menu select {
-            padding: 6px;
-            border-radius: 4px;
-            background: #34495e;
-            color: white;
-            border: 1px solid #5d6d7e;
-        }
-
-        /* Navigation Kacheln */
-        .main-nav {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-            gap: 10px;
-            padding: 15px;
-            background: #dfe4ea;
-        }
-
-        .nav-card {
-            background: var(--card-bg);
-            padding: 15px 5px;
-            text-align: center;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            border-bottom: 4px solid var(--accent);
-            transition: 0.2s;
-        }
-
-        .nav-card:hover { transform: translateY(-3px); background: #f8f9fa; }
-        .nav-card.active { background: var(--accent); color: white; }
-
-        /* Container */
-        .content-container {
-            max-width: 1000px;
-            margin: 20px auto;
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            min-height: 600px;
-        }
-
-        /* Aktions-Kasten */
-        .control-panel {
-            margin-bottom: 30px;
-            border: 2px solid var(--accent);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .panel-trigger {
-            width: 100%;
-            padding: 12px;
-            background: var(--accent);
-            color: white;
-            border: none;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 1rem;
-        }
-
-        #panel-content {
-            display: none;
-            padding: 20px;
-            background: #f0f9ff;
-        }
-
-        /* Protokoll-Elemente */
-        .protocol-section { display: none; } /* Standardmäßig alle aus */
-        .protocol-section.active { display: block; }
-
-        .check-row {
-            display: flex;
-            align-items: flex-start;
-            padding: 12px 0;
-            border-bottom: 1px solid #eee;
-        }
-
-        .check-row input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            margin-right: 15px;
-            margin-top: 2px;
-        }
-
-        .check-row label { flex: 1; font-size: 0.95rem; line-height: 1.4; }
-
-        .comment-box {
-            width: 100%;
-            margin-top: 10px;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-family: inherit;
-        }
-
-        /* Unterschriften */
-        #sig-area {
-            display: none;
-            margin-top: 50px;
-            padding-top: 20px;
-            border-top: 3px double #aaa;
-        }
-
-        .sig-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-        }
-
-        .sig-box {
-            border: 1px solid #333;
-            height: 150px;
-            background: #fafafa;
-            position: relative;
-        }
-
-        .sig-box::after {
-            content: "Digitale Unterschrift / Stempel";
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #ddd;
-            font-size: 0.8rem;
-        }
-
-        /* Print Settings */
-        @media print {
-            header, .main-nav, .panel-trigger, #panel-content { display: none !important; }
-            .protocol-section { display: block !important; page-break-after: always; }
-            #sig-area { display: block !important; }
-            .content-container { box-shadow: none; width: 100%; }
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Service Check – v2.5 FULL</title>
+  <style>
+    :root { --bg:#f5f7fa; --fg:#1f2a34; --muted:#6b7b8c; --accent:#3b5a78; --card:#ffffff; --line:#d9e0e7; --ok:#1b8e3e; --warn:#c0392b; }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial,sans-serif;}
+    header{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line);padding:12px 16px;display:flex;gap:8px;align-items:center;justify-content:space-between}
+    h1{font-size:18px;margin:0;}
+    .title{display:flex;align-items:center;gap:8px}
+    .title small{color:var(--muted);font-weight:500}
+    .container{padding:16px;max-width:980px;margin:0 auto;padding-bottom:140px;}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin:12px 0}
+    .row{display:flex;gap:12px;flex-wrap:wrap}
+    .input{flex:1;min-width:220px;display:flex;flex-direction:column;gap:6px}
+    .input label{font-size:12px;color:var(--muted)}
+    .req label::after{content:" *";color:#c0392b}
+    .input input, .input textarea, .input select{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:#fff;color:#111;font-size:16px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+    .tile{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;cursor:pointer;display:flex;flex-direction:column;gap:8px}
+    .tile:hover{outline:2px solid var(--accent);}
+    button.primary{background:var(--accent);border:none;color:#fff;border-radius:12px;padding:12px 14px;cursor:pointer;font-size:16px}
+    button.ghost{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;font-size:16px}
+    button.icon{padding:8px 10px}
+    button[disabled]{opacity:0.5;cursor:not-allowed}
+    .note{font-size:12px;color:var(--muted)}
+    .pill{border:1px solid var(--line);border-radius:999px;padding:6px 10px;background:var(--card);font-size:12px}
+    .banner{border:1px solid var(--line);background:#fff3;padding:10px 12px;border-radius:10px}
+    .banner.ok{border-color:#bfe6cc;background:#ecfff1;color:var(--ok)}
+    .banner.warn{border-color:#f4c7c7;background:#fff0f0;color:var(--warn)}
+    .badge{display:flex;gap:8px;flex-wrap:wrap}
+    .chip{appearance:none;border:1px solid var(--line);background:var(--card);padding:10px 14px;border-radius:999px;font-size:16px;cursor:pointer;user-select:none}
+    .chip.active{border-color:var(--accent);box-shadow:0 0 0 2px rgba(59,90,120,.15);}
+    .sig-pad{border:1px dashed var(--line); border-radius:8px; padding:8px}
+    .sig-canvas{width:100%; height:160px; background:#fff; border:1px solid var(--line); border-radius:6px; touch-action: none;}
+    .sig-tools{display:flex; gap:8px; margin-top:6px;}
+    .table{width:100%;border-collapse:collapse}
+    .table th,.table td{border:1px solid var(--line);padding:8px;text-align:left;font-size:13px}
+    .table th{background:#f3f6fa}
+    .footer-actions{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding:12px 16px;display:flex;gap:8px;flex-wrap:wrap;z-index:15}
+    @media (max-width: 420px){
+      .row{flex-direction:column}
+      .input{min-width:unset}
+      .container{padding:10px; padding-bottom:160px;}
+    }
+    @media print{
+      header, .footer-actions, .banner, .startOnly, .authOnly, .homeOnly, .specsOnly { display:none !important; }
+      body{background:#fff;color:#000}
+      .container{max-width:none;margin:0;padding:0}
+      .card{break-inside:avoid;border:1px solid #999}
+      .input input, .input textarea{border:1px solid #999}
+      @page { size: A4 portrait; margin: 12mm; }
+    }
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.4);z-index:1000}
+    .modal.open{display:flex}
+    .modal-card{background:var(--card);border:1px solid var(--line);border-radius:12px;max-width:720px;width:92%;padding:12px}
+    .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
+  </style>
 </head>
 <body>
-
-<header>
-    <h1>Wartungs-Portal Pro</h1>
-    <div class="settings-menu">
-        <select onchange="alert('Einstellung geändert')">
-            <option value="">⚙️ System</option>
-            <option value="user">Benutzerdaten</option>
-            <option value="cloud">Synchronisation</option>
-        </select>
+  <header>
+    <div class="title">
+      <button class="ghost icon" id="backBtn" title="Zurück">⬅️</button>
+      <h1 id="appTitle">Service Check</h1>
+      <small id="subtitle"></small>
     </div>
-</header>
+    <div class="toolbar">
+      <button class="ghost icon" id="settingsBtn" title="Einstellungen">⚙️</button>
+    </div>
+  </header>
 
-<nav class="main-nav">
-    <div class="nav-card" onclick="openTab('rbg')">RBG</div>
-    <div class="nav-card" onclick="openTab('foerder')">Fördertechnik</div>
-    <div class="nav-card" onclick="openTab('regal')">Regalprüfung</div>
-    <div class="nav-card" onclick="openTab('psaga')">PSAgA</div>
-    <div class="nav-card" onclick="openTab('andere')">Andere Anlage</div>
-    <div class="nav-card" onclick="openTab('montage')">Montage-Bericht</div>
-    <div class="nav-card" onclick="openTab('stunden')">Stundenzettel</div>
-</nav>
+  <main class="container" id="content"></main>
 
-<div class="content-container">
-
-    <!-- Aktions-Kasten (Export & Unterschriften-Steuerung) -->
-    <div class="control-panel">
-        <button class="panel-trigger" onclick="togglePanel()">Bericht-Optionen & Export ▼</button>
-        <div id="panel-content">
-            <div style="display: flex; gap: 15px; margin-bottom: 15px;">
-                <button onclick="window.print()" style="flex:1; padding: 10px; cursor:pointer;">🖨️ PDF generieren</button>
-                <button onclick="alert('In Cloud gespeichert')" style="flex:1; padding: 10px; cursor:pointer;">☁️ Cloud Save</button>
-            </div>
-            <hr>
-            <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-weight:bold;">
-                <input type="checkbox" id="sig-toggle" onchange="updateSigs()" style="transform: scale(1.3);">
-                Unterschriften-Felder am Ende einblenden
-            </label>
+  <!-- Einstellungen (ohne Grunddaten) -->
+  <div class="modal" id="settingsModal" aria-hidden="true">
+    <div class="modal-card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h2 style="margin:6px 0 12px 0;font-size:16px;">Einstellungen</h2>
+        <button class="ghost icon" id="closeSettings">✖️</button>
+      </div>
+      <div class="note" style="margin-bottom:8px">
+        Grunddaten (Projektnummer, Projekt, Betreiber, Datum, Baujahr) pflegst du direkt im Protokoll oben.
+      </div>
+      <h3 style="margin:6px 0 8px 0;font-size:14px;">Buchhaltung-PIN</h3>
+      <div class="row">
+        <div class="input"><label>PIN (4-stellig)</label><input id="accPin" placeholder="****" inputmode="numeric" maxlength="4"></div>
+        <div style="display:flex;align-items:flex-end;gap:8px">
+          <button class="ghost" id="saveAccPin">PIN setzen/ändern</button>
         </div>
+      </div>
+      <div class="modal-actions">
+        <button class="ghost" id="settingsSave">Schließen</button>
+      </div>
     </div>
+  </div>
 
-    <h2 id="current-title">Willkommen im Service-System</h2>
-    <p id="welcome-text">Bitte wählen Sie oben eine Kategorie aus, um das entsprechende Protokoll zu laden.</p>
-
-    <!-- PROTOKOLL: REGALBEDIENGERÄTE -->
-    <div id="rbg" class="protocol-section">
-        <h3>Prüfung von Regalbediengeräten (RBG)</h3>
-        <div class="check-row"><input type="checkbox"><label>Fahrwerk: Räder auf Verschleiß und festen Sitz prüfen</label></div>
-        <div class="check-row"><input type="checkbox"><label>Hubwerk: Tragmittel (Seile/Ketten) auf Ablegereife prüfen</label></div>
-        <div class="check-row"><input type="checkbox"><label>Lastaufnahmemittel (LAM): Teleskopgabeln Endanschläge prüfen</label></div>
-        <div class="check-row"><input type="checkbox"><label>Antriebe: Getriebeölstand und Dichtigkeit prüfen</label></div>
-        <div class="check-row"><input type="checkbox"><label>Sicherheit: Not-Halt und Endschalter Funktionstest</label></div>
-        <div class="check-row"><input type="checkbox"><label>Schienenreinigung und Schmierung der Führungsschienen</label></div>
-        <div class="check-row"><input type="checkbox"><label>Elektrik: Schleifleitungen und Stromabnehmer-Kohlen prüfen</label></div>
-        <textarea class="comment-box" placeholder="Besondere Feststellungen RBG..."></textarea>
+  <!-- Speichern in… -->
+  <div class="modal" id="saveInModal" aria-hidden="true">
+    <div class="modal-card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h2 style="margin:6px 0 12px 0;font-size:16px;">Protokoll speichern in…</h2>
+        <button class="ghost icon" id="closeSaveIn">✖️</button>
+      </div>
+      <div id="saveInBody"></div>
+      <div class="modal-actions">
+        <button class="ghost" id="saveInCancel">Abbrechen</button>
+        <button class="primary" id="saveInConfirm">Speichern</button>
+      </div>
     </div>
+  </div>
 
-    <!-- PROTOKOLL: FÖRDERTECHNIK -->
-    <div id="foerder" class="protocol-section">
-        <h3>Prüfung Fördertechnik (Rollen/Gurt/Kette)</h3>
-        <div class="check-row"><input type="checkbox"><label>Rollenbahnen: Rundlauf der Tragrollen prüfen</label></div>
-        <div class="check-row"><input type="checkbox"><label>Gurtförderer: Gurtspannung und Zentrierung korrigieren</label></div>
-        <div class="check-row"><input type="checkbox"><label>Kettenförderer: Kettenspannung und Verschleiß (Längung)</label></div>
-        <div class="check-row"><input type="checkbox"><label>Sensoren: Lichtschranken reinigen und ausrichten</label></div>
-        <div class="check-row"><input type="checkbox"><label>Motoren: Geräuschentwicklung und Wärmeentwicklung prüfen</label></div>
-        <div class="check-row"><input type="checkbox"><label>Übergabestellen: Freigängigkeit prüfen</label></div>
-        <textarea class="comment-box" placeholder="Mängelbericht Fördertechnik..."></textarea>
+  <!-- Entwurf speichern? -->
+  <div class="modal" id="leaveModal" aria-hidden="true">
+    <div class="modal-card">
+      <h2 style="margin:6px 0 12px 0;font-size:16px;">Entwurf speichern?</h2>
+      <div class="note">Du verlässt ein begonnenes Protokoll.</div>
+      <div class="modal-actions">
+        <button class="ghost" id="leaveNo">Nein</button>
+        <button class="primary" id="leaveYes">Ja</button>
+      </div>
     </div>
+  </div>
 
-    <!-- PROTOKOLL: REGALPRÜFUNG -->
-    <div id="regal" class="protocol-section">
-        <h3>Regalprüfung nach DIN EN 15635 (Expertenprüfung)</h3>
-        <div class="check-row"><input type="checkbox"><label>Regalstützen: Deformierung und Beschädigung prüfen</label></div>
-        <div class="check-row"><input type="checkbox"><label>Horizontale & Vertikale Verstrebungen auf festen Sitz</label></div>
-        <div class="check-row"><input type="checkbox"><label>Aushebelsicherungen (Sicherungsstifte) vollzählig?</label></div>
-        <div class="check-row"><input type="checkbox"><label>Fußplatten & Bodenanker: Festigkeit und Risse im Beton</label></div>
-        <div class="check-row"><input type="checkbox"><label>Belastungswarnschilder vorhanden und aktuell?</label></div>
-        <div class="check-row"><input type="checkbox"><label>Durchschubsicherungen vorhanden (falls erforderlich)?</label></div>
-        <textarea class="comment-box" placeholder="Gefährdungsbeurteilung (Grüne/Orange/Rote Gefahr)..."></textarea>
+  <!-- Buchhaltung entsperren -->
+  <div class="modal" id="accModal" aria-hidden="true">
+    <div class="modal-card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h2 style="margin:6px 0 12px 0;font-size:16px;">Buchhaltung entsperren</h2>
+        <button class="ghost icon" id="closeAcc">✖️</button>
+      </div>
+      <div class="row">
+        <div class="input"><label>PIN (4-stellig)</label><input id="accLoginPin" placeholder="****" inputmode="numeric" maxlength="4"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="ghost" id="accCancel">Abbrechen</button>
+        <button class="primary" id="accUnlock">Entsperren</button>
+      </div>
+      <div class="note">Die PIN wird lokal gespeichert.</div>
     </div>
-
-    <!-- PROTOKOLL: PSAGA -->
-    <div id="psaga" class="protocol-section">
-        <h3>PSA gegen Absturz (Jährliche Sachkundigenprüfung)</h3>
-        <div class="check-row"><input type="checkbox"><label>Auffanggurt: Textilgewebe auf Schnitte/Risse prüfen</label></div>
-        <div class="check-row"><input type="checkbox"><label>Beschläge/Ösen: Korrosion oder Verformung?</label></div>
-        <div class="check-row"><input type="checkbox"><label>Falldämpfer: Reißpaket unversehrt (Indikator)?</label></div>
-        <div class="check-row"><input type="checkbox"><label>Verbindungselemente/Karabiner: Verschlussautomatik prüfen</label></div>
-        <div class="check-row"><input type="checkbox"><label>Höhensicherungsgerät (HSG): Seileinzug und Blockierfunktion</label></div>
-        <div class="check-row"><input type="checkbox"><label>Gültigkeit: Herstellungsdatum / Maximale Lebensdauer erreicht?</label></div>
-    </div>
-
-    <!-- PROTOKOLL: ANDERE ANLAGE -->
-    <div id="andere" class="protocol-section">
-        <h3>Sonderprüfung / Sonstige Anlagen</h3>
-        <input type="text" placeholder="Anlagentyp / Bezeichnung" style="width:100%; padding:10px; margin-bottom:20px;">
-        <div class="check-row"><input type="checkbox"><label>Allgemeiner mechanischer Zustand i.O.</label></div>
-        <div class="check-row"><input type="checkbox"><label>Elektrische Komponenten geprüft</label></div>
-        <div class="check-row"><input type="checkbox"><label>Sicherheitsfunktionen einzeln getestet</label></div>
-        <textarea class="comment-box" rows="10" placeholder="Detaillierte Prüfschritte und Ergebnisse hier manuell eintragen..."></textarea>
-    </div>
-
-    <!-- PROTOKOLL: MONTAGE-BERICHT -->
-    <div id="montage" class="protocol-section">
-        <h3>Montage- / Umbaubericht</h3>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
-            <input type="text" placeholder="Baustellenname" style="padding:8px;">
-            <input type="text" placeholder="Projektnummer" style="padding:8px;">
-        </div>
-        <div class="check-row"><input type="checkbox"><label>Aufbau nach technischer Zeichnung erfolgt</label></div>
-        <div class="check-row"><input type="checkbox"><label>Verschraubungen mit Drehmoment geprüft</label></div>
-        <div class="check-row"><input type="checkbox"><label>Inbetriebnahme erfolgt / Probelauf ohne Last</label></div>
-        <div class="check-row"><input type="checkbox"><label>Baustelle besenrein hinterlassen</label></div>
-        <textarea class="comment-box" placeholder="Eingebaute Ersatzteile / Materialien..."></textarea>
-    </div>
-
-    <!-- PROTOKOLL: STUNDENZETTEL -->
-    <div id="stunden" class="protocol-section">
-        <h3>Arbeits- und Reisezeitnachweis</h3>
-        <table style="width:100%; border-collapse: collapse;">
-            <thead>
-                <tr style="background:#eee;">
-                    <th style="padding:10px; border:1px solid #ccc;">Datum</th>
-                    <th style="padding:10px; border:1px solid #ccc;">Von</th>
-                    <th style="padding:10px; border:1px solid #ccc;">Bis</th>
-                    <th style="padding:10px; border:1px solid #ccc;">KM</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td style="border:1px solid #ccc;"><input type="date" style="width:95%; border:none;"></td>
-                    <td style="border:1px solid #ccc;"><input type="time" style="width:95%; border:none;"></td>
-                    <td style="border:1px solid #ccc;"><input type="time" style="width:95%; border:none;"></td>
-                    <td style="border:1px solid #ccc;"><input type="number" style="width:95%; border:none;"></td>
-                </tr>
-            </tbody>
-        </table>
-        <textarea class="comment-box" placeholder="Tätigkeitsbeschreibung / Besondere Vorkommnisse..."></textarea>
-    </div>
-
-    <!-- UNTERSCHRIFTEN BEREICH -->
-    <div id="sig-area">
-        <div class="sig-grid">
-            <div>
-                <p><strong>Unterschrift Techniker</strong></p>
-                <div class="sig-box"></div>
-            </div>
-            <div>
-                <p><strong>Unterschrift Kunde</strong></p>
-                <div class="sig-box"></div>
-            </div>
-        </div>
-    </div>
-
-</div>
+  </div>
 
 <script>
-    // Tab Logik
-    function openTab(tabId) {
-        // Alle ausblenden
-        const sections = document.querySelectorAll('.protocol-section');
-        sections.forEach(s => s.classList.remove('active'));
-        
-        const navs = document.querySelectorAll('.nav-card');
-        navs.forEach(n => n.classList.remove('active'));
+  /* ---------- State & Helpers ---------- */
+  const REQUIRED_HEADER_KEYS = ['projektnummer','projekt','betreiber','datum'];
+  const HEADER_FIELDS_MIN = [
+    {key:'projektnummer',label:'Projektnummer',req:true},
+    {key:'projekt',label:'Projekt',req:true},
+    {key:'betreiber',label:'Betreiber',req:true},
+    {key:'datum',label:'Datum (TT/MM/JJJJ)',req:true},
+    {key:'baujahr',label:'Baujahr'}
+  ];
 
-        // Gewähltes einblenden
-        document.getElementById(tabId).classList.add('active');
-        document.getElementById('welcome-text').style.display = 'none';
-        
-        // Titel anpassen
-        const titleMap = {
-            'rbg': '⚙️ Regalbediengeräte Wartung',
-            'foerder': '📦 Fördertechnik Inspektion',
-            'regal': '📋 Regalprüfung DIN EN 15635',
-            'psaga': '🛡️ PSAgA Prüfung',
-            'andere': '🔧 Sonderprüfung',
-            'montage': '🏗️ Montagebericht',
-            'stunden': '🕒 Zeitnachweis'
-        };
-        document.getElementById('current-title').innerText = titleMap[tabId];
+  const PROTOCOL_SECTIONS_RBG = [
+    { id:'gasse', title:'Gasse / Ausrüstung', items:[
+      {id:'schleifleitung', label:'Schleifleitung / Stromabnehmer', fields:[{type:'status'},{type:'note'}]},
+      {id:'fahrschiene', label:'Fahrschiene (Befestigung/Tragbild)', fields:[{type:'status'},{type:'note'}]},
+      {id:'oberfuehrung', label:'Obere Führungsschiene (Befestigung, Verbindungen)', fields:[{type:'status'},{type:'note'}]},
+      {id:'schiene_bef', label:'Schienenstoß / Verbinder (Befestigung)', fields:[{type:'status'},{type:'note'}]},
+      {id:'puffer', label:'Puffer / Festanschläge (Befestigung)', fields:[{type:'status'},{type:'note'}]},
+      {id:'anschlaege', label:'Anschläge / Notanschläge', fields:[{type:'status'},{type:'note'}]},
+      {id:'leitern', label:'Steigleitern / Podeste / Geländer', fields:[{type:'status'},{type:'note'}]},
+      {id:'kennzeichnung', label:'Kennzeichnungen / Warnhinweise', fields:[{type:'status'},{type:'note'}]}
+    ]},
+    { id:'fahrwagen', title:'Fahrwagen / Führungsrollen / Laufräder', items:[
+      {id:'fw_befestigung', label:'Fahrwerk – Befestigung', fields:[{type:'status'},{type:'note'}]},
+      {id:'fw_motor', label:'Fahrwerk – Motor', fields:[{type:'status'},{type:'note'}]},
+      {id:'fw_getriebe', label:'Fahrwerk – Getriebe', fields:[{type:'status'},{type:'note'}]},
+      {id:'fw_drehmomentstuetze', label:'Fahrwerk – Drehmomentstütze', fields:[{type:'status'},{type:'note'}]},
+      {id:'fw_kupplung', label:'Fahrwerk – Kupplung', fields:[{type:'status'},{type:'note'}]},
+      {id:'fr_hl', label:'Führungsrolle Fahrwagen hinten links', fields:[{type:'status'},{type:'measurement',label:'Spaltmaß',unit:'mm'},{type:'note'}]},
+      {id:'fr_hr', label:'Führungsrolle Fahrwagen hinten rechts', fields:[{type:'status'},{type:'measurement',label:'Spaltmaß',unit:'mm'},{type:'note'}]},
+      {id:'fr_vl', label:'Führungsrolle Fahrwagen vorn links', fields:[{type:'status'},{type:'measurement',label:'Spaltmaß',unit:'mm'},{type:'note'}]},
+      {id:'fr_vr', label:'Führungsrolle Fahrwagen vorn rechts', fields:[{type:'status'},{type:'measurement',label:'Spaltmaß',unit:'mm'},{type:'note'}]},
+      {id:'lr_angetrieben', label:'Laufrad angetrieben', fields:[{type:'status'},{type:'measurement',label:'Einlauftiefe',unit:'mm'},{type:'note'}]},
+      {id:'lr_nichtangetrieben', label:'Laufrad nicht angetrieben', fields:[{type:'status'},{type:'measurement',label:'Einlauftiefe',unit:'mm'},{type:'note'}]},
+      {id:'achsabdeckung', label:'Abdeckungen / Schutz', fields:[{type:'status'},{type:'note'}]}
+    ]},
+    { id:'hubwerk', title:'Hubwerk', items:[
+      {id:'befestigungen_allg', label:'Befestigungen (allg.)', fields:[{type:'status'},{type:'note'}]},
+      {id:'als_bremse', label:'Bremse – Arbeitsluftspalt (nach Herstellervorgabe)', fields:[{type:'status'},{type:'measurement',label:'ALS',unit:'mm'},{type:'note'}]},
+      {id:'oeldichtheit', label:'Dichtungen / Öldichtheit', fields:[{type:'status'},{type:'note'}]},
+      {id:'hubseil', label:'Hubseil – Sichtprüfung (ISO 4309), Ablegereife', fields:[{type:'status'},{type:'measurement',label:'Seildicke',unit:'mm'},{type:'note'}]},
+      {id:'seiltrommel_rillung', label:'Seiltrommel – Seilrillung kontrollieren', fields:[{type:'status'},{type:'note'}]},
+      {id:'seiltrommel_lagerung', label:'Seiltrommel – Lagerung nachschmieren', fields:[{type:'status'},{type:'lubricated'},{type:'note'}]},
+      {id:'uml_kopftraverse', label:'Seilumlenkrollen – Kopftraverse (Einlauftiefe prüfen, nachschmieren)', fields:[{type:'status'},{type:'measurement',label:'Einlauftiefe',unit:'mm'},{type:'lubricated'},{type:'note'}]},
+      {id:'uml_kopftraverse_vorne', label:'Seilumlenkrollen – Kopftraverse vorne (Einlauftiefe prüfen, nachschmieren)', fields:[{type:'status'},{type:'measurement',label:'Einlauftiefe',unit:'mm'},{type:'lubricated'},{type:'note'}]},
+      {id:'uml_hubrahmen', label:'Seilumlenkrollen – Hubrahmen (Einlauftiefe prüfen, nachschmieren)', fields:[{type:'status'},{type:'measurement',label:'Einlauftiefe',unit:'mm'},{type:'lubricated'},{type:'note'}]},
+      {id:'uml_weitere', label:'Weitere Umlenkpunkte (sofern vorhanden)', fields:[{type:'status'},{type:'measurement',label:'Einlauftiefe',unit:'mm'},{type:'lubricated'},{type:'note'}]},
+      {id:'energiekette', label:'Energiekette/Schleifleitung – Beschädigungen kontrollieren', fields:[{type:'status'},{type:'note'}]},
+      {id:'energiekette_uebergaenge', label:'Energiekette/Schleifleitung – Übergänge kontrollieren', fields:[{type:'status'},{type:'note'}]},
+      {id:'energiekette_festpunkte', label:'Energiekette/Schleifleitung – Festpunkte Festsitz prüfen', fields:[{type:'status'},{type:'note'}]}
+    ]},
+    { id:'tisch_kette_antrieb', title:'Teleskoptisch / Kettensystem / Antrieb', items:[
+      {id:'oberteilauflage', label:'Oberteilauflage', fields:[{type:'status'},{type:'note'}]},
+      {id:'kurvenrollen', label:'Kurvenrollen', fields:[{type:'status'},{type:'note'}]},
+      {id:'schleifleisten', label:'Schleifleisten (einstellen falls nötig)', fields:[{type:'status'},{type:'note'}]},
+      {id:'zahnstange', label:'Zahnstange / Rollen / Gleitleisten', fields:[{type:'status'},{type:'note'}]},
+      {id:'stuetzrollen', label:'Stützrollen', fields:[{type:'status'},{type:'note'}]},
+      {id:'getriebe', label:'Getriebe', fields:[{type:'status'},{type:'note'}]},
+      {id:'ketten', label:'Ketten – nachspannen & schmieren', fields:[{type:'status'},{type:'lubricated'},{type:'note'}]},
+      {id:'kettenspanner', label:'Kettenspanner', fields:[{type:'status'},{type:'note'}]},
+      {id:'umlenkrollen_ketten', label:'Umlenkrollen / Kettenräder', fields:[{type:'status'},{type:'lubricated'},{type:'note'}]},
+      {id:'kupplung', label:'Kupplung', fields:[{type:'status'},{type:'note'}]},
+      {id:'gelenkwelle', label:'Gelenkwelle', fields:[{type:'status'},{type:'note'}]}
+    ]},
+    { id:'elektrik', title:'Elektrik / Steuerung', items:[
+      {id:'schaltschrank', label:'Schaltschrank sauber, dicht, Beschriftung', fields:[{type:'status'},{type:'note'}]},
+      {id:'klemmen', label:'Klemmen / Zugentlastung / PE', fields:[{type:'status'},{type:'note'}]},
+      {id:'kabelfuehrung', label:'Kabelführung / Schleppkette / Übergänge', fields:[{type:'status'},{type:'note'}]},
+      {id:'endschalter', label:'Endschalter / Initiatoren / Verkabelung', fields:[{type:'status'},{type:'note'}]},
+      {id:'antriebsregler', label:'Antriebsregler / Parametrierung', fields:[{type:'status'},{type:'note'}]},
+      {id:'not_halt', label:'Not-Halt / Sicherheitskette / Verriegelung', fields:[{type:'status'},{type:'note'}]}
+    ]},
+    { id:'wiederkehrende_pruefung', title:'Wiederkehrende Prüfung (Sicherheit)', items:[
+      {id:'notauskette', label:'Not-Aus-Kette inkl. Verriegelungen – Funktionsprüfung', fields:[{type:'status'},{type:'note'}]},
+      {id:'endpositionen', label:'Endpositionen Wartung/Semiautomatik anfahren', fields:[{type:'status'},{type:'note'}]},
+      {id:'bremsweg', label:'Bremsweg (ohne Last, niedrige Geschwindigkeit)', fields:[{type:'status'},{type:'note'}]},
+      {id:'fangsystem', label:'Fangsystem / Geschwindigkeitsbegrenzer / Gestänge', fields:[{type:'status'},{type:'note'}]},
+      {id:'lastmesseinheit', label:'Lastmesseinheit (Über-/Unterlast) – Test', fields:[{type:'status'},{type:'note'}]},
+      {id:'sensorik', label:'Sicherheitsrelevante Sensorik / Lichtschranken', fields:[{type:'status'},{type:'note'}]},
+      {id:'pruefbuch', label:'Prüfbuch vorhanden und Eintrag vorgenommen', fields:[{type:'status'},{type:'note'}]},
+      {id:'bedenken', label:'Bedenken gegen weiteren Betrieb', fields:[{type:'status'},{type:'note'}]}
+    ]},
+    { id:'maengelliste', title:'Mängelliste', items:[
+      {id:'maengel', label:'Mängel / Beanstandungen (Freitext)', fields:[{type:'note'}]},
+      {id:'schmierstoffe', label:'Wurden die Schmierstoffe zur Verfügung gestellt?', fields:[{type:'yesno'}]}
+    ]}
+  ];
 
-        // Nav-Highlight
-        event.currentTarget.classList.add('active');
+  const PROTOCOLS = {
+    rbg:{ name:'Regalbediengerät', specs:[
+      {key:'mast',label:'Mast',type:'select',options:['Ein-Mast','Zwei-Mast']},
+      {key:'teleskoptisch',label:'Teleskoptisch',type:'select',options:['einfach','doppelt']},
+      {key:'nutzlast',label:'Nutzlast (kg)',type:'number'},
+      {key:'hubhoehe',label:'max. Hubhöhe (m)',type:'number'},
+      {key:'fahrweg',label:'Fahrweg (m)',type:'number'},
+    ], sections: PROTOCOL_SECTIONS_RBG },
+    ft:{ name:'Fördertechnik', specs:[
+      {key:'system',label:'System',type:'select',options:['Rollenbahn','Gurtförderer','Kettenförderer','Heber','Drehtisch']},
+      {key:'antrieb',label:'Antrieb',type:'select',options:['Motor/Getriebe','Direktantrieb']},
+      {key:'spurbreite',label:'Spurbreite (mm)',type:'number'},
+    ], sections:[
+      {id:'ft1',title:'Antriebsstation',items:[{id:'ft_mg',label:'Motor/Getriebe',fields:[{type:'status'},{type:'note'}]},{id:'ft_sp',label:'Spannung/Kettenspanner',fields:[{type:'status'},{type:'lubricated'},{type:'note'}]}]},
+      {id:'ft2',title:'Förderstrecke',items:[{id:'ft_rbk',label:'Rollen/Bänder/Ketten',fields:[{type:'status'},{type:'note'}]},{id:'ft_lsw',label:'Sensorik/Lichtschranken',fields:[{type:'status'},{type:'note'}]}]},
+      {id:'ft3',title:'Sicherheit',items:[{id:'ft_notaus',label:'Not-Aus/Verriegelungen',fields:[{type:'status'},{type:'note'}]},{id:'ft_bed',label:'Bedenken gegen Betrieb',fields:[{type:'status'},{type:'note'}]}]},
+      {id:'ft4',title:'Mängelliste',items:[{id:'ft_m',label:'Mängel (Freitext)',fields:[{type:'note'}]},{id:'ft_schm',label:'Schmierstoffe bereitgestellt?',fields:[{type:'yesno'}]}]},
+    ]},
+    other:{ name:'Andere Anlage', specs:[
+      {key:'beschreibung',label:'Kurzbeschreibung',type:'text'},
+      {key:'hersteller',label:'Hersteller (optional)',type:'text'}
+    ], sections:[
+      {id:'allg',title:'Allgemein',items:[{id:'all_bef',label:'Befestigungen',fields:[{type:'status'},{type:'note'}]},{id:'all_sens',label:'Sensorik',fields:[{type:'status'},{type:'note'}]}]},
+      {id:'sich',title:'Sicherheit',items:[{id:'all_not',label:'Not-Aus',fields:[{type:'status'},{type:'note'}]}]},
+      {id:'mgl',title:'Mängelliste',items:[{id:'all_m',label:'Mängel (Freitext)',fields:[{type:'note'}]}]},
+    ]},
+  };
+
+  const LS_USER='sc_user',LS_DRAFTS='sc_drafts',LS_PROJECTS='sc_projects',LS_TRASH='sc_trash',LS_SEC='sc_sec',LS_MAT='sc_mat';
+  const $=(s,e=document)=>e.querySelector(s), $$=(s,e=document)=>Array.from(e.querySelectorAll(s));
+  const pad=n=>String(n).padStart(2,'0');
+  const toDDMMYYYY=d=>pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear();
+  function normalizeDateInput(s){ if(!s) return null; s=String(s).trim().replace(/[.\-]/g,'/'); const iso=s.match(/^(\d{4})-(\d{2})-(\d{2})$/); if(iso) return iso[3]+'/'+iso[2]+'/'+iso[1]; const m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/); return m?pad(+m[1])+'/'+pad(+m[2])+'/'+m[3]:null;}
+  const validDate=s=>!!normalizeDateInput(s);
+  const lsGet=(k,f)=>{try{return JSON.parse(localStorage.getItem(k))??f}catch(_){return f}};
+  const lsSet=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+  const uid=()=>Math.random().toString(36).slice(2)+Date.now().toString(36);
+  const now=()=>new Date().toISOString();
+  function toast(msg){const t=document.createElement('div');t.textContent=msg;Object.assign(t.style,{position:'fixed',bottom:'20px',left:'50%',transform:'translateX(-50%)',background:'#1f2a34',color:'#fff',padding:'8px 12px',borderRadius:'8px',zIndex:'9999',fontSize:'13px'});document.body.appendChild(t);setTimeout(()=>t.remove(),1400)}
+
+  let STATE={user:null,header:{},specs:{},protocolType:null,items:{},signatures:{sig1:null,sig2:null},datum_ddmmyyyy:null,page:'start',currentDraftId:null,dirty:false,accUnlocked:false};
+
+  /* ---------- Navigation ---------- */
+  function setTitle(t,sub=''){ $('#appTitle').textContent=t||'Service Check'; $('#subtitle').textContent=sub?('· '+sub):''; }
+  function navigate(page){ if(STATE.page==='protocol' && STATE.dirty){ openLeaveModal(()=>{saveDraftSnapshot(null);STATE.dirty=false;navigate(page);closeLeaveModal()},()=>{STATE.dirty=false;closeLeaveModal();navigate(page)}); return; } STATE.page=page; render(); }
+  function render(){
+    const root=$('#content'); root.innerHTML='';
+    $('#backBtn').style.display=(STATE.page==='start'||STATE.page==='home')?'none':'inline-flex';
+    $('#settingsBtn').style.display=(['protocol','home','specs','projects','drafts','accounting','project'].includes(STATE.page))?'inline-flex':'none';
+    if(STATE.page==='start') return renderStart(root);
+    if(STATE.page==='auth') return renderAuth(root);
+    if(STATE.page==='home') return renderHome(root);
+    if(STATE.page==='projects') return renderProjects(root);
+    if(STATE.page==='project') return renderProjectDetail(root);
+    if(STATE.page==='specs') return renderSpecs(root);
+    if(STATE.page==='protocol') return renderProtocol(root);
+    if(STATE.page==='drafts') return renderDrafts(root);
+    if(STATE.page==='accounting') return renderAccounting(root);
+  }
+
+  /* ---------- Pages ---------- */
+  function renderStart(root){
+    setTitle('Service Check','Start');
+    const c=document.createElement('section');c.className='card';
+    c.innerHTML=`<h2 style="margin:6px 0 12px 0">Willkommen</h2>
+    <p>Offline-fähig. Daten bleiben lokal.</p>
+    <div class="row startOnly">
+      <button class="primary" id="startAuth">Anmelden / Registrieren</button>
+      <button class="ghost" id="skip">Ohne Anmeldung fortfahren</button>
+    </div>`;
+    root.appendChild(c);
+    $('#startAuth').onclick=()=>navigate('auth');
+    $('#skip').onclick=()=>{ if(!STATE.user){STATE.user={name:'Gast'}}; navigate('home'); };
+  }
+  function renderAuth(root){
+    setTitle('Service Check','Anmeldung');
+    const c=document.createElement('section'); c.className='card';
+    const name=STATE.user?.name||'',email=STATE.user?.email||'';
+    c.innerHTML=`<div class="row authOnly">
+      <div class="input req"><label>Dein Name</label><input id="name" value="${name}" placeholder="Name"></div>
+      <div class="input"><label>E-Mail (optional)</label><input id="email" value="${email}" placeholder="email@example.com"></div>
+      <div class="input req"><label>PIN (4-stellig, lokal)</label><input id="pin" inputmode="numeric" maxlength="4" placeholder="****"></div>
+    </div>
+    <button class="primary" id="doLogin">Weiter</button>`;
+    root.appendChild(c);
+    $('#doLogin').onclick=()=>{ const n=$('#name').value.trim(), p=$('#pin').value.trim(); if(!n||p.length!==4){alert('Bitte Name und 4-stellige PIN eingeben.');return;} STATE.user={name:n,email:$('#email').value.trim()||undefined,pin:p}; lsSet(LS_USER,STATE.user); navigate('home'); };
+  }
+  function renderHome(root){
+    setTitle('Service Check','Hauptmenü');
+    const c=document.createElement('section'); c.className='card';
+    c.innerHTML=`<div class="note homeOnly">Angemeldet als: <b>${STATE.user?.name||'Gast'}</b></div>
+    <h2 style="margin:6px 0 12px 0">Was möchtest du tun?</h2>
+    <div class="grid" id="tiles"></div>`;
+    root.appendChild(c);
+    const grid=$('#tiles');
+    [['rbg','Regalbediengerät'],['ft','Fördertechnik'],['other','Andere Anlage']].forEach(([k,label])=>{
+      const t=document.createElement('div'); t.className='tile'; t.innerHTML=`<div style="font-weight:600">${label}</div><div class="note">Protokoll starten</div>`;
+      t.onclick=()=>{ STATE.protocolType=k; loadAutosaveFor(k); navigate('specs'); }; grid.appendChild(t);
+    });
+    const tDrafts=document.createElement('div'); tDrafts.className='tile'; tDrafts.innerHTML=`<div style="font-weight:600">Entwürfe</div><div class="note">Gespeicherte Protokolle</div>`;
+    tDrafts.onclick=()=>navigate('drafts'); grid.appendChild(tDrafts);
+    const tProjects=document.createElement('div'); tProjects.className='tile'; tProjects.innerHTML=`<div style="font-weight:600">Projekte</div><div class="note">Ordner & Arbeitszeiten</div>`;
+    tProjects.onclick=()=>navigate('projects'); grid.appendChild(tProjects);
+    const tAcc=document.createElement('div'); tAcc.className='tile'; tAcc.innerHTML=`<div style="font-weight:600">Buchhaltung</div><div class="note">Material/Leistungen & CSV</div>`;
+    tAcc.onclick=()=>openAccModal(); grid.appendChild(tAcc);
+  }
+  function renderProjects(root){
+    setTitle('Service Check','Projekte');
+    const c=document.createElement('section'); c.className='card';
+    c.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center">
+      <h2 style="margin:6px 0 12px 0">Projektordner</h2>
+      <button class="primary" id="newProject">Neues Projekt</button>
+    </div>
+    <div id="projectList"></div>`;
+    root.appendChild(c);
+    $('#newProject').onclick=()=>{ const pn=prompt('Projektnummer?')||''; const pj=prompt('Projektname?')||''; const bet=prompt('Betreiber?')||''; const bj=prompt('Baujahr?')||''; if(!pn.trim()||!pj.trim())return; saveProject({projektnummer:pn.trim(),projekt:pj.trim(),betreiber:bet.trim(),baujahr:bj.trim()}); toast('Projekt angelegt.'); render(); };
+    const list=$('#projectList'); const projs=listProjects();
+    if(!projs.length){list.innerHTML='<div class="note">Noch keine Projekte.</div>';return;}
+    projs.forEach(p=>{
+      const it=document.createElement('div'); it.style.cssText='display:flex;justify-content:space-between;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:8px 0';
+      const left=document.createElement('div');
+      left.innerHTML=`<div style="font-weight:600">${p.projektnummer||'–'} · ${p.projekt||''}</div>
+      <div class="note">Betreiber: ${p.betreiber||'–'} · Baujahr: ${p.baujahr||'–'}</div>`;
+      const right=document.createElement('div');
+      const open=document.createElement('button'); open.className='ghost'; open.textContent='Öffnen';
+      open.onclick=()=>{ STATE._projectOpenId=p.id; navigate('project'); };
+      const del=document.createElement('button'); del.className='ghost'; del.textContent='Löschen';
+      del.onclick=()=>{ if(confirm('Projekt löschen?')){ deleteProject(p.id); render(); } };
+      right.append(open,del); it.append(left,right); list.appendChild(it);
+    });
+  }
+  function renderProjectDetail(root){
+    const p=listProjects().find(x=>x.id===STATE._projectOpenId); if(!p){navigate('projects');return;}
+    setTitle('Service Check',`Projekt: ${p.projektnummer||''}`);
+    const head=document.createElement('section'); head.className='card';
+    head.innerHTML=`<h2 style="margin:6px 0 12px 0">${p.projekt||'Projekt'}</h2>
+    <div class="row"><span class="pill">Projektnr: <b>${p.projektnummer||'–'}</b></span><span class="pill">Betreiber: <b>${p.betreiber||'–'}</b></span><span class="pill">Baujahr: <b>${p.baujahr||'–'}</b></span></div>`;
+    root.appendChild(head);
+
+    const actions=document.createElement('section'); actions.className='card';
+    actions.innerHTML=`<div class="grid">
+      <div class="tile" id="startProto"><div style="font-weight:600">Protokoll im Projekt</div><div class="note">RBG/FT/Andere</div></div>
+      <div class="tile" id="tl"><div style="font-weight:600">Arbeitszeit-Protokoll</div><div class="note">Erfassen & CSV</div></div>
+    </div>`;
+    root.appendChild(actions);
+    $('#startProto').onclick=()=>{ STATE.protocolType='rbg'; loadAutosaveFor('rbg'); STATE._saveToProjectId=p.id; navigate('specs'); };
+    $('#tl').onclick=()=>{ renderTimeLog(root,p); };
+    renderTimeLog(root,p);
+  }
+  function renderTimeLog(root,p){
+    const card=document.createElement('section'); card.className='card';
+    card.innerHTML='<h3 style="margin:6px 0 12px 0">Arbeitszeit</h3>';
+    const row=document.createElement('div'); row.className='row';
+    row.innerHTML=`<div class="input"><label>Datum</label><input id="tl_date" type="date"></div>
+    <div class="input"><label>Mitarbeiter</label><input id="tl_name" placeholder="Name"></div>
+    <div class="input"><label>Tätigkeit</label><input id="tl_task" placeholder="z.B. Wartung RBG"></div>
+    <div class="input"><label>Start (HH:MM)</label><input id="tl_start" placeholder="07:30"></div>
+    <div class="input"><label>Ende (HH:MM)</label><input id="tl_end" placeholder="16:15"></div>
+    <div class="input"><label>Pause (Min.)</label><input id="tl_break" type="number" placeholder="30"></div>`;
+    const btn=document.createElement('button'); btn.className='primary'; btn.textContent='Eintrag hinzufügen';
+    btn.onclick=()=>{ const d=$('#tl_date').value,n=$('#tl_name').value.trim(),s=$('#tl_start').value,e=$('#tl_end').value,b=parseInt($('#tl_break').value||'0',10)||0; if(!d||!n||!s||!e){alert('Bitte Datum, Name, Start, Ende.');return;} addTime(p.id,{date:d,staff:n,task:$('#tl_task').value.trim(),start:s,end:e,breakMin:b}); toast('Zeit erfasst.'); render(); };
+    card.append(row,btn); root.appendChild(card);
+
+    const listCard=document.createElement('section'); listCard.className='card';
+    listCard.innerHTML='<h3 style="margin:6px 0 12px 0">Einträge</h3>';
+    const entries=listTimes(p.id);
+    if(!entries.length){ listCard.innerHTML += '<div class="note">Noch keine Einträge.</div>'; root.appendChild(listCard); return; }
+    const tbl=document.createElement('table'); tbl.className='table';
+    tbl.innerHTML='<thead><tr><th>Datum</th><th>Name</th><th>Tätigkeit</th><th>Start</th><th>Ende</th><th>Pause</th><th></th></tr></thead>';
+    const tb=document.createElement('tbody');
+    entries.forEach(en=>{
+      const tr=document.createElement('tr');
+      tr.innerHTML=`<td>${en.date}</td><td>${en.staff}</td><td>${en.task||''}</td><td>${en.start||''}</td><td>${en.end||''}</td><td>${en.breakMin||0}</td><td><button class="ghost">Löschen</button></td>`;
+      tr.querySelector('button').onclick=()=>{ const rest=listTimes(p.id).filter(x=>x.id!==en.id); lsSet('sc_times:'+p.id,rest); render(); };
+      tb.appendChild(tr);
+    });
+    tbl.appendChild(tb);
+    const exp=document.createElement('button'); exp.className='ghost'; exp.textContent='CSV exportieren';
+    exp.onclick=()=>{ const e=listTimes(p.id); const headers=['Datum','Mitarbeiter','Tätigkeit','Start','Ende','PauseMin','Projekt','Projektnummer','Betreiber']; const rows=e.map(x=>[x.date,x.staff,(x.task||''),(x.start||''),(x.end||''),(x.breakMin||0),(p.projekt||''),(p.projektnummer||''),(p.betreiber||'')]); downloadCSV('Arbeitszeit_'+(p.projektnummer||'Projekt')+'.csv',headers,rows); };
+    listCard.append(tbl,document.createElement('br'),exp); root.appendChild(listCard);
+  }
+  function renderSpecs(root){
+    const proto=PROTOCOLS[STATE.protocolType]; setTitle('Service Check',proto.name+' · Spezifikation');
+    const card=document.createElement('section'); card.className='card';
+    const wrap=document.createElement('div'); wrap.className='row specsOnly';
+    proto.specs.forEach(f=>{
+      const w=document.createElement('div'); w.className='input';
+      const lab=document.createElement('label'); lab.textContent=f.label;
+      let field; if(f.type==='select'){ field=document.createElement('select'); field.innerHTML='<option value="">–</option>'+f.options.map(o=>`<option>${o}</option>`).join(''); field.value=STATE.specs[f.key]||''; field.onchange=()=>{STATE.specs[f.key]=field.value; autosave();}; }
+      else { field=document.createElement('input'); field.type=f.type||'text'; field.value=STATE.specs[f.key]||''; field.oninput=()=>{STATE.specs[f.key]=field.value; autosave();}; }
+      w.append(lab,field); wrap.appendChild(w);
+    });
+    card.appendChild(wrap);
+    const next=document.createElement('button'); next.className='primary'; next.textContent='Weiter zum Protokoll'; next.onclick=()=>navigate('protocol');
+    card.appendChild(next); root.appendChild(card);
+  }
+  function renderDrafts(root){
+    setTitle('Service Check','Entwürfe');
+    const c=document.createElement('section'); c.className='card';
+    const drafts=listDrafts().sort((a,b)=>(b.updatedAt||'').localeCompare(a.updatedAt||''));
+    if(!drafts.length){ c.innerHTML='<div class="note">Noch keine Entwürfe.</div>'; root.appendChild(c); return; }
+    drafts.forEach(d=>{
+      const it=document.createElement('div'); it.style.cssText='display:flex;justify-content:space-between;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:8px 0';
+      const left=document.createElement('div'); left.innerHTML=`<div style="font-weight:600">${d.title||'Entwurf'}</div><div class="note">${PROTOCOLS[d.protocolType]?.name||d.protocolType||'–'} · ${d.updatedAt?new Date(d.updatedAt).toLocaleString():''}</div>`;
+      const right=document.createElement('div'); const open=document.createElement('button'); open.className='ghost'; open.textContent='Öffnen';
+      open.onclick=()=>{ STATE.protocolType=d.protocolType; STATE.header=d.header||{}; STATE.specs=d.specs||{}; STATE.items=d.items||{}; STATE.signatures=d.signatures||{sig1:null,sig2:null}; STATE.datum_ddmmyyyy=d.datum_ddmmyyyy||STATE.header.datum||toDDMMYYYY(new Date()); STATE.currentDraftId=d.id; STATE.dirty=false; navigate('protocol'); };
+      const del=document.createElement('button'); del.className='ghost'; del.textContent='Löschen'; del.onclick=()=>{ if(confirm('Entwurf löschen?')){ deleteDraft(d.id); render(); } };
+      right.append(open,del); it.append(left,right); c.appendChild(it);
+    });
+    root.appendChild(c);
+  }
+  function renderProtocol(root){
+    const proto=PROTOCOLS[STATE.protocolType]; setTitle('Service Check', proto.name+' · Protokoll');
+
+    /* Kopfzeile Pills */
+    const quick=document.createElement('section'); quick.className='card';
+    quick.innerHTML=`<h2 style="margin:6px 0 12px 0">Wartungsprotokoll</h2>
+    <div class="row">
+      <span class="pill">Projektnr: <b id="pill_pn">${STATE.header.projektnummer||'–'}</b></span>
+      <span class="pill">Projekt: <b id="pill_p">${STATE.header.projekt||'–'}</b></span>
+      <span class="pill">Betreiber: <b id="pill_b">${STATE.header.betreiber||'–'}</b></span>
+    </div>`;
+    root.appendChild(quick);
+
+    /* Grunddaten oben im Protokoll */
+    const headForm=document.createElement('section'); headForm.className='card';
+    headForm.innerHTML = '<h2 style="margin:6px 0 12px 0;font-size:16px;">Grunddaten</h2>';
+    const hrow=document.createElement('div'); hrow.className='row';
+    HEADER_FIELDS_MIN.forEach(f=>{
+      const w=document.createElement('div'); w.className='input'+(f.req?' req':'');
+      const lab=document.createElement('label'); lab.textContent=f.label;
+      const inp=document.createElement('input'); if(f.key==='datum'){ inp.placeholder='TT/MM/JJJJ'; inp.inputMode='numeric'; inp.maxLength=10; }
+      inp.value=STATE.header[f.key]|| (f.key==='datum' ? (STATE.datum_ddmmyyyy||toDDMMYYYY(new Date())) : '');
+      const update=()=>{
+        if(f.key==='datum'){ const norm=normalizeDateInput(inp.value)||inp.value; inp.value=norm; STATE.header[f.key]=norm; STATE.datum_ddmmyyyy=norm; }
+        else { STATE.header[f.key]=inp.value; }
+        autosave(true);
+        updateHeaderPills();
+        togglePrintButton();
+      };
+      inp.oninput=update;
+      if(f.key==='datum') inp.onblur=()=>{ if(!validDate(inp.value)) alert('Bitte Datum als TT/MM/JJJJ'); };
+      w.append(lab, inp); hrow.appendChild(w);
+    });
+    headForm.appendChild(hrow); root.appendChild(headForm);
+
+    /* Info-Kasten */
+    const info=document.createElement('section'); info.className='card';
+    const ready=validateRequiredHeadersOnly();
+    info.innerHTML=`<div class="banner ${ready?'ok':'warn'}">${ready?'Pflichtfelder vollständig – Drucken/Export möglich.':'Bitte Projektnummer, Projekt, Betreiber und Datum ausfüllen.'}</div>
+    <details style="margin-top:8px"><summary>ℹ️ Hinweise anzeigen/ausblenden</summary>
+      <div class="note" style="margin-top:6px">Links/Rechts = Ansicht vom Schaltschrank Richtung Hubrahmen</div>
+      <div class="note">i.O. = in Ordnung ; n.i.O. = nicht in Ordnung ; n.v. = nicht vorhanden</div>
+    </details>`;
+    root.appendChild(info);
+
+    /* Spezifikation (Nur Anzeige) */
+    const spec=document.createElement('section'); spec.className='card';
+    spec.innerHTML='<h2 style="margin:6px 0 12px 0">Spezifikation</h2>';
+    const srow=document.createElement('div'); srow.className='row';
+    PROTOCOLS[STATE.protocolType].specs.forEach(f=>{const v=STATE.specs[f.key]||'–'; const d=document.createElement('div'); d.className='input'; d.innerHTML=`<label>${f.label}</label><input disabled value="${v}">`; srow.appendChild(d);});
+    spec.appendChild(srow); root.appendChild(spec);
+
+    /* Abschnitte */
+    const secWrap=document.createElement('div'); root.appendChild(secWrap);
+    renderSections(secWrap, proto.sections);
+
+    /* Unterschriften */
+    const sig=document.createElement('section'); sig.className='card';
+    sig.innerHTML='<h2 style="margin:6px 0 12px 0">Unterschriften</h2>';
+    const sigr=document.createElement('div'); sigr.className='row';
+    sigr.appendChild(signatureBlock('Prüfer','sig1'));
+    sigr.appendChild(signatureBlock('Kunde','sig2'));
+    const db=document.createElement('div'); db.className='input'; db.innerHTML=`<label>Datum (TT/MM/JJJJ)</label><input id="sigDate" placeholder="TT/MM/JJJJ">`;
+    sigr.appendChild(db); sig.appendChild(sigr); root.appendChild(sig);
+    const sd=$('#sigDate'); const nowFmt=toDDMMYYYY(new Date()); sd.value=STATE.header['datum_unterschrift']||nowFmt; sd.oninput=()=>{ const norm=normalizeDateInput(sd.value)||sd.value; sd.value=norm; STATE.header['datum_unterschrift']=norm; autosave(); };
+
+    /* Footer */
+    const footer=document.createElement('div'); footer.className='footer-actions';
+    footer.innerHTML=`<button class="ghost" id="save">In Entwürfe</button>
+    <button class="ghost" id="saveIn">Speichern in…</button>
+    <button class="ghost" id="export">Export (JSON)</button>
+    <label class="ghost" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer">Import
+      <input id="import" type="file" accept="application/json" style="display:none">
+    </label>
+    <span style="flex:1"></span>
+    <button class="primary" id="print" ${ready?'':'disabled'}>Drucken / PDF</button>`;
+    root.appendChild(footer);
+
+    $('#save').onclick=()=>saveDraftSnapshot(null);
+    $('#saveIn').onclick=openSaveInModal;
+    $('#export').onclick=()=>{ downloadJSON('service_check_export.json',{header:STATE.header,specs:STATE.specs,items:STATE.items,protocolType:STATE.protocolType}); };
+    $('#import').addEventListener('change',e=>{const f=e.target.files?.[0]; if(!f) return; const r=new FileReader(); r.onload=()=>{try{const o=JSON.parse(r.result); STATE.header=o.header||STATE.header; STATE.specs=o.specs||STATE.specs; STATE.items=o.items||STATE.items; STATE.protocolType=o.protocolType||STATE.protocolType; autosave(true); render();}catch(_){alert('Ungültige JSON-Datei.')}}; r.readAsText(f);});
+    $('#print').onclick=()=>{ if(!validateRequiredHeadersOnly()){alert('Bitte Grunddaten ausfüllen.');return;} window.print(); };
+
+    function updateHeaderPills(){
+      const pn=$('#pill_pn'), p=$('#pill_p'), b=$('#pill_b');
+      if(pn) pn.textContent = STATE.header.projektnummer||'–';
+      if(p) p.textContent = STATE.header.projekt||'–';
+      if(b) b.textContent = STATE.header.betreiber||'–';
     }
+    window._updateHeaderPills=updateHeaderPills;
+  }
 
-    // Aktions-Kasten klappen
-    function togglePanel() {
-        const panel = document.getElementById('panel-content');
-        panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
-    }
+  /* ---------- Sections ---------- */
+  function renderSections(container,sections){
+    sections.forEach(section=>{
+      const card=document.createElement('section'); card.className='card';
+      const det=document.createElement('details'); det.open=false; const sum=document.createElement('summary'); sum.textContent=section.title; det.appendChild(sum);
 
-    // Unterschriften anzeigen
-    function updateSigs() {
-        const isChecked = document.getElementById('sig-toggle').checked;
-        document.getElementById('sig-area').style.display = isChecked ? 'block' : 'none';
-    }
+      section.items.forEach(item=>{
+        const block=document.createElement('div'); block.style.margin='8px 0';
+        const label=document.createElement('div'); label.textContent=item.label; label.style.cssText='margin-bottom:6px;font-weight:500';
+        const row=document.createElement('div'); row.className='row';
+
+        if((item.fields||[]).some(f=>f.type==='status')){
+          const bag=document.createElement('div'); bag.className='badge';
+          [{k:'io',t:'i.O.'},{k:'nio',t:'n.i.O.'},{k:'nv',t:'n.v.'}].forEach(opt=>{
+            const b=document.createElement('button'); b.className='chip'; b.textContent=opt.t;
+            const cur=STATE.items[item.id]?.status; if(cur===opt.k) b.classList.add('active');
+            b.onclick=()=>{ STATE.items[item.id]=STATE.items[item.id]||{}; STATE.items[item.id].status=opt.k; $$('.chip',bag).forEach(x=>x.classList.remove('active')); b.classList.add('active'); autosave(); };
+            bag.appendChild(b);
+          });
+          row.appendChild(bag);
+        }
+
+        (item.fields||[]).forEach(f=>{
+          if(f.type==='note'){ const d=document.createElement('div'); d.className='input'; d.style.minWidth='260px'; d.innerHTML='<label>Bemerkung</label><textarea rows="2"></textarea>'; const ta=d.querySelector('textarea'); ta.value=STATE.items[item.id]?.note||''; ta.oninput=()=>{ STATE.items[item.id]=STATE.items[item.id]||{}; STATE.items[item.id].note=ta.value; autosave(); }; row.appendChild(d); }
+          if(f.type==='measurement'){ const d=document.createElement('div'); d.className='input'; d.style.maxWidth='200px'; d.innerHTML=`<label>${f.label} (${f.unit})</label><input type="number" inputmode="decimal">`; const inp=d.querySelector('input'); inp.value=STATE.items[item.id]?.[f.label]||''; inp.oninput=()=>{ STATE.items[item.id]=STATE.items[item.id]||{}; STATE.items[item.id][f.label]=inp.value; autosave(); }; row.appendChild(d); }
+          if(f.type==='yesno'){ const d=document.createElement('div'); d.className='input'; d.style.maxWidth='200px'; d.innerHTML='<label>Ja/Nein</label><select><option value="">–</option><option>Ja</option><option>Nein</option></select>'; const sel=d.querySelector('select'); sel.value=STATE.items[item.id]?.yesno||''; sel.onchange=()=>{ STATE.items[item.id]=STATE.items[item.id]||{}; STATE.items[item.id].yesno=sel.value; autosave(); }; row.appendChild(d); }
+          if(f.type==='lubricated'){ const d=document.createElement('div'); d.className='input'; d.style.maxWidth='200px'; d.innerHTML='<label></label><label style="display:flex;gap:6px;align-items:center"><input type="checkbox"> geschmiert</label>'; const cb=d.querySelector('input[type="checkbox"]'); cb.checked=!!STATE.items[item.id]?.geschmiert; cb.onchange=()=>{ STATE.items[item.id]=STATE.items[item.id]||{}; STATE.items[item.id].geschmiert=cb.checked; autosave(); }; row.appendChild(d); }
+        });
+
+        const pwrap=document.createElement('div'); pwrap.className='input'; pwrap.style.maxWidth='260px'; pwrap.innerHTML='<label>Foto (optional)</label><input type="file" accept="image/*;capture=camera"><img style="max-width:120px;border:1px solid var(--line);border-radius:6px;margin-top:6px;display:none">';
+        const inp=pwrap.querySelector('input'); const img=pwrap.querySelector('img'); if(STATE.items[item.id]?.photo){img.src=STATE.items[item.id].photo; img.style.display='block';}
+        inp.onchange=async()=>{ const f=inp.files?.[0]; if(!f) return; const b64=await fileToDataURLScaled(f,1600,.75); STATE.items[item.id]=STATE.items[item.id]||{}; STATE.items[item.id].photo=b64; img.src=b64; img.style.display='block'; autosave(); };
+        row.appendChild(pwrap);
+
+        block.append(label,row); det.appendChild(block);
+      });
+
+      card.appendChild(det); container.appendChild(card);
+    });
+  }
+
+  /* ---------- Signatur ---------- */
+  function signatureBlock(label,key){
+    const wrap=document.createElement('div'); wrap.className='input sig-pad'; const lab=document.createElement('label'); lab.textContent='Unterschrift '+label;
+    const cv=document.createElement('canvas'); cv.className='sig-canvas'; const tools=document.createElement('div'); tools.className='sig-tools';
+    const clr=document.createElement('button'); clr.className='ghost'; clr.textContent='Löschen'; tools.appendChild(clr);
+    wrap.append(lab,cv,tools);
+    setTimeout(()=>initPad(cv,clr,key),0);
+    return wrap;
+  }
+  function initPad(canvas,clearBtn,key){
+    const ctx=canvas.getContext('2d');
+    function resize(){ const r=canvas.getBoundingClientRect(); const ratio=Math.max(window.devicePixelRatio||1,1); canvas.width=r.width*ratio; canvas.height=r.height*ratio; ctx.setTransform(ratio,0,0,ratio,0,0); ctx.lineWidth=2; ctx.lineCap='round'; if(STATE.signatures[key]){const img=new Image(); img.onload=()=>ctx.drawImage(img,0,0,r.width,r.height); img.src=STATE.signatures[key];}}
+    let draw=false,lastX=0,lastY=0; const get=(e)=>{const b=canvas.getBoundingClientRect(); const x=(e.touches?e.touches[0].clientX:e.clientX)-b.left; const y=(e.touches?e.touches[0].clientY:e.clientY)-b.top; return {x,y}};
+    function start(e){draw=true;const p=get(e); lastX=p.x; lastY=p.y;}
+    function move(e){if(!draw)return;const p=get(e); ctx.beginPath(); ctx.moveTo(lastX,lastY); ctx.lineTo(p.x,p.y); ctx.stroke(); lastX=p.x; lastY=p.y;}
+    function end(){draw=false; STATE.signatures[key]=canvas.toDataURL('image/png'); autosave();}
+    clearBtn.onclick=()=>{ctx.clearRect(0,0,canvas.width,canvas.height); STATE.signatures[key]=null; autosave();}
+    window.addEventListener('resize',resize); resize();
+    canvas.addEventListener('mousedown',start); canvas.addEventListener('mousemove',move); window.addEventListener('mouseup',end);
+    canvas.addEventListener('touchstart',(e)=>{start(e);e.preventDefault()},{passive:false});
+    canvas.addEventListener('touchmove',(e)=>{move(e);e.preventDefault()},{passive:false});
+    canvas.addEventListener('touchend',end);
+  }
+
+  /* ---------- Storage (Drafts/Projects/Times) ---------- */
+  function listDrafts(){return lsGet(LS_DRAFTS,[])}
+  function saveDraftSnapshot(projectId){
+    const drafts=listDrafts(); const idx=drafts.findIndex(d=>d.id===STATE.currentDraftId);
+    const data={id:idx>=0?drafts[idx].id:uid(),projectId:projectId??(idx>=0?drafts[idx].projectId:null),title:buildDraftTitle(),protocolType:STATE.protocolType,header:STATE.header,specs:STATE.specs,items:STATE.items,signatures:STATE.signatures,datum_ddmmyyyy:STATE.datum_ddmmyyyy||STATE.header.datum,updatedAt:now()};
+    if(idx>=0) drafts[idx]=data; else drafts.unshift(data);
+    lsSet(LS_DRAFTS,drafts); STATE.currentDraftId=data.id; STATE.dirty=false; toast('In Entwürfe gespeichert.');
+    return data.id;
+  }
+  function deleteDraft(id){ lsSet(LS_DRAFTS, listDrafts().filter(d=>d.id!==id)); }
+  function listProjects(){return lsGet(LS_PROJECTS,[])}
+  function saveProject(p){ const arr=listProjects(); if(!p.id){p.id=uid(); p.createdAt=now();} const i=arr.findIndex(x=>x.id===p.id); if(i>=0)arr[i]=p; else arr.unshift(p); lsSet(LS_PROJECTS,arr); if(!localStorage.getItem('sc_times:'+p.id)) lsSet('sc_times:'+p.id,[]); return p.id; }
+  function deleteProject(id){ lsSet(LS_PROJECTS, listProjects().filter(x=>x.id!==id)); }
+  function listTimes(pid){ return lsGet('sc_times:'+pid,[]) }
+  function addTime(pid,t){ const arr=listTimes(pid); t.id=uid(); t.createdAt=now(); arr.unshift(t); lsSet('sc_times:'+pid,arr); }
+
+  /* ---------- Accounting ---------- */
+  function openAccModal(){ $('#accModal').classList.add('open'); $('#accModal').setAttribute('aria-hidden','false'); }
+  function closeAccModal(){ $('#accModal').classList.remove('open'); $('#accModal').setAttribute('aria-hidden','true'); }
+  function unlockAccounting(){ const sec=lsGet(LS_SEC,{}); const pin=String($('#accLoginPin').value||''); if(!sec.accPin){alert('Keine Buchhaltung-PIN gesetzt (⚙️).');return;} if(pin!==String(sec.accPin)){alert('Falsche PIN.');return;} closeAccModal(); navigate('accounting'); }
+  function renderAccounting(root){
+    setTitle('Service Check','Buchhaltung');
+    const head=document.createElement('section'); head.className='card';
+    head.innerHTML='<h2 style="margin:6px 0 12px 0">Buchhaltung</h2>';
+    root.appendChild(head);
+
+    const mat=document.createElement('section'); mat.className='card';
+    const projs=listProjects();
+    const projSel=document.createElement('select'); projSel.innerHTML='<option value="">Projekt wählen…</option>'+projs.map(p=>`<option value="${p.id}">${p.projektnummer||''} · ${p.projekt||''}</option>`).join('');
+    const row=document.createElement('div'); row.className='row';
+    row.innerHTML=`<div class="input"><label>Datum</label><input id="m_date" type="date"></div>
+    <div class="input"><label>Artikel-Nr.</label><input id="m_art"></div>
+    <div class="input"><label>Bezeichnung</label><input id="m_name"></div>
+    <div class="input"><label>Menge</label><input id="m_qty" type="number" value="1"></div>
+    <div class="input"><label>Einheit</label><input id="m_unit" value="Stk"></div>
+    <div class="input"><label>Einzelpreis netto (€)</label><input id="m_price" type="number" value="0"></div>
+    <div class="input"><label>USt-Satz (%)</label><input id="m_vat" type="number" value="19"></div>
+    <div class="input"><label>Kostenstelle (optional)</label><input id="m_kst"></div>`;
+    const projBox=document.createElement('div'); projBox.className='input'; projBox.innerHTML='<label>Projektordner</label>'; projBox.appendChild(projSel);
+    mat.appendChild(row); mat.appendChild(projBox);
+    const add=document.createElement('button'); add.className='primary'; add.textContent='Eintrag hinzufügen';
+    add.onclick=()=>{ if(!projSel.value){alert('Projekt wählen.');return;} const m={projectId:projSel.value,date:$('#m_date').value||new Date().toISOString().slice(0,10),artnr:$('#m_art').value.trim(),name:$('#m_name').value.trim(),qty:parseFloat($('#m_qty').value||'1')||1,unit:$('#m_unit').value.trim()||'Stk',priceNet:parseFloat($('#m_price').value||'0')||0,vat:parseFloat($('#m_vat').value||'0')||0,kst:$('#m_kst').value.trim()||''}; saveMaterial(m); toast('Position erfasst.'); render(); };
+    mat.appendChild(add); root.appendChild(mat);
+
+    const list=document.createElement('section'); list.className='card';
+    const mats=listMaterials(); const pmap=Object.fromEntries(projs.map(p=>[p.id,p]));
+    const tbl=document.createElement('table'); tbl.className='table';
+    tbl.innerHTML='<thead><tr><th>Datum</th><th>Projekt</th><th>Art.-Nr.</th><th>Bezeichnung</th><th>Menge</th><th>Einheit</th><th>Einzelpreis</th><th>USt%</th><th>Netto</th><th>USt</th><th>Brutto</th><th></th></tr></thead>';
+    const tb=document.createElement('tbody');
+    let sN=0,sV=0,sB=0;
+    mats.forEach(m=>{ const p=pmap[m.projectId]; const net=(m.qty||0)*(m.priceNet||0), vv=net*(m.vat||0)/100, br=net+vv; sN+=net; sV+=vv; sB+=br;
+      const tr=document.createElement('tr'); tr.innerHTML=`<td>${m.date||''}</td><td>${p?(p.projektnummer||'')+' · '+(p.projekt||''):'–'}</td><td>${m.artnr||''}</td><td>${m.name||''}</td><td>${m.qty||0}</td><td>${m.unit||''}</td><td>${(m.priceNet||0).toFixed(2)}</td><td>${(m.vat||0).toFixed(0)}</td><td>${net.toFixed(2)}</td><td>${vv.toFixed(2)}</td><td>${br.toFixed(2)}</td><td><button class="ghost">✖</button></td>`;
+      tr.querySelector('button').onclick=()=>{ deleteMaterial(m.id); render(); }; tb.appendChild(tr);
+    });
+    const sum=document.createElement('tr'); sum.innerHTML=`<td colspan="8" style="text-align:right;font-weight:600">Summe</td><td style="font-weight:600">${sN.toFixed(2)}</td><td style="font-weight:600">${sV.toFixed(2)}</td><td style="font-weight:600">${sB.toFixed(2)}</td><td></td>`;
+    tb.appendChild(sum); tbl.appendChild(tb); list.appendChild(tbl);
+    const exp=document.createElement('button'); exp.className='ghost'; exp.textContent='CSV exportieren (Material/Leistungen)';
+    exp.onclick=()=>{ const headers=['Datum','Projektnummer','Projekt','Betreiber','Art.-Nr.','Bezeichnung','Menge','Einheit','Einzelpreis_netto','USt_%','Netto','USt','Brutto','Kostenstelle'];
+      const rows=mats.map(m=>{const p=pmap[m.projectId]; const net=(m.qty||0)*(m.priceNet||0), vv=net*(m.vat||0)/100, br=net+vv; return [m.date||'',p?.projektnummer||'',p?.projekt||'',p?.betreiber||'',m.artnr||'',m.name||'',m.qty||0,m.unit||'',(m.priceNet||0).toFixed(2),(m.vat||0).toFixed(0),net.toFixed(2),vv.toFixed(2),br.toFixed(2),m.kst||''];});
+      downloadCSV('Buchhaltung_Material_Leistungen.csv',headers,rows);
+    };
+    list.appendChild(document.createElement('br')); list.appendChild(exp); root.appendChild(list);
+  }
+
+  /* ---------- Settings ---------- */
+  function openSettings(){
+    const sec=lsGet(LS_SEC,{}); $('#accPin').value=sec.accPin||'';
+    $('#settingsModal').classList.add('open'); $('#settingsModal').setAttribute('aria-hidden','false');
+    $('#saveAccPin').onclick=()=>{ const v=String($('#accPin').value||'').trim(); if(v && v.length!==4){alert('Bitte genau 4 Ziffern.');return;} const s=lsGet(LS_SEC,{}); s.accPin=v||undefined; lsSet(LS_SEC,s); toast(v?'PIN gesetzt.':'PIN entfernt.'); };
+  }
+  function closeSettings(){ $('#settingsModal').classList.remove('open'); $('#settingsModal').setAttribute('aria-hidden','true'); }
+
+  /* ---------- Save In ---------- */
+  function openSaveInModal(){
+    const body=$('#saveInBody'); body.innerHTML='';
+    const projs=listProjects();
+    const sel=document.createElement('select'); sel.innerHTML='<option value="">–</option>'+projs.map(p=>`<option value="${p.id}">${p.projektnummer||''} · ${p.projekt||''}</option>`).join('');
+    const wrap=document.createElement('div'); wrap.className='row';
+    const a=document.createElement('div'); a.className='input'; a.innerHTML='<label>Projektordner</label>'; a.appendChild(sel);
+    const b=document.createElement('div'); b.className='input'; b.innerHTML='<label>Neues Projekt (optional)</label><input id="newPn" placeholder="Projektnummer"><input id="newPj" placeholder="Projektname"><input id="newBet" placeholder="Betreiber"><input id="newBj" placeholder="Baujahr">';
+    wrap.append(a,b); body.appendChild(wrap);
+    $('#saveInModal').classList.add('open'); $('#saveInModal').setAttribute('aria-hidden','false');
+    $('#saveInConfirm').onclick=()=>{ let pid=sel.value||null; if(!pid){ const pn=$('#newPn').value.trim(), pj=$('#newPj').value.trim(); if(pn&&pj){ pid=saveProject({projektnummer:pn,projekt:pj,betreiber:$('#newBet').value.trim(),baujahr:$('#newBj').value.trim()}); toast('Projektordner erstellt.'); } } saveDraftSnapshot(pid); closeSaveIn(); };
+    $('#saveInCancel').onclick=closeSaveIn; $('#closeSaveIn').onclick=closeSaveIn;
+  }
+  function closeSaveIn(){ $('#saveInModal').classList.remove('open'); $('#saveInModal').setAttribute('aria-hidden','true'); }
+
+  /* ---------- Leave Modal ---------- */
+  function openLeaveModal(onYes,onNo){ $('#leaveModal').classList.add('open'); $('#leaveModal').setAttribute('aria-hidden','false'); $('#leaveYes').onclick=onYes||(()=>{}); $('#leaveNo').onclick=onNo||(()=>{}); }
+  function closeLeaveModal(){ $('#leaveModal').classList.remove('open'); $('#leaveModal').setAttribute('aria-hidden','true'); }
+
+  /* ---------- Validation ---------- */
+  function validateRequiredHeadersOnly(){
+    for(const k of REQUIRED_HEADER_KEYS){ const v=STATE.header[k]; if(!v||!String(v).trim()) return false; if(k==='datum'&&!validDate(v)) return false; }
+    return true;
+  }
+  function togglePrintButton(){ const btn=$('#print'); if(btn) btn.disabled=!validateRequiredHeadersOnly(); }
+
+  /* ---------- Utils ---------- */
+  let saveTimer=null; function autosave(force){ if(force){doSave();return;} if(saveTimer) clearTimeout(saveTimer); saveTimer=setTimeout(doSave,300); STATE.dirty=true; }
+  function doSave(){ localStorage.setItem(LS_USER, JSON.stringify(STATE.user||{})); const key='sc_autosave:'+ (STATE.protocolType||'default'); localStorage.setItem(key, JSON.stringify({header:STATE.header,specs:STATE.specs,items:STATE.items,signatures:STATE.signatures,datum_ddmmyyyy:STATE.datum_ddmmyyyy})); }
+  function loadAutosaveFor(type){ try{ const raw=localStorage.getItem('sc_autosave:'+type); if(raw){ const o=JSON.parse(raw); STATE.header=o.header||{}; STATE.specs=o.specs||{}; STATE.items=o.items||{}; STATE.signatures=o.signatures||{sig1:null,sig2:null}; STATE.datum_ddmmyyyy=o.datum_ddmmyyyy||toDDMMYYYY(new Date()); if(!STATE.header.datum) STATE.header.datum=STATE.datum_ddmmyyyy; } else { STATE.header={}; STATE.items={}; STATE.specs={}; STATE.signatures={sig1:null,sig2:null}; STATE.datum_ddmmyyyy=toDDMMYYYY(new Date()); STATE.header.datum=STATE.datum_ddmmyyyy; } STATE.dirty=false; }catch(_){ } }
+  function buildDraftTitle(){ const t=PROTOCOLS[STATE.protocolType]?.name||'Protokoll'; const p=STATE.header?.projektnummer?' · '+STATE.header.projektnummer:''; return `${t}${p} – ${STATE.header?.datum||STATE.datum_ddmmyyyy||toDDMMYYYY(new Date())}`; }
+  function downloadCSV(name,headers,rows){ const csv=[headers.join(';')].concat(rows.map(r=>r.map(v=>String(v).replace(/;/g,',')).join(';'))).join('\n'); const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=name; a.click(); URL.revokeObjectURL(url); }
+  function downloadJSON(name,obj){ const blob=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=name; a.click(); URL.revokeObjectURL(url); }
+  function fileToDataURLScaled(file,maxSide=1600,q=0.75){return new Promise(res=>{const R=new FileReader();R.onload=()=>{const img=new Image();img.onload=()=>{let w=img.width,h=img.height; if(w>h&&w>maxSide){h=Math.round(h*maxSide/w);w=maxSide}else if(h>maxSide){w=Math.round(w*maxSide/h);h=maxSide} const cv=document.createElement('canvas');cv.width=w;cv.height=h;cv.getContext('2d').drawImage(img,0,0,w,h);res(cv.toDataURL('image/jpeg',q));};img.src=R.result;};R.readAsDataURL(file);});}
+
+  /* ---------- Events ---------- */
+  window.addEventListener('DOMContentLoaded',()=>{
+    try{ STATE.user=lsGet(LS_USER,null)||null; }catch(_){}
+    STATE.protocolType='rbg'; loadAutosaveFor('rbg');
+    STATE.page = STATE.user ? 'home' : 'start';
+    render();
+    $('#backBtn').onclick=()=>{ if(STATE.page==='auth'){navigate('start');return;} if(STATE.page==='home'){navigate('start');return;} if(STATE.page==='specs'){navigate('home');return;} if(STATE.page==='protocol'){navigate('specs');return;} if(STATE.page==='projects'){navigate('home');return;} if(STATE.page==='project'){navigate('projects');return;} if(STATE.page==='drafts'){navigate('home');return;} if(STATE.page==='accounting'){navigate('home');return;} navigate('start'); };
+    $('#settingsBtn').onclick=openSettings; $('#closeSettings').onclick=closeSettings; $('#settingsSave').onclick=()=>{closeSettings();togglePrintButton();};
+    $('#accCancel').onclick=closeAccModal; $('#closeAcc').onclick=closeAccModal; $('#accUnlock').onclick=unlockAccounting;
+  });
 </script>
-
 </body>
 </html>

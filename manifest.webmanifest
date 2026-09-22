@@ -1,0 +1,11 @@
+{
+  "name": "Service Check",
+  "short_name": "Service Check",
+  "description": "Mobile Service- und UVV-Protokolle",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f5f7fa",
+  "theme_color": "#3b5a78",
+  "lang": "de"
+}

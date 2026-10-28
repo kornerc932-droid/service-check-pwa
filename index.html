@@ -1,727 +1,2789 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Service Check – v2.5 FULL</title>
-  <style>
-    :root { --bg:#f5f7fa; --fg:#1f2a34; --muted:#6b7b8c; --accent:#3b5a78; --card:#ffffff; --line:#d9e0e7; --ok:#1b8e3e; --warn:#c0392b; }
-    *{box-sizing:border-box}
-    html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial,sans-serif;}
-    header{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line);padding:12px 16px;display:flex;gap:8px;align-items:center;justify-content:space-between}
-    h1{font-size:18px;margin:0;}
-    .title{display:flex;align-items:center;gap:8px}
-    .title small{color:var(--muted);font-weight:500}
-    .container{padding:16px;max-width:980px;margin:0 auto;padding-bottom:140px;}
-    .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin:12px 0}
-    .row{display:flex;gap:12px;flex-wrap:wrap}
-    .input{flex:1;min-width:220px;display:flex;flex-direction:column;gap:6px}
-    .input label{font-size:12px;color:var(--muted)}
-    .req label::after{content:" *";color:#c0392b}
-    .input input, .input textarea, .input select{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:#fff;color:#111;font-size:16px}
-    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
-    .tile{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;cursor:pointer;display:flex;flex-direction:column;gap:8px}
-    .tile:hover{outline:2px solid var(--accent);}
-    button.primary{background:var(--accent);border:none;color:#fff;border-radius:12px;padding:12px 14px;cursor:pointer;font-size:16px}
-    button.ghost{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;font-size:16px}
-    button.icon{padding:8px 10px}
-    button[disabled]{opacity:0.5;cursor:not-allowed}
-    .note{font-size:12px;color:var(--muted)}
-    .pill{border:1px solid var(--line);border-radius:999px;padding:6px 10px;background:var(--card);font-size:12px}
-    .banner{border:1px solid var(--line);background:#fff3;padding:10px 12px;border-radius:10px}
-    .banner.ok{border-color:#bfe6cc;background:#ecfff1;color:var(--ok)}
-    .banner.warn{border-color:#f4c7c7;background:#fff0f0;color:var(--warn)}
-    .badge{display:flex;gap:8px;flex-wrap:wrap}
-    .chip{appearance:none;border:1px solid var(--line);background:var(--card);padding:10px 14px;border-radius:999px;font-size:16px;cursor:pointer;user-select:none}
-    .chip.active{border-color:var(--accent);box-shadow:0 0 0 2px rgba(59,90,120,.15);}
-    .sig-pad{border:1px dashed var(--line); border-radius:8px; padding:8px}
-    .sig-canvas{width:100%; height:160px; background:#fff; border:1px solid var(--line); border-radius:6px; touch-action: none;}
-    .sig-tools{display:flex; gap:8px; margin-top:6px;}
-    .table{width:100%;border-collapse:collapse}
-    .table th,.table td{border:1px solid var(--line);padding:8px;text-align:left;font-size:13px}
-    .table th{background:#f3f6fa}
-    .footer-actions{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding:12px 16px;display:flex;gap:8px;flex-wrap:wrap;z-index:15}
-    @media (max-width: 420px){
-      .row{flex-direction:column}
-      .input{min-width:unset}
-      .container{padding:10px; padding-bottom:160px;}
-    }
-    @media print{
-      header, .footer-actions, .banner, .startOnly, .authOnly, .homeOnly, .specsOnly { display:none !important; }
-      body{background:#fff;color:#000}
-      .container{max-width:none;margin:0;padding:0}
-      .card{break-inside:avoid;border:1px solid #999}
-      .input input, .input textarea{border:1px solid #999}
-      @page { size: A4 portrait; margin: 12mm; }
-    }
-    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.4);z-index:1000}
-    .modal.open{display:flex}
-    .modal-card{background:var(--card);border:1px solid var(--line);border-radius:12px;max-width:720px;width:92%;padding:12px}
-    .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
-  </style>
-  <link rel="manifest" href="./manifest.webmanifest">
+<meta charset="utf-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<title>Service Check – v3.0</title>
+
+<link rel="manifest" href="./manifest.webmanifest">
 
 <meta name="theme-color" content="#3b5a78">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Service Check">
+
+<style>
+:root {
+  --bg: #f5f7fa;
+  --fg: #1f2a34;
+  --muted: #657587;
+  --accent: #3b5a78;
+  --card: #ffffff;
+  --line: #d9e0e7;
+  --ok: #167736;
+  --warn: #a52c22;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+}
+
+header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+h1 { font-size: 18px; margin: 0; }
+h2 { font-size: 19px; margin: 0 0 12px; }
+h3 { font-size: 16px; margin: 0 0 10px; }
+p { line-height: 1.5; }
+
+.title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.container {
+  max-width: 1050px;
+  margin: auto;
+  padding: 16px 16px 140px;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+
+.row, .actions, .badge {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.actions { align-items: center; margin-top: 12px; }
+
+.field {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 210px;
+  min-width: 0;
+  gap: 6px;
+}
+
+.field label, .note {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.note { line-height: 1.5; }
+.required::after { content: " *"; color: var(--warn); }
+
+input:not([type="checkbox"]), select, textarea {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 11px;
+  background: white;
+  color: #111;
+  font: inherit;
+  font-size: 16px;
+}
+
+textarea { resize: vertical; min-height: 78px; }
+input[type="checkbox"] { width: 20px; height: 20px; }
+
+button, .file-button {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 11px 14px;
+  background: white;
+  color: var(--fg);
+  cursor: pointer;
+  font: inherit;
+  font-size: 15px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+button.primary {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+button.danger { color: var(--warn); }
+button:disabled { opacity: .5; cursor: not-allowed; }
+
+button:focus-visible, input:focus-visible,
+select:focus-visible, textarea:focus-visible {
+  outline: 3px solid #a9c7e2;
+  outline-offset: 2px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 12px;
+}
+
+.tile {
+  text-align: left;
+  align-items: flex-start;
+  flex-direction: column;
+  padding: 18px;
+  min-height: 90px;
+}
+
+.banner {
+  padding: 11px 12px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  line-height: 1.5;
+}
+
+.banner.ok { color: var(--ok); background: #edf9f0; }
+.banner.warn { color: var(--warn); background: #fff1ef; }
+
+.pill {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 5px 9px;
+  font-size: 12px;
+}
+
+.chip { border-radius: 999px; padding: 9px 15px; }
+
+.chip.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+details > summary {
+  cursor: pointer;
+  font-weight: 650;
+  padding: 5px 0;
+}
+
+.protocol-item {
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+  margin-top: 14px;
+}
+
+.item-title { font-weight: 600; margin-bottom: 10px; }
+
+.photo {
+  display: block;
+  max-width: 180px;
+  max-height: 160px;
+  object-fit: contain;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  margin-top: 8px;
+}
+
+.signature {
+  width: 100%;
+  height: 165px;
+  border: 1px dashed #95a5b5;
+  border-radius: 8px;
+  background: white;
+  touch-action: none;
+}
+
+.list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 12px;
+  margin-top: 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow-wrap: anywhere;
+}
+
+.footer-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 15;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.table-wrap { overflow-x: auto; }
+
+table { width: 100%; border-collapse: collapse; }
+th, td {
+  border: 1px solid var(--line);
+  padding: 8px;
+  text-align: left;
+  font-size: 13px;
+}
+th { background: #f3f6fa; }
+
+dialog {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px;
+  width: min(94vw, 680px);
+  max-height: 88vh;
+  overflow: auto;
+}
+dialog::backdrop { background: #0007; }
+dialog .field { margin-bottom: 10px; }
+
+#toast {
+  position: fixed;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1f2a34;
+  color: white;
+  border-radius: 10px;
+  padding: 10px 14px;
+  z-index: 2000;
+  max-width: 90vw;
+}
+
+#printRoot { display: none; }
+
+@media (max-width: 500px) {
+  .container { padding: 10px 10px 120px; }
+  header { padding: 10px; }
+  .field { flex-basis: 100%; }
+  .footer-actions button { flex: 1 1 135px; }
+}
+
+@media print {
+  @page { size: A4 portrait; margin: 12mm; }
+
+  body {
+    background: white;
+    color: black;
+    font-family: Arial, sans-serif;
+    font-size: 10pt;
+  }
+
+  body > :not(#printRoot) { display: none !important; }
+  #printRoot { display: block !important; }
+
+  #printRoot h1 { font-size: 20pt; margin-bottom: 8mm; }
+  #printRoot h2 { font-size: 13pt; margin: 6mm 0 3mm; }
+  #printRoot h3 { font-size: 11pt; margin: 0 0 2mm; }
+
+  .print-entry {
+    border: 1px solid #aaa;
+    padding: 3mm;
+    margin-bottom: 3mm;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .print-value {
+    margin: 1mm 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .print-photo {
+    max-width: 65mm;
+    max-height: 50mm;
+    object-fit: contain;
+    display: block;
+    margin-top: 3mm;
+  }
+
+  .print-signature {
+    max-width: 75mm;
+    max-height: 30mm;
+    object-fit: contain;
+    display: block;
+  }
+
+  .print-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2mm 6mm;
+  }
+
+  .print-muted { color: #444; font-size: 9pt; }
+}
+</style>
 </head>
+
 <body>
-  <header>
-    <div class="title">
-      <button class="ghost icon" id="backBtn" title="Zurück">⬅️</button>
-      <h1 id="appTitle">Service Check</h1>
-      <small id="subtitle"></small>
-    </div>
-    <div class="toolbar">
-      <button class="ghost icon" id="settingsBtn" title="Einstellungen">⚙️</button>
-    </div>
-  </header>
+<header>
+  <div class="title">
+    <button id="backBtn" type="button" aria-label="Zurück">←</button>
+    <h1>Service Check</h1>
+    <span id="subtitle" class="note"></span>
+  </div>
+  <button id="settingsBtn" type="button" aria-label="Einstellungen">
+    ⚙ Einstellungen
+  </button>
+</header>
 
-  <main class="container" id="content"></main>
+<main id="content" class="container"></main>
+<div id="printRoot"></div>
+<div id="toast" role="status" hidden></div>
 
-  <!-- Einstellungen (ohne Grunddaten) -->
-  <div class="modal" id="settingsModal" aria-hidden="true">
-    <div class="modal-card">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <h2 style="margin:6px 0 12px 0;font-size:16px;">Einstellungen</h2>
-        <button class="ghost icon" id="closeSettings">✖️</button>
-      </div>
-      <div class="note" style="margin-bottom:8px">
-        Grunddaten (Projektnummer, Projekt, Betreiber, Datum, Baujahr) pflegst du direkt im Protokoll oben.
-      </div>
-      <h3 style="margin:6px 0 8px 0;font-size:14px;">Buchhaltung-PIN</h3>
-      <div class="row">
-        <div class="input"><label>PIN (4-stellig)</label><input id="accPin" placeholder="****" inputmode="numeric" maxlength="4"></div>
-        <div style="display:flex;align-items:flex-end;gap:8px">
-          <button class="ghost" id="saveAccPin">PIN setzen/ändern</button>
-        </div>
-      </div>
-      <div class="modal-actions">
-        <button class="ghost" id="settingsSave">Schließen</button>
-      </div>
+<dialog id="settingsDialog">
+  <h2>Einstellungen</h2>
+
+  <p class="note">
+    Dieses Profil und die PIN werden ausschließlich auf diesem Gerät
+    gespeichert. Die PIN ist eine lokale Bediensperre.
+  </p>
+
+  <div class="field">
+    <label for="profileName">Name des Prüfers</label>
+    <input id="profileName" autocomplete="name">
+  </div>
+
+  <div class="field">
+    <label for="profileEmail">E-Mail, optional</label>
+    <input id="profileEmail" type="email" autocomplete="email">
+  </div>
+
+  <div class="field">
+    <label for="accountingPin">Buchhaltung-PIN, 4 Ziffern</label>
+    <input id="accountingPin" type="password"
+           inputmode="numeric" maxlength="4" autocomplete="off">
+  </div>
+
+  <div class="actions">
+    <button id="saveSettings" class="primary" type="button">
+      Einstellungen speichern
+    </button>
+  </div>
+
+  <hr>
+
+  <h3>Datensicherung</h3>
+  <p class="note">
+    Das Backup enthält lokale Projekte, Entwürfe, Fotos,
+    Unterschriften, Arbeitszeiten, Buchhaltung und Einstellungen.
+    Auch die lokale PIN ist enthalten. Bewahre die Datei geschützt auf.
+  </p>
+
+  <div class="actions">
+    <button id="backupAll" type="button">Backup herunterladen</button>
+
+    <label class="file-button">
+      Backup wiederherstellen
+      <input id="restoreAll" type="file"
+             accept=".json,application/json" hidden>
+    </label>
+  </div>
+
+  <p class="note">
+    Ein Backup ersetzt beim Wiederherstellen die Service-Check-Daten
+    dieses Geräts. Vorher die aktuelle Sicherung herunterladen.
+  </p>
+
+  <hr>
+
+  <div id="offlineStatus" class="note"></div>
+  <div class="actions">
+    <button id="closeSettings" type="button">Schließen</button>
+  </div>
+</dialog>
+
+<dialog id="saveDialog">
+  <h2>Protokoll speichern in …</h2>
+
+  <div class="field">
+    <label for="targetProject">Projektordner</label>
+    <select id="targetProject"></select>
+  </div>
+
+  <p class="note">Oder einen neuen Projektordner erstellen:</p>
+
+  <div class="row">
+    <div class="field">
+      <label for="newProjectNumber">Projektnummer</label>
+      <input id="newProjectNumber">
+    </div>
+    <div class="field">
+      <label for="newProjectName">Projektname</label>
+      <input id="newProjectName">
     </div>
   </div>
 
-  <!-- Speichern in… -->
-  <div class="modal" id="saveInModal" aria-hidden="true">
-    <div class="modal-card">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <h2 style="margin:6px 0 12px 0;font-size:16px;">Protokoll speichern in…</h2>
-        <button class="ghost icon" id="closeSaveIn">✖️</button>
-      </div>
-      <div id="saveInBody"></div>
-      <div class="modal-actions">
-        <button class="ghost" id="saveInCancel">Abbrechen</button>
-        <button class="primary" id="saveInConfirm">Speichern</button>
-      </div>
-    </div>
+  <div class="actions">
+    <button id="confirmSave" class="primary" type="button">
+      Speichern
+    </button>
+    <button id="cancelSave" type="button">Abbrechen</button>
   </div>
-
-  <!-- Entwurf speichern? -->
-  <div class="modal" id="leaveModal" aria-hidden="true">
-    <div class="modal-card">
-      <h2 style="margin:6px 0 12px 0;font-size:16px;">Entwurf speichern?</h2>
-      <div class="note">Du verlässt ein begonnenes Protokoll.</div>
-      <div class="modal-actions">
-        <button class="ghost" id="leaveNo">Nein</button>
-        <button class="primary" id="leaveYes">Ja</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Buchhaltung entsperren -->
-  <div class="modal" id="accModal" aria-hidden="true">
-    <div class="modal-card">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <h2 style="margin:6px 0 12px 0;font-size:16px;">Buchhaltung entsperren</h2>
-        <button class="ghost icon" id="closeAcc">✖️</button>
-      </div>
-      <div class="row">
-        <div class="input"><label>PIN (4-stellig)</label><input id="accLoginPin" placeholder="****" inputmode="numeric" maxlength="4"></div>
-      </div>
-      <div class="modal-actions">
-        <button class="ghost" id="accCancel">Abbrechen</button>
-        <button class="primary" id="accUnlock">Entsperren</button>
-      </div>
-      <div class="note">Die PIN wird lokal gespeichert.</div>
-    </div>
-  </div>
+</dialog>
 
 <script>
-  /* ---------- State & Helpers ---------- */
-  const REQUIRED_HEADER_KEYS = ['projektnummer','projekt','betreiber','datum'];
-  const HEADER_FIELDS_MIN = [
-    {key:'projektnummer',label:'Projektnummer',req:true},
-    {key:'projekt',label:'Projekt',req:true},
-    {key:'betreiber',label:'Betreiber',req:true},
-    {key:'datum',label:'Datum (TT/MM/JJJJ)',req:true},
-    {key:'baujahr',label:'Baujahr'}
-  ];
+"use strict";
 
-  const PROTOCOL_SECTIONS_RBG = [
-    { id:'gasse', title:'Gasse / Ausrüstung', items:[
-      {id:'schleifleitung', label:'Schleifleitung / Stromabnehmer', fields:[{type:'status'},{type:'note'}]},
-      {id:'fahrschiene', label:'Fahrschiene (Befestigung/Tragbild)', fields:[{type:'status'},{type:'note'}]},
-      {id:'oberfuehrung', label:'Obere Führungsschiene (Befestigung, Verbindungen)', fields:[{type:'status'},{type:'note'}]},
-      {id:'schiene_bef', label:'Schienenstoß / Verbinder (Befestigung)', fields:[{type:'status'},{type:'note'}]},
-      {id:'puffer', label:'Puffer / Festanschläge (Befestigung)', fields:[{type:'status'},{type:'note'}]},
-      {id:'anschlaege', label:'Anschläge / Notanschläge', fields:[{type:'status'},{type:'note'}]},
-      {id:'leitern', label:'Steigleitern / Podeste / Geländer', fields:[{type:'status'},{type:'note'}]},
-      {id:'kennzeichnung', label:'Kennzeichnungen / Warnhinweise', fields:[{type:'status'},{type:'note'}]}
-    ]},
-    { id:'fahrwagen', title:'Fahrwagen / Führungsrollen / Laufräder', items:[
-      {id:'fw_befestigung', label:'Fahrwerk – Befestigung', fields:[{type:'status'},{type:'note'}]},
-      {id:'fw_motor', label:'Fahrwerk – Motor', fields:[{type:'status'},{type:'note'}]},
-      {id:'fw_getriebe', label:'Fahrwerk – Getriebe', fields:[{type:'status'},{type:'note'}]},
-      {id:'fw_drehmomentstuetze', label:'Fahrwerk – Drehmomentstütze', fields:[{type:'status'},{type:'note'}]},
-      {id:'fw_kupplung', label:'Fahrwerk – Kupplung', fields:[{type:'status'},{type:'note'}]},
-      {id:'fr_hl', label:'Führungsrolle Fahrwagen hinten links', fields:[{type:'status'},{type:'measurement',label:'Spaltmaß',unit:'mm'},{type:'note'}]},
-      {id:'fr_hr', label:'Führungsrolle Fahrwagen hinten rechts', fields:[{type:'status'},{type:'measurement',label:'Spaltmaß',unit:'mm'},{type:'note'}]},
-      {id:'fr_vl', label:'Führungsrolle Fahrwagen vorn links', fields:[{type:'status'},{type:'measurement',label:'Spaltmaß',unit:'mm'},{type:'note'}]},
-      {id:'fr_vr', label:'Führungsrolle Fahrwagen vorn rechts', fields:[{type:'status'},{type:'measurement',label:'Spaltmaß',unit:'mm'},{type:'note'}]},
-      {id:'lr_angetrieben', label:'Laufrad angetrieben', fields:[{type:'status'},{type:'measurement',label:'Einlauftiefe',unit:'mm'},{type:'note'}]},
-      {id:'lr_nichtangetrieben', label:'Laufrad nicht angetrieben', fields:[{type:'status'},{type:'measurement',label:'Einlauftiefe',unit:'mm'},{type:'note'}]},
-      {id:'achsabdeckung', label:'Abdeckungen / Schutz', fields:[{type:'status'},{type:'note'}]}
-    ]},
-    { id:'hubwerk', title:'Hubwerk', items:[
-      {id:'befestigungen_allg', label:'Befestigungen (allg.)', fields:[{type:'status'},{type:'note'}]},
-      {id:'als_bremse', label:'Bremse – Arbeitsluftspalt (nach Herstellervorgabe)', fields:[{type:'status'},{type:'measurement',label:'ALS',unit:'mm'},{type:'note'}]},
-      {id:'oeldichtheit', label:'Dichtungen / Öldichtheit', fields:[{type:'status'},{type:'note'}]},
-      {id:'hubseil', label:'Hubseil – Sichtprüfung (ISO 4309), Ablegereife', fields:[{type:'status'},{type:'measurement',label:'Seildicke',unit:'mm'},{type:'note'}]},
-      {id:'seiltrommel_rillung', label:'Seiltrommel – Seilrillung kontrollieren', fields:[{type:'status'},{type:'note'}]},
-      {id:'seiltrommel_lagerung', label:'Seiltrommel – Lagerung nachschmieren', fields:[{type:'status'},{type:'lubricated'},{type:'note'}]},
-      {id:'uml_kopftraverse', label:'Seilumlenkrollen – Kopftraverse (Einlauftiefe prüfen, nachschmieren)', fields:[{type:'status'},{type:'measurement',label:'Einlauftiefe',unit:'mm'},{type:'lubricated'},{type:'note'}]},
-      {id:'uml_kopftraverse_vorne', label:'Seilumlenkrollen – Kopftraverse vorne (Einlauftiefe prüfen, nachschmieren)', fields:[{type:'status'},{type:'measurement',label:'Einlauftiefe',unit:'mm'},{type:'lubricated'},{type:'note'}]},
-      {id:'uml_hubrahmen', label:'Seilumlenkrollen – Hubrahmen (Einlauftiefe prüfen, nachschmieren)', fields:[{type:'status'},{type:'measurement',label:'Einlauftiefe',unit:'mm'},{type:'lubricated'},{type:'note'}]},
-      {id:'uml_weitere', label:'Weitere Umlenkpunkte (sofern vorhanden)', fields:[{type:'status'},{type:'measurement',label:'Einlauftiefe',unit:'mm'},{type:'lubricated'},{type:'note'}]},
-      {id:'energiekette', label:'Energiekette/Schleifleitung – Beschädigungen kontrollieren', fields:[{type:'status'},{type:'note'}]},
-      {id:'energiekette_uebergaenge', label:'Energiekette/Schleifleitung – Übergänge kontrollieren', fields:[{type:'status'},{type:'note'}]},
-      {id:'energiekette_festpunkte', label:'Energiekette/Schleifleitung – Festpunkte Festsitz prüfen', fields:[{type:'status'},{type:'note'}]}
-    ]},
-    { id:'tisch_kette_antrieb', title:'Teleskoptisch / Kettensystem / Antrieb', items:[
-      {id:'oberteilauflage', label:'Oberteilauflage', fields:[{type:'status'},{type:'note'}]},
-      {id:'kurvenrollen', label:'Kurvenrollen', fields:[{type:'status'},{type:'note'}]},
-      {id:'schleifleisten', label:'Schleifleisten (einstellen falls nötig)', fields:[{type:'status'},{type:'note'}]},
-      {id:'zahnstange', label:'Zahnstange / Rollen / Gleitleisten', fields:[{type:'status'},{type:'note'}]},
-      {id:'stuetzrollen', label:'Stützrollen', fields:[{type:'status'},{type:'note'}]},
-      {id:'getriebe', label:'Getriebe', fields:[{type:'status'},{type:'note'}]},
-      {id:'ketten', label:'Ketten – nachspannen & schmieren', fields:[{type:'status'},{type:'lubricated'},{type:'note'}]},
-      {id:'kettenspanner', label:'Kettenspanner', fields:[{type:'status'},{type:'note'}]},
-      {id:'umlenkrollen_ketten', label:'Umlenkrollen / Kettenräder', fields:[{type:'status'},{type:'lubricated'},{type:'note'}]},
-      {id:'kupplung', label:'Kupplung', fields:[{type:'status'},{type:'note'}]},
-      {id:'gelenkwelle', label:'Gelenkwelle', fields:[{type:'status'},{type:'note'}]}
-    ]},
-    { id:'elektrik', title:'Elektrik / Steuerung', items:[
-      {id:'schaltschrank', label:'Schaltschrank sauber, dicht, Beschriftung', fields:[{type:'status'},{type:'note'}]},
-      {id:'klemmen', label:'Klemmen / Zugentlastung / PE', fields:[{type:'status'},{type:'note'}]},
-      {id:'kabelfuehrung', label:'Kabelführung / Schleppkette / Übergänge', fields:[{type:'status'},{type:'note'}]},
-      {id:'endschalter', label:'Endschalter / Initiatoren / Verkabelung', fields:[{type:'status'},{type:'note'}]},
-      {id:'antriebsregler', label:'Antriebsregler / Parametrierung', fields:[{type:'status'},{type:'note'}]},
-      {id:'not_halt', label:'Not-Halt / Sicherheitskette / Verriegelung', fields:[{type:'status'},{type:'note'}]}
-    ]},
-    { id:'wiederkehrende_pruefung', title:'Wiederkehrende Prüfung (Sicherheit)', items:[
-      {id:'notauskette', label:'Not-Aus-Kette inkl. Verriegelungen – Funktionsprüfung', fields:[{type:'status'},{type:'note'}]},
-      {id:'endpositionen', label:'Endpositionen Wartung/Semiautomatik anfahren', fields:[{type:'status'},{type:'note'}]},
-      {id:'bremsweg', label:'Bremsweg (ohne Last, niedrige Geschwindigkeit)', fields:[{type:'status'},{type:'note'}]},
-      {id:'fangsystem', label:'Fangsystem / Geschwindigkeitsbegrenzer / Gestänge', fields:[{type:'status'},{type:'note'}]},
-      {id:'lastmesseinheit', label:'Lastmesseinheit (Über-/Unterlast) – Test', fields:[{type:'status'},{type:'note'}]},
-      {id:'sensorik', label:'Sicherheitsrelevante Sensorik / Lichtschranken', fields:[{type:'status'},{type:'note'}]},
-      {id:'pruefbuch', label:'Prüfbuch vorhanden und Eintrag vorgenommen', fields:[{type:'status'},{type:'note'}]},
-      {id:'bedenken', label:'Bedenken gegen weiteren Betrieb', fields:[{type:'status'},{type:'note'}]}
-    ]},
-    { id:'maengelliste', title:'Mängelliste', items:[
-      {id:'maengel', label:'Mängel / Beanstandungen (Freitext)', fields:[{type:'note'}]},
-      {id:'schmierstoffe', label:'Wurden die Schmierstoffe zur Verfügung gestellt?', fields:[{type:'yesno'}]}
-    ]}
-  ];
+/* =========================================================
+   BASIS UND DATEN
+   ========================================================= */
 
-  const PROTOCOLS = {
-    rbg:{ name:'Regalbediengerät', specs:[
-      {key:'mast',label:'Mast',type:'select',options:['Ein-Mast','Zwei-Mast']},
-      {key:'teleskoptisch',label:'Teleskoptisch',type:'select',options:['einfach','doppelt']},
-      {key:'nutzlast',label:'Nutzlast (kg)',type:'number'},
-      {key:'hubhoehe',label:'max. Hubhöhe (m)',type:'number'},
-      {key:'fahrweg',label:'Fahrweg (m)',type:'number'},
-    ], sections: PROTOCOL_SECTIONS_RBG },
-    ft:{ name:'Fördertechnik', specs:[
-      {key:'system',label:'System',type:'select',options:['Rollenbahn','Gurtförderer','Kettenförderer','Heber','Drehtisch']},
-      {key:'antrieb',label:'Antrieb',type:'select',options:['Motor/Getriebe','Direktantrieb']},
-      {key:'spurbreite',label:'Spurbreite (mm)',type:'number'},
-    ], sections:[
-      {id:'ft1',title:'Antriebsstation',items:[{id:'ft_mg',label:'Motor/Getriebe',fields:[{type:'status'},{type:'note'}]},{id:'ft_sp',label:'Spannung/Kettenspanner',fields:[{type:'status'},{type:'lubricated'},{type:'note'}]}]},
-      {id:'ft2',title:'Förderstrecke',items:[{id:'ft_rbk',label:'Rollen/Bänder/Ketten',fields:[{type:'status'},{type:'note'}]},{id:'ft_lsw',label:'Sensorik/Lichtschranken',fields:[{type:'status'},{type:'note'}]}]},
-      {id:'ft3',title:'Sicherheit',items:[{id:'ft_notaus',label:'Not-Aus/Verriegelungen',fields:[{type:'status'},{type:'note'}]},{id:'ft_bed',label:'Bedenken gegen Betrieb',fields:[{type:'status'},{type:'note'}]}]},
-      {id:'ft4',title:'Mängelliste',items:[{id:'ft_m',label:'Mängel (Freitext)',fields:[{type:'note'}]},{id:'ft_schm',label:'Schmierstoffe bereitgestellt?',fields:[{type:'yesno'}]}]},
-    ]},
-    other:{ name:'Andere Anlage', specs:[
-      {key:'beschreibung',label:'Kurzbeschreibung',type:'text'},
-      {key:'hersteller',label:'Hersteller (optional)',type:'text'}
-    ], sections:[
-      {id:'allg',title:'Allgemein',items:[{id:'all_bef',label:'Befestigungen',fields:[{type:'status'},{type:'note'}]},{id:'all_sens',label:'Sensorik',fields:[{type:'status'},{type:'note'}]}]},
-      {id:'sich',title:'Sicherheit',items:[{id:'all_not',label:'Not-Aus',fields:[{type:'status'},{type:'note'}]}]},
-      {id:'mgl',title:'Mängelliste',items:[{id:'all_m',label:'Mängel (Freitext)',fields:[{type:'note'}]}]},
-    ]},
+const $ = (selector, root = document) => root.querySelector(selector);
+
+const LS = {
+  user: "sc_user",
+  drafts: "sc_drafts",
+  projects: "sc_projects",
+  security: "sc_sec",
+  materials: "sc_mat"
+};
+
+const HEADER_FIELDS = [
+  ["projektnummer", "Projektnummer", true],
+  ["projekt", "Projekt", true],
+  ["betreiber", "Betreiber", true],
+  ["datum", "Datum (TT/MM/JJJJ)", true],
+  ["baujahr", "Baujahr", false],
+  ["anlagenkennung", "Anlagenkennung / RBG-Nummer", false],
+  ["hersteller", "Hersteller", false],
+  ["seriennummer", "Seriennummer", false],
+  ["pruefer", "Prüfer", false]
+];
+
+const uid = () =>
+  globalThis.crypto?.randomUUID?.() ||
+  Math.random().toString(36).slice(2) + Date.now().toString(36);
+
+const now = () => new Date().toISOString();
+const pad = n => String(n).padStart(2, "0");
+
+function today() {
+  const d = new Date();
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+function dateDE(value = today()) {
+  const d = new Date(value + "T12:00:00");
+  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+}
+
+function normalizeDate(value) {
+  const text = String(value || "").trim();
+  let match = text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+
+  if (match) {
+    match = [null, match[3], match[2], match[1]];
+  } else {
+    match = text.match(/^(\d{1,2})[/. -](\d{1,2})[/. -](\d{4})$/);
+  }
+
+  if (!match) return null;
+
+  const day = Number(match[1]);
+  const month = Number(match[2]);
+  const year = Number(match[3]);
+  if (year < 1900 || year > 9999) return null;
+
+  const d = new Date(year, month - 1, day);
+
+  if (
+    d.getFullYear() !== year ||
+    d.getMonth() !== month - 1 ||
+    d.getDate() !== day
+  ) return null;
+
+  return `${pad(day)}/${pad(month)}/${year}`;
+}
+
+function clone(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+function read(key, fallback) {
+  const raw = localStorage.getItem(key);
+  if (raw === null) return clone(fallback);
+
+  try {
+    return JSON.parse(raw);
+  } catch {
+    throw new Error(`Gespeicherte Daten sind beschädigt: ${key}`);
+  }
+}
+
+function write(key, value) {
+  localStorage.setItem(key, JSON.stringify(value));
+}
+
+function notifyError(error) {
+  console.error(error);
+
+  if (
+    error?.name === "QuotaExceededError" ||
+    error?.name === "NS_ERROR_DOM_QUOTA_REACHED"
+  ) {
+    alert(
+      "Speichern fehlgeschlagen: Der lokale Speicher ist voll. " +
+      "Lade ein Backup herunter und entferne nicht benötigte Fotos. " +
+      "Deine aktuelle Eingabe bleibt zunächst auf dem Bildschirm."
+    );
+  } else {
+    alert("Vorgang fehlgeschlagen: " + (error?.message || error));
+  }
+}
+
+let toastTimer;
+
+function toast(message) {
+  clearTimeout(toastTimer);
+  $("#toast").textContent = message;
+  $("#toast").hidden = false;
+  toastTimer = setTimeout(() => $("#toast").hidden = true, 2800);
+}
+
+function element(tag, text, className) {
+  const e = document.createElement(tag);
+  if (text !== undefined && text !== null) e.textContent = text;
+  if (className) e.className = className;
+  return e;
+}
+
+function button(text, action, className = "") {
+  const b = element("button", text, className);
+  b.type = "button";
+  b.onclick = action;
+  return b;
+}
+
+function card(root, title) {
+  const c = element("section", null, "card");
+  if (title) c.append(element("h2", title));
+  root.append(c);
+  return c;
+}
+
+function field(parent, label, options = {}) {
+  const wrapper = element("div", null, "field");
+  const id = "field_" + uid();
+  const lab = element("label", label);
+
+  lab.htmlFor = id;
+  if (options.required) lab.className = "required";
+
+  const control = document.createElement(
+    options.choices ? "select" :
+    options.multiline ? "textarea" : "input"
+  );
+
+  control.id = id;
+
+  if (options.choices) {
+    for (const choice of options.choices) {
+      const value = Array.isArray(choice) ? choice[0] : choice;
+      const text = Array.isArray(choice) ? choice[1] : choice;
+      control.append(new Option(text, value));
+    }
+  } else if (!options.multiline) {
+    control.type = options.type || "text";
+    if (control.type === "number") control.step = "any";
+  }
+
+  control.value = options.value ?? "";
+
+  if (options.placeholder) control.placeholder = options.placeholder;
+  if (options.inputmode) control.inputMode = options.inputmode;
+
+  if (options.onchange) {
+    control.addEventListener(
+      options.choices || options.type === "date" ? "change" : "input",
+      () => options.onchange(control.value, control)
+    );
+  }
+
+  wrapper.append(lab, control);
+  parent.append(wrapper);
+
+  return control;
+}
+
+function actions(parent) {
+  const a = element("div", null, "actions");
+  parent.append(a);
+  return a;
+}
+
+/*
+  Prüfpunkte:
+  [ID, Bezeichnung, optionale Messgröße, schmieren möglich]
+*/
+const makeSection = (id, title, entries) => ({
+  id,
+  title,
+  items: entries.map(([itemId, label, measurement, lubricated]) => ({
+    id: itemId, label, measurement, lubricated: !!lubricated,
+    status: true
+  }))
+});
+
+const RBG_SECTIONS = [
+  makeSection("gasse", "Gasse / Ausrüstung", [
+    ["schleifleitung", "Schleifleitung / Stromabnehmer"],
+    ["fahrschiene", "Fahrschiene – Befestigung / Tragbild"],
+    ["oberfuehrung", "Obere Führungsschiene – Befestigung / Verbindungen"],
+    ["schiene_bef", "Schienenstoß / Verbinder"],
+    ["puffer", "Puffer / Festanschläge"],
+    ["anschlaege", "Anschläge / Notanschläge"],
+    ["leitern", "Steigleitern / Podeste / Geländer"],
+    ["kennzeichnung", "Kennzeichnungen / Warnhinweise"]
+  ]),
+
+  makeSection("fahrwagen", "Fahrwagen / Führungsrollen / Laufräder", [
+    ["fw_befestigung", "Fahrwerk – Befestigung"],
+    ["fw_motor", "Fahrwerk – Motor"],
+    ["fw_getriebe", "Fahrwerk – Getriebe"],
+    ["fw_drehmomentstuetze", "Fahrwerk – Drehmomentstütze"],
+    ["fw_kupplung", "Fahrwerk – Kupplung"],
+    ["fr_hl", "Führungsrolle hinten links", "Spaltmaß"],
+    ["fr_hr", "Führungsrolle hinten rechts", "Spaltmaß"],
+    ["fr_vl", "Führungsrolle vorn links", "Spaltmaß"],
+    ["fr_vr", "Führungsrolle vorn rechts", "Spaltmaß"],
+    ["lr_angetrieben", "Laufrad angetrieben", "Einlauftiefe"],
+    ["lr_nichtangetrieben", "Laufrad nicht angetrieben", "Einlauftiefe"],
+    ["achsabdeckung", "Abdeckungen / Schutz"]
+  ]),
+
+  makeSection("hubwerk", "Hubwerk", [
+    ["befestigungen_allg", "Befestigungen allgemein"],
+    ["als_bremse", "Bremse – Arbeitsluftspalt nach Herstellervorgabe", "ALS"],
+    ["oeldichtheit", "Dichtungen / Öldichtheit"],
+    ["hubseil", "Hubseil – Sichtprüfung / Ablegereife", "Seildicke"],
+    ["seiltrommel_rillung", "Seiltrommel – Seilrillung"],
+    ["seiltrommel_lagerung", "Seiltrommel – Lagerung", null, true],
+    ["uml_kopftraverse", "Seilumlenkrollen – Kopftraverse", "Einlauftiefe", true],
+    ["uml_kopftraverse_vorne", "Seilumlenkrollen – Kopftraverse vorne", "Einlauftiefe", true],
+    ["uml_hubrahmen", "Seilumlenkrollen – Hubrahmen", "Einlauftiefe", true],
+    ["uml_weitere", "Weitere Umlenkpunkte", "Einlauftiefe", true],
+    ["energiekette", "Energiekette / Schleifleitung – Beschädigungen"],
+    ["energiekette_uebergaenge", "Energiekette / Schleifleitung – Übergänge"],
+    ["energiekette_festpunkte", "Energiekette / Schleifleitung – Festpunkte"]
+  ]),
+
+  makeSection("tisch_kette_antrieb", "Teleskoptisch / Kettensystem / Antrieb", [
+    ["oberteilauflage", "Oberteilauflage"],
+    ["kurvenrollen", "Kurvenrollen"],
+    ["schleifleisten", "Schleifleisten"],
+    ["zahnstange", "Zahnstange / Rollen / Gleitleisten"],
+    ["stuetzrollen", "Stützrollen"],
+    ["getriebe", "Getriebe"],
+    ["ketten", "Ketten – Spannung / Schmierung", null, true],
+    ["kettenspanner", "Kettenspanner"],
+    ["umlenkrollen_ketten", "Umlenkrollen / Kettenräder", null, true],
+    ["kupplung", "Kupplung"],
+    ["gelenkwelle", "Gelenkwelle"]
+  ]),
+
+  makeSection("elektrik", "Elektrik / Steuerung", [
+    ["schaltschrank", "Schaltschrank – Sauberkeit / Dichtheit / Beschriftung"],
+    ["klemmen", "Klemmen / Zugentlastung / PE"],
+    ["kabelfuehrung", "Kabelführung / Schleppkette / Übergänge"],
+    ["endschalter", "Endschalter / Initiatoren / Verkabelung"],
+    ["antriebsregler", "Antriebsregler / Parametrierung"],
+    ["not_halt", "Not-Halt / Sicherheitskette / Verriegelung"]
+  ]),
+
+  makeSection("wiederkehrende_pruefung", "Wiederkehrende Prüfung / Sicherheit", [
+    ["notauskette", "Not-Halt-Kette einschließlich Verriegelungen"],
+    ["endpositionen", "Endpositionen Wartung / Semiautomatik"],
+    ["bremsweg", "Bremsprüfung nach festgelegtem Prüfverfahren"],
+    ["fangsystem", "Fangsystem / Geschwindigkeitsbegrenzer / Gestänge"],
+    ["lastmesseinheit", "Lastmesseinheit – Überlast / Unterlast"],
+    ["sensorik", "Sicherheitsrelevante Sensorik / Lichtschranken"],
+    ["pruefbuch", "Prüfbuch / Dokumentation"],
+    ["bedenken", "Beurteilung zum weiteren Betrieb – Bemerkung beachten"]
+  ])
+];
+
+const PROTOCOLS = {
+  rbg: {
+    name: "Regalbediengerät",
+    specs: [
+      ["mast", "Mast", ["", "Ein-Mast", "Zwei-Mast"]],
+      ["teleskoptisch", "Teleskoptisch", ["", "einfach", "doppelt"]],
+      ["nutzlast", "Nutzlast (kg)", "number"],
+      ["hubhoehe", "Max. Hubhöhe (m)", "number"],
+      ["fahrweg", "Fahrweg (m)", "number"]
+    ],
+    sections: RBG_SECTIONS
+  },
+
+  ft: {
+    name: "Fördertechnik",
+    specs: [
+      ["system", "System",
+       ["", "Rollenbahn", "Gurtförderer", "Kettenförderer", "Heber", "Drehtisch"]],
+      ["antrieb", "Antrieb", ["", "Motor/Getriebe", "Direktantrieb"]],
+      ["spurbreite", "Spurbreite (mm)", "number"]
+    ],
+    sections: [
+      makeSection("ft1", "Antriebsstation", [
+        ["ft_mg", "Motor / Getriebe"],
+        ["ft_sp", "Spannung / Kettenspanner", null, true]
+      ]),
+      makeSection("ft2", "Förderstrecke", [
+        ["ft_rbk", "Rollen / Bänder / Ketten"],
+        ["ft_lsw", "Sensorik / Lichtschranken"]
+      ]),
+      makeSection("ft3", "Sicherheit", [
+        ["ft_notaus", "Not-Halt / Verriegelungen"],
+        ["ft_bed", "Beurteilung zum weiteren Betrieb – Bemerkung beachten"]
+      ])
+    ]
+  },
+
+  other: {
+    name: "Andere Anlage",
+    specs: [
+      ["beschreibung", "Kurzbeschreibung", "text"],
+      ["hersteller", "Hersteller", "text"]
+    ],
+    sections: [
+      makeSection("allg", "Allgemein", [
+        ["all_bef", "Befestigungen"],
+        ["all_sens", "Sensorik"]
+      ]),
+      makeSection("sich", "Sicherheit", [
+        ["all_not", "Not-Halt"]
+      ])
+    ]
+  }
+};
+
+for (const [type, protocol] of Object.entries(PROTOCOLS)) {
+  protocol.sections.push({
+    id: "maengelliste",
+    title: "Ergänzende Mängel / Schmierstoffe",
+    items: [
+      {
+        id: type === "rbg" ? "maengel" :
+            type === "ft" ? "ft_m" : "all_m",
+        label: "Weitere Mängel / Beanstandungen",
+        status: false
+      },
+      {
+        id: type === "rbg" ? "schmierstoffe" :
+            type === "ft" ? "ft_schm" : "all_schm",
+        label: "Schmierstoffe zur Verfügung gestellt?",
+        status: false,
+        yesno: true
+      }
+    ]
+  });
+}
+
+let STATE = {
+  page: "home",
+  user: null,
+  protocolType: null,
+  header: {},
+  specs: {},
+  items: {},
+  signatures: { sig1: null, sig2: null },
+  currentDraftId: null,
+  projectId: null,
+  dirty: false
+};
+
+let openProjectId = null;
+let saveTimer = null;
+let accountingUnlocked = false;
+let viewCleanups = [];
+let offlineMessage = "Offline-Vorbereitung wird geprüft …";
+
+const drafts = () => read(LS.drafts, []);
+const projects = () => read(LS.projects, []);
+const materials = () => read(LS.materials, []);
+const times = id => read("sc_times:" + id, []);
+
+function snapshot() {
+  return clone({
+    protocolType: STATE.protocolType,
+    header: STATE.header,
+    specs: STATE.specs,
+    items: STATE.items,
+    signatures: STATE.signatures,
+    datum_ddmmyyyy: STATE.header.datum,
+    currentDraftId: STATE.currentDraftId,
+    projectId: STATE.projectId
+  });
+}
+
+function markChanged() {
+  STATE.dirty = true;
+  setSaveStatus("Änderungen noch nicht gesichert");
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    try {
+      flushAutosave();
+    } catch (error) {
+      setSaveStatus("Speichern fehlgeschlagen");
+      notifyError(error);
+    }
+  }, 500);
+}
+
+function flushAutosave() {
+  clearTimeout(saveTimer);
+  saveTimer = null;
+
+  if (!STATE.protocolType) return;
+
+  write("sc_autosave:" + STATE.protocolType, snapshot());
+
+  if (STATE.dirty) {
+    setSaveStatus("Zwischenstand lokal gesichert");
+  }
+}
+
+function setSaveStatus(text) {
+  const target = $("#saveStatus");
+  if (target) target.textContent = text;
+}
+
+function saveDraft(projectId = STATE.projectId) {
+  flushAutosave();
+
+  const list = drafts();
+  const id = STATE.currentDraftId || uid();
+  const oldIndex = list.findIndex(d => d.id === id);
+
+  const data = {
+    ...snapshot(),
+    id,
+    projectId: projectId || null,
+    title: [
+      PROTOCOLS[STATE.protocolType].name,
+      STATE.header.projektnummer || "",
+      STATE.header.anlagenkennung || "",
+      STATE.header.datum || ""
+    ].filter(Boolean).join(" · "),
+    updatedAt: now()
   };
 
-  const LS_USER='sc_user',LS_DRAFTS='sc_drafts',LS_PROJECTS='sc_projects',LS_TRASH='sc_trash',LS_SEC='sc_sec',LS_MAT='sc_mat';
-  const $=(s,e=document)=>e.querySelector(s), $$=(s,e=document)=>Array.from(e.querySelectorAll(s));
-  const pad=n=>String(n).padStart(2,'0');
-  const toDDMMYYYY=d=>pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear();
-  function normalizeDateInput(s){ if(!s) return null; s=String(s).trim().replace(/[.\-]/g,'/'); const iso=s.match(/^(\d{4})-(\d{2})-(\d{2})$/); if(iso) return iso[3]+'/'+iso[2]+'/'+iso[1]; const m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/); return m?pad(+m[1])+'/'+pad(+m[2])+'/'+m[3]:null;}
-  const validDate=s=>!!normalizeDateInput(s);
-  const lsGet=(k,f)=>{try{return JSON.parse(localStorage.getItem(k))??f}catch(_){return f}};
-  const lsSet=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
-  const uid=()=>Math.random().toString(36).slice(2)+Date.now().toString(36);
-  const now=()=>new Date().toISOString();
-  function toast(msg){const t=document.createElement('div');t.textContent=msg;Object.assign(t.style,{position:'fixed',bottom:'20px',left:'50%',transform:'translateX(-50%)',background:'#1f2a34',color:'#fff',padding:'8px 12px',borderRadius:'8px',zIndex:'9999',fontSize:'13px'});document.body.appendChild(t);setTimeout(()=>t.remove(),1400)}
+  if (oldIndex >= 0) list[oldIndex] = data;
+  else list.unshift(data);
 
-  let STATE={user:null,header:{},specs:{},protocolType:null,items:{},signatures:{sig1:null,sig2:null},datum_ddmmyyyy:null,page:'start',currentDraftId:null,dirty:false,accUnlocked:false};
+  write(LS.drafts, list);
 
-  /* ---------- Navigation ---------- */
-  function setTitle(t,sub=''){ $('#appTitle').textContent=t||'Service Check'; $('#subtitle').textContent=sub?('· '+sub):''; }
-  function navigate(page){ if(STATE.page==='protocol' && STATE.dirty){ openLeaveModal(()=>{saveDraftSnapshot(null);STATE.dirty=false;navigate(page);closeLeaveModal()},()=>{STATE.dirty=false;closeLeaveModal();navigate(page)}); return; } STATE.page=page; render(); }
-  function render(){
-    const root=$('#content'); root.innerHTML='';
-    $('#backBtn').style.display=(STATE.page==='start'||STATE.page==='home')?'none':'inline-flex';
-    $('#settingsBtn').style.display=(['protocol','home','specs','projects','drafts','accounting','project'].includes(STATE.page))?'inline-flex':'none';
-    if(STATE.page==='start') return renderStart(root);
-    if(STATE.page==='auth') return renderAuth(root);
-    if(STATE.page==='home') return renderHome(root);
-    if(STATE.page==='projects') return renderProjects(root);
-    if(STATE.page==='project') return renderProjectDetail(root);
-    if(STATE.page==='specs') return renderSpecs(root);
-    if(STATE.page==='protocol') return renderProtocol(root);
-    if(STATE.page==='drafts') return renderDrafts(root);
-    if(STATE.page==='accounting') return renderAccounting(root);
-  }
+  STATE.currentDraftId = id;
+  STATE.projectId = projectId || null;
+  STATE.dirty = false;
 
-  /* ---------- Pages ---------- */
-  function renderStart(root){
-    setTitle('Service Check','Start');
-    const c=document.createElement('section');c.className='card';
-    c.innerHTML=`<h2 style="margin:6px 0 12px 0">Willkommen</h2>
-    <p>Offline-fähig. Daten bleiben lokal.</p>
-    <div class="row startOnly">
-      <button class="primary" id="startAuth">Anmelden / Registrieren</button>
-      <button class="ghost" id="skip">Ohne Anmeldung fortfahren</button>
-    </div>`;
-    root.appendChild(c);
-    $('#startAuth').onclick=()=>navigate('auth');
-    $('#skip').onclick=()=>{ if(!STATE.user){STATE.user={name:'Gast'}}; navigate('home'); };
-  }
-  function renderAuth(root){
-    setTitle('Service Check','Anmeldung');
-    const c=document.createElement('section'); c.className='card';
-    const name=STATE.user?.name||'',email=STATE.user?.email||'';
-    c.innerHTML=`<div class="row authOnly">
-      <div class="input req"><label>Dein Name</label><input id="name" value="${name}" placeholder="Name"></div>
-      <div class="input"><label>E-Mail (optional)</label><input id="email" value="${email}" placeholder="email@example.com"></div>
-      <div class="input req"><label>PIN (4-stellig, lokal)</label><input id="pin" inputmode="numeric" maxlength="4" placeholder="****"></div>
-    </div>
-    <button class="primary" id="doLogin">Weiter</button>`;
-    root.appendChild(c);
-    $('#doLogin').onclick=()=>{ const n=$('#name').value.trim(), p=$('#pin').value.trim(); if(!n||p.length!==4){alert('Bitte Name und 4-stellige PIN eingeben.');return;} STATE.user={name:n,email:$('#email').value.trim()||undefined,pin:p}; lsSet(LS_USER,STATE.user); navigate('home'); };
-  }
-  function renderHome(root){
-    setTitle('Service Check','Hauptmenü');
-    const c=document.createElement('section'); c.className='card';
-    c.innerHTML=`<div class="note homeOnly">Angemeldet als: <b>${STATE.user?.name||'Gast'}</b></div>
-    <h2 style="margin:6px 0 12px 0">Was möchtest du tun?</h2>
-    <div class="grid" id="tiles"></div>`;
-    root.appendChild(c);
-    const grid=$('#tiles');
-    [['rbg','Regalbediengerät'],['ft','Fördertechnik'],['other','Andere Anlage']].forEach(([k,label])=>{
-      const t=document.createElement('div'); t.className='tile'; t.innerHTML=`<div style="font-weight:600">${label}</div><div class="note">Protokoll starten</div>`;
-      t.onclick=()=>{ STATE.protocolType=k; loadAutosaveFor(k); navigate('specs'); }; grid.appendChild(t);
-    });
-    const tDrafts=document.createElement('div'); tDrafts.className='tile'; tDrafts.innerHTML=`<div style="font-weight:600">Entwürfe</div><div class="note">Gespeicherte Protokolle</div>`;
-    tDrafts.onclick=()=>navigate('drafts'); grid.appendChild(tDrafts);
-    const tProjects=document.createElement('div'); tProjects.className='tile'; tProjects.innerHTML=`<div style="font-weight:600">Projekte</div><div class="note">Ordner & Arbeitszeiten</div>`;
-    tProjects.onclick=()=>navigate('projects'); grid.appendChild(tProjects);
-    const tAcc=document.createElement('div'); tAcc.className='tile'; tAcc.innerHTML=`<div style="font-weight:600">Buchhaltung</div><div class="note">Material/Leistungen & CSV</div>`;
-    tAcc.onclick=()=>openAccModal(); grid.appendChild(tAcc);
-  }
-  function renderProjects(root){
-    setTitle('Service Check','Projekte');
-    const c=document.createElement('section'); c.className='card';
-    c.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center">
-      <h2 style="margin:6px 0 12px 0">Projektordner</h2>
-      <button class="primary" id="newProject">Neues Projekt</button>
-    </div>
-    <div id="projectList"></div>`;
-    root.appendChild(c);
-    $('#newProject').onclick=()=>{ const pn=prompt('Projektnummer?')||''; const pj=prompt('Projektname?')||''; const bet=prompt('Betreiber?')||''; const bj=prompt('Baujahr?')||''; if(!pn.trim()||!pj.trim())return; saveProject({projektnummer:pn.trim(),projekt:pj.trim(),betreiber:bet.trim(),baujahr:bj.trim()}); toast('Projekt angelegt.'); render(); };
-    const list=$('#projectList'); const projs=listProjects();
-    if(!projs.length){list.innerHTML='<div class="note">Noch keine Projekte.</div>';return;}
-    projs.forEach(p=>{
-      const it=document.createElement('div'); it.style.cssText='display:flex;justify-content:space-between;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:8px 0';
-      const left=document.createElement('div');
-      left.innerHTML=`<div style="font-weight:600">${p.projektnummer||'–'} · ${p.projekt||''}</div>
-      <div class="note">Betreiber: ${p.betreiber||'–'} · Baujahr: ${p.baujahr||'–'}</div>`;
-      const right=document.createElement('div');
-      const open=document.createElement('button'); open.className='ghost'; open.textContent='Öffnen';
-      open.onclick=()=>{ STATE._projectOpenId=p.id; navigate('project'); };
-      const del=document.createElement('button'); del.className='ghost'; del.textContent='Löschen';
-      del.onclick=()=>{ if(confirm('Projekt löschen?')){ deleteProject(p.id); render(); } };
-      right.append(open,del); it.append(left,right); list.appendChild(it);
-    });
-  }
-  function renderProjectDetail(root){
-    const p=listProjects().find(x=>x.id===STATE._projectOpenId); if(!p){navigate('projects');return;}
-    setTitle('Service Check',`Projekt: ${p.projektnummer||''}`);
-    const head=document.createElement('section'); head.className='card';
-    head.innerHTML=`<h2 style="margin:6px 0 12px 0">${p.projekt||'Projekt'}</h2>
-    <div class="row"><span class="pill">Projektnr: <b>${p.projektnummer||'–'}</b></span><span class="pill">Betreiber: <b>${p.betreiber||'–'}</b></span><span class="pill">Baujahr: <b>${p.baujahr||'–'}</b></span></div>`;
-    root.appendChild(head);
+  flushAutosave();
+  setSaveStatus("Im Entwurf gespeichert");
+  toast("Protokoll gespeichert.");
+}
 
-    const actions=document.createElement('section'); actions.className='card';
-    actions.innerHTML=`<div class="grid">
-      <div class="tile" id="startProto"><div style="font-weight:600">Protokoll im Projekt</div><div class="note">RBG/FT/Andere</div></div>
-      <div class="tile" id="tl"><div style="font-weight:600">Arbeitszeit-Protokoll</div><div class="note">Erfassen & CSV</div></div>
-    </div>`;
-    root.appendChild(actions);
-    $('#startProto').onclick=()=>{ STATE.protocolType='rbg'; loadAutosaveFor('rbg'); STATE._saveToProjectId=p.id; navigate('specs'); };
-    $('#tl').onclick=()=>{ renderTimeLog(root,p); };
-    renderTimeLog(root,p);
-  }
-  function renderTimeLog(root,p){
-    const card=document.createElement('section'); card.className='card';
-    card.innerHTML='<h3 style="margin:6px 0 12px 0">Arbeitszeit</h3>';
-    const row=document.createElement('div'); row.className='row';
-    row.innerHTML=`<div class="input"><label>Datum</label><input id="tl_date" type="date"></div>
-    <div class="input"><label>Mitarbeiter</label><input id="tl_name" placeholder="Name"></div>
-    <div class="input"><label>Tätigkeit</label><input id="tl_task" placeholder="z.B. Wartung RBG"></div>
-    <div class="input"><label>Start (HH:MM)</label><input id="tl_start" placeholder="07:30"></div>
-    <div class="input"><label>Ende (HH:MM)</label><input id="tl_end" placeholder="16:15"></div>
-    <div class="input"><label>Pause (Min.)</label><input id="tl_break" type="number" placeholder="30"></div>`;
-    const btn=document.createElement('button'); btn.className='primary'; btn.textContent='Eintrag hinzufügen';
-    btn.onclick=()=>{ const d=$('#tl_date').value,n=$('#tl_name').value.trim(),s=$('#tl_start').value,e=$('#tl_end').value,b=parseInt($('#tl_break').value||'0',10)||0; if(!d||!n||!s||!e){alert('Bitte Datum, Name, Start, Ende.');return;} addTime(p.id,{date:d,staff:n,task:$('#tl_task').value.trim(),start:s,end:e,breakMin:b}); toast('Zeit erfasst.'); render(); };
-    card.append(row,btn); root.appendChild(card);
+function leaveProtocol() {
+  try {
+    flushAutosave();
 
-    const listCard=document.createElement('section'); listCard.className='card';
-    listCard.innerHTML='<h3 style="margin:6px 0 12px 0">Einträge</h3>';
-    const entries=listTimes(p.id);
-    if(!entries.length){ listCard.innerHTML += '<div class="note">Noch keine Einträge.</div>'; root.appendChild(listCard); return; }
-    const tbl=document.createElement('table'); tbl.className='table';
-    tbl.innerHTML='<thead><tr><th>Datum</th><th>Name</th><th>Tätigkeit</th><th>Start</th><th>Ende</th><th>Pause</th><th></th></tr></thead>';
-    const tb=document.createElement('tbody');
-    entries.forEach(en=>{
-      const tr=document.createElement('tr');
-      tr.innerHTML=`<td>${en.date}</td><td>${en.staff}</td><td>${en.task||''}</td><td>${en.start||''}</td><td>${en.end||''}</td><td>${en.breakMin||0}</td><td><button class="ghost">Löschen</button></td>`;
-      tr.querySelector('button').onclick=()=>{ const rest=listTimes(p.id).filter(x=>x.id!==en.id); lsSet('sc_times:'+p.id,rest); render(); };
-      tb.appendChild(tr);
-    });
-    tbl.appendChild(tb);
-    const exp=document.createElement('button'); exp.className='ghost'; exp.textContent='CSV exportieren';
-    exp.onclick=()=>{ const e=listTimes(p.id); const headers=['Datum','Mitarbeiter','Tätigkeit','Start','Ende','PauseMin','Projekt','Projektnummer','Betreiber']; const rows=e.map(x=>[x.date,x.staff,(x.task||''),(x.start||''),(x.end||''),(x.breakMin||0),(p.projekt||''),(p.projektnummer||''),(p.betreiber||'')]); downloadCSV('Arbeitszeit_'+(p.projektnummer||'Projekt')+'.csv',headers,rows); };
-    listCard.append(tbl,document.createElement('br'),exp); root.appendChild(listCard);
-  }
-  function renderSpecs(root){
-    const proto=PROTOCOLS[STATE.protocolType]; setTitle('Service Check',proto.name+' · Spezifikation');
-    const card=document.createElement('section'); card.className='card';
-    const wrap=document.createElement('div'); wrap.className='row specsOnly';
-    proto.specs.forEach(f=>{
-      const w=document.createElement('div'); w.className='input';
-      const lab=document.createElement('label'); lab.textContent=f.label;
-      let field; if(f.type==='select'){ field=document.createElement('select'); field.innerHTML='<option value="">–</option>'+f.options.map(o=>`<option>${o}</option>`).join(''); field.value=STATE.specs[f.key]||''; field.onchange=()=>{STATE.specs[f.key]=field.value; autosave();}; }
-      else { field=document.createElement('input'); field.type=f.type||'text'; field.value=STATE.specs[f.key]||''; field.oninput=()=>{STATE.specs[f.key]=field.value; autosave();}; }
-      w.append(lab,field); wrap.appendChild(w);
-    });
-    card.appendChild(wrap);
-    const next=document.createElement('button'); next.className='primary'; next.textContent='Weiter zum Protokoll'; next.onclick=()=>navigate('protocol');
-    card.appendChild(next); root.appendChild(card);
-  }
-  function renderDrafts(root){
-    setTitle('Service Check','Entwürfe');
-    const c=document.createElement('section'); c.className='card';
-    const drafts=listDrafts().sort((a,b)=>(b.updatedAt||'').localeCompare(a.updatedAt||''));
-    if(!drafts.length){ c.innerHTML='<div class="note">Noch keine Entwürfe.</div>'; root.appendChild(c); return; }
-    drafts.forEach(d=>{
-      const it=document.createElement('div'); it.style.cssText='display:flex;justify-content:space-between;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:8px 0';
-      const left=document.createElement('div'); left.innerHTML=`<div style="font-weight:600">${d.title||'Entwurf'}</div><div class="note">${PROTOCOLS[d.protocolType]?.name||d.protocolType||'–'} · ${d.updatedAt?new Date(d.updatedAt).toLocaleString():''}</div>`;
-      const right=document.createElement('div'); const open=document.createElement('button'); open.className='ghost'; open.textContent='Öffnen';
-      open.onclick=()=>{ STATE.protocolType=d.protocolType; STATE.header=d.header||{}; STATE.specs=d.specs||{}; STATE.items=d.items||{}; STATE.signatures=d.signatures||{sig1:null,sig2:null}; STATE.datum_ddmmyyyy=d.datum_ddmmyyyy||STATE.header.datum||toDDMMYYYY(new Date()); STATE.currentDraftId=d.id; STATE.dirty=false; navigate('protocol'); };
-      const del=document.createElement('button'); del.className='ghost'; del.textContent='Löschen'; del.onclick=()=>{ if(confirm('Entwurf löschen?')){ deleteDraft(d.id); render(); } };
-      right.append(open,del); it.append(left,right); c.appendChild(it);
-    });
-    root.appendChild(c);
-  }
-  function renderProtocol(root){
-    const proto=PROTOCOLS[STATE.protocolType]; setTitle('Service Check', proto.name+' · Protokoll');
-
-    /* Kopfzeile Pills */
-    const quick=document.createElement('section'); quick.className='card';
-    quick.innerHTML=`<h2 style="margin:6px 0 12px 0">Wartungsprotokoll</h2>
-    <div class="row">
-      <span class="pill">Projektnr: <b id="pill_pn">${STATE.header.projektnummer||'–'}</b></span>
-      <span class="pill">Projekt: <b id="pill_p">${STATE.header.projekt||'–'}</b></span>
-      <span class="pill">Betreiber: <b id="pill_b">${STATE.header.betreiber||'–'}</b></span>
-    </div>`;
-    root.appendChild(quick);
-
-    /* Grunddaten oben im Protokoll */
-    const headForm=document.createElement('section'); headForm.className='card';
-    headForm.innerHTML = '<h2 style="margin:6px 0 12px 0;font-size:16px;">Grunddaten</h2>';
-    const hrow=document.createElement('div'); hrow.className='row';
-    HEADER_FIELDS_MIN.forEach(f=>{
-      const w=document.createElement('div'); w.className='input'+(f.req?' req':'');
-      const lab=document.createElement('label'); lab.textContent=f.label;
-      const inp=document.createElement('input'); if(f.key==='datum'){ inp.placeholder='TT/MM/JJJJ'; inp.inputMode='numeric'; inp.maxLength=10; }
-      inp.value=STATE.header[f.key]|| (f.key==='datum' ? (STATE.datum_ddmmyyyy||toDDMMYYYY(new Date())) : '');
-      const update=()=>{
-        if(f.key==='datum'){ const norm=normalizeDateInput(inp.value)||inp.value; inp.value=norm; STATE.header[f.key]=norm; STATE.datum_ddmmyyyy=norm; }
-        else { STATE.header[f.key]=inp.value; }
-        autosave(true);
-        updateHeaderPills();
-        togglePrintButton();
-      };
-      inp.oninput=update;
-      if(f.key==='datum') inp.onblur=()=>{ if(!validDate(inp.value)) alert('Bitte Datum als TT/MM/JJJJ'); };
-      w.append(lab, inp); hrow.appendChild(w);
-    });
-    headForm.appendChild(hrow); root.appendChild(headForm);
-
-    /* Info-Kasten */
-    const info=document.createElement('section'); info.className='card';
-    const ready=validateRequiredHeadersOnly();
-    info.innerHTML=`<div class="banner ${ready?'ok':'warn'}">${ready?'Pflichtfelder vollständig – Drucken/Export möglich.':'Bitte Projektnummer, Projekt, Betreiber und Datum ausfüllen.'}</div>
-    <details style="margin-top:8px"><summary>ℹ️ Hinweise anzeigen/ausblenden</summary>
-      <div class="note" style="margin-top:6px">Links/Rechts = Ansicht vom Schaltschrank Richtung Hubrahmen</div>
-      <div class="note">i.O. = in Ordnung ; n.i.O. = nicht in Ordnung ; n.v. = nicht vorhanden</div>
-    </details>`;
-    root.appendChild(info);
-
-    /* Spezifikation (Nur Anzeige) */
-    const spec=document.createElement('section'); spec.className='card';
-    spec.innerHTML='<h2 style="margin:6px 0 12px 0">Spezifikation</h2>';
-    const srow=document.createElement('div'); srow.className='row';
-    PROTOCOLS[STATE.protocolType].specs.forEach(f=>{const v=STATE.specs[f.key]||'–'; const d=document.createElement('div'); d.className='input'; d.innerHTML=`<label>${f.label}</label><input disabled value="${v}">`; srow.appendChild(d);});
-    spec.appendChild(srow); root.appendChild(spec);
-
-    /* Abschnitte */
-    const secWrap=document.createElement('div'); root.appendChild(secWrap);
-    renderSections(secWrap, proto.sections);
-
-    /* Unterschriften */
-    const sig=document.createElement('section'); sig.className='card';
-    sig.innerHTML='<h2 style="margin:6px 0 12px 0">Unterschriften</h2>';
-    const sigr=document.createElement('div'); sigr.className='row';
-    sigr.appendChild(signatureBlock('Prüfer','sig1'));
-    sigr.appendChild(signatureBlock('Kunde','sig2'));
-    const db=document.createElement('div'); db.className='input'; db.innerHTML=`<label>Datum (TT/MM/JJJJ)</label><input id="sigDate" placeholder="TT/MM/JJJJ">`;
-    sigr.appendChild(db); sig.appendChild(sigr); root.appendChild(sig);
-    const sd=$('#sigDate'); const nowFmt=toDDMMYYYY(new Date()); sd.value=STATE.header['datum_unterschrift']||nowFmt; sd.oninput=()=>{ const norm=normalizeDateInput(sd.value)||sd.value; sd.value=norm; STATE.header['datum_unterschrift']=norm; autosave(); };
-
-    /* Footer */
-    const footer=document.createElement('div'); footer.className='footer-actions';
-    footer.innerHTML=`<button class="ghost" id="save">In Entwürfe</button>
-    <button class="ghost" id="saveIn">Speichern in…</button>
-    <button class="ghost" id="export">Export (JSON)</button>
-    <label class="ghost" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer">Import
-      <input id="import" type="file" accept="application/json" style="display:none">
-    </label>
-    <span style="flex:1"></span>
-    <button class="primary" id="print" ${ready?'':'disabled'}>Drucken / PDF</button>`;
-    root.appendChild(footer);
-
-    $('#save').onclick=()=>saveDraftSnapshot(null);
-    $('#saveIn').onclick=openSaveInModal;
-    $('#export').onclick=()=>{ downloadJSON('service_check_export.json',{header:STATE.header,specs:STATE.specs,items:STATE.items,protocolType:STATE.protocolType}); };
-    $('#import').addEventListener('change',e=>{const f=e.target.files?.[0]; if(!f) return; const r=new FileReader(); r.onload=()=>{try{const o=JSON.parse(r.result); STATE.header=o.header||STATE.header; STATE.specs=o.specs||STATE.specs; STATE.items=o.items||STATE.items; STATE.protocolType=o.protocolType||STATE.protocolType; autosave(true); render();}catch(_){alert('Ungültige JSON-Datei.')}}; r.readAsText(f);});
-    $('#print').onclick=()=>{ if(!validateRequiredHeadersOnly()){alert('Bitte Grunddaten ausfüllen.');return;} window.print(); };
-
-    function updateHeaderPills(){
-      const pn=$('#pill_pn'), p=$('#pill_p'), b=$('#pill_b');
-      if(pn) pn.textContent = STATE.header.projektnummer||'–';
-      if(p) p.textContent = STATE.header.projekt||'–';
-      if(b) b.textContent = STATE.header.betreiber||'–';
+    if (STATE.dirty) {
+      if (!confirm("Änderungen als Entwurf speichern und fortfahren?")) {
+        return false;
+      }
+      saveDraft();
     }
-    window._updateHeaderPills=updateHeaderPills;
+
+    return true;
+  } catch (error) {
+    notifyError(error);
+    return false;
+  }
+}
+
+function go(page) {
+  if (STATE.page === "protocol" && !leaveProtocol()) return;
+  STATE.page = page;
+  render();
+}
+
+function applySnapshot(data) {
+  if (!PROTOCOLS[data.protocolType]) {
+    throw new Error("Unbekannter Protokolltyp.");
   }
 
-  /* ---------- Sections ---------- */
-  function renderSections(container,sections){
-    sections.forEach(section=>{
-      const card=document.createElement('section'); card.className='card';
-      const det=document.createElement('details'); det.open=false; const sum=document.createElement('summary'); sum.textContent=section.title; det.appendChild(sum);
+  STATE.protocolType = data.protocolType;
+  STATE.header = clone(data.header || {});
+  STATE.specs = clone(data.specs || {});
+  STATE.items = clone(data.items || {});
+  STATE.signatures = clone(data.signatures || {sig1:null, sig2:null});
+  STATE.currentDraftId = data.id || data.currentDraftId || null;
+  STATE.projectId = data.projectId || null;
+  STATE.dirty = false;
 
-      section.items.forEach(item=>{
-        const block=document.createElement('div'); block.style.margin='8px 0';
-        const label=document.createElement('div'); label.textContent=item.label; label.style.cssText='margin-bottom:6px;font-weight:500';
-        const row=document.createElement('div'); row.className='row';
+  if (!STATE.header.datum) {
+    STATE.header.datum = data.datum_ddmmyyyy || dateDE();
+  }
+}
 
-        if((item.fields||[]).some(f=>f.type==='status')){
-          const bag=document.createElement('div'); bag.className='badge';
-          [{k:'io',t:'i.O.'},{k:'nio',t:'n.i.O.'},{k:'nv',t:'n.v.'}].forEach(opt=>{
-            const b=document.createElement('button'); b.className='chip'; b.textContent=opt.t;
-            const cur=STATE.items[item.id]?.status; if(cur===opt.k) b.classList.add('active');
-            b.onclick=()=>{ STATE.items[item.id]=STATE.items[item.id]||{}; STATE.items[item.id].status=opt.k; $$('.chip',bag).forEach(x=>x.classList.remove('active')); b.classList.add('active'); autosave(); };
-            bag.appendChild(b);
-          });
-          row.appendChild(bag);
-        }
+function startProtocol(type, projectId = null) {
+  if (!PROTOCOLS[type]) return;
 
-        (item.fields||[]).forEach(f=>{
-          if(f.type==='note'){ const d=document.createElement('div'); d.className='input'; d.style.minWidth='260px'; d.innerHTML='<label>Bemerkung</label><textarea rows="2"></textarea>'; const ta=d.querySelector('textarea'); ta.value=STATE.items[item.id]?.note||''; ta.oninput=()=>{ STATE.items[item.id]=STATE.items[item.id]||{}; STATE.items[item.id].note=ta.value; autosave(); }; row.appendChild(d); }
-          if(f.type==='measurement'){ const d=document.createElement('div'); d.className='input'; d.style.maxWidth='200px'; d.innerHTML=`<label>${f.label} (${f.unit})</label><input type="number" inputmode="decimal">`; const inp=d.querySelector('input'); inp.value=STATE.items[item.id]?.[f.label]||''; inp.oninput=()=>{ STATE.items[item.id]=STATE.items[item.id]||{}; STATE.items[item.id][f.label]=inp.value; autosave(); }; row.appendChild(d); }
-          if(f.type==='yesno'){ const d=document.createElement('div'); d.className='input'; d.style.maxWidth='200px'; d.innerHTML='<label>Ja/Nein</label><select><option value="">–</option><option>Ja</option><option>Nein</option></select>'; const sel=d.querySelector('select'); sel.value=STATE.items[item.id]?.yesno||''; sel.onchange=()=>{ STATE.items[item.id]=STATE.items[item.id]||{}; STATE.items[item.id].yesno=sel.value; autosave(); }; row.appendChild(d); }
-          if(f.type==='lubricated'){ const d=document.createElement('div'); d.className='input'; d.style.maxWidth='200px'; d.innerHTML='<label></label><label style="display:flex;gap:6px;align-items:center"><input type="checkbox"> geschmiert</label>'; const cb=d.querySelector('input[type="checkbox"]'); cb.checked=!!STATE.items[item.id]?.geschmiert; cb.onchange=()=>{ STATE.items[item.id]=STATE.items[item.id]||{}; STATE.items[item.id].geschmiert=cb.checked; autosave(); }; row.appendChild(d); }
-        });
+  const prior = read("sc_autosave:" + type, null);
 
-        const pwrap=document.createElement('div'); pwrap.className='input'; pwrap.style.maxWidth='260px'; pwrap.innerHTML='<label>Foto (optional)</label><input type="file" accept="image/*;capture=camera"><img style="max-width:120px;border:1px solid var(--line);border-radius:6px;margin-top:6px;display:none">';
-        const inp=pwrap.querySelector('input'); const img=pwrap.querySelector('img'); if(STATE.items[item.id]?.photo){img.src=STATE.items[item.id].photo; img.style.display='block';}
-        inp.onchange=async()=>{ const f=inp.files?.[0]; if(!f) return; const b64=await fileToDataURLScaled(f,1600,.75); STATE.items[item.id]=STATE.items[item.id]||{}; STATE.items[item.id].photo=b64; img.src=b64; img.style.display='block'; autosave(); };
-        row.appendChild(pwrap);
+  if (
+    !projectId &&
+    prior &&
+    confirm("Letzten lokalen Zwischenstand dieses Anlagentyps fortsetzen?")
+  ) {
+    applySnapshot({...prior, protocolType:type});
+  } else {
+    const project = projects().find(p => p.id === projectId);
 
-        block.append(label,row); det.appendChild(block);
+    STATE.protocolType = type;
+    STATE.header = {
+      projektnummer: project?.projektnummer || "",
+      projekt: project?.projekt || "",
+      betreiber: project?.betreiber || "",
+      baujahr: project?.baujahr || "",
+      datum: dateDE(),
+      datum_unterschrift: dateDE(),
+      pruefer: STATE.user?.name || "",
+      protokollart: "Service / Wartung"
+    };
+
+    STATE.specs = {};
+    STATE.items = {};
+    STATE.signatures = {sig1:null, sig2:null};
+    STATE.currentDraftId = null;
+    STATE.projectId = projectId;
+    STATE.dirty = true;
+    flushAutosave();
+  }
+
+  STATE.page = "protocol";
+  render();
+}
+
+function openDraft(id) {
+  const data = drafts().find(d => d.id === id);
+  if (!data) return;
+
+  applySnapshot(data);
+  STATE.page = "protocol";
+  render();
+}
+
+function deleteDraft(id) {
+  if (!confirm("Diesen gespeicherten Entwurf löschen?")) return;
+
+  write(LS.drafts, drafts().filter(d => d.id !== id));
+
+  for (const type of Object.keys(PROTOCOLS)) {
+    const key = "sc_autosave:" + type;
+    const cached = read(key, null);
+
+    if (cached?.currentDraftId === id || cached?.id === id) {
+      localStorage.removeItem(key);
+    }
+  }
+
+  if (STATE.currentDraftId === id) STATE.currentDraftId = null;
+  render();
+}
+
+/* =========================================================
+   ANSICHTEN
+   ========================================================= */
+
+function render() {
+  for (const cleanup of viewCleanups) cleanup();
+  viewCleanups = [];
+
+  const root = $("#content");
+  root.replaceChildren();
+
+  $("#backBtn").hidden = STATE.page === "home";
+  $("#subtitle").textContent = {
+    home: "Hauptmenü",
+    projects: "Projekte",
+    project: "Projektordner",
+    drafts: "Entwürfe",
+    protocol: "Protokoll",
+    accounting: "Buchhaltung"
+  }[STATE.page] || "";
+
+  try {
+    const pages = {
+      home: renderHome,
+      projects: renderProjects,
+      project: renderProject,
+      drafts: renderDrafts,
+      protocol: renderProtocol,
+      accounting: renderAccounting
+    };
+
+    (pages[STATE.page] || renderHome)(root);
+  } catch (error) {
+    notifyError(error);
+    card(root, "Ansicht konnte nicht geladen werden").append(
+      element("p", "Bitte Einstellungen öffnen und ein Backup erstellen.")
+    );
+  }
+}
+
+function renderHome(root) {
+  const intro = card(root, "Willkommen");
+  intro.append(
+    element("p",
+      "Service- und Prüfprotokolle mit Fotos, Unterschriften und PDF-Ausgabe."),
+    element("p",
+      "Lokales Profil: " + (STATE.user?.name || "Gast"), "note")
+  );
+
+  const grid = element("div", null, "grid");
+  intro.append(grid);
+
+  for (const [type, p] of Object.entries(PROTOCOLS)) {
+    grid.append(button(p.name + " – Protokoll starten",
+      () => startProtocol(type), "tile"));
+  }
+
+  grid.append(
+    button("Entwürfe", () => go("drafts"), "tile"),
+    button("Projektordner & Arbeitszeiten", () => go("projects"), "tile"),
+    button("Buchhaltung", unlockAccounting, "tile")
+  );
+
+  const info = card(root, "Hinweise");
+  info.append(
+    element("p", offlineMessage, "note"),
+    element("p",
+      "Sichere deine Daten regelmäßig über Einstellungen → Backup. " +
+      "Das lokale Profil ist kein Online-Konto.", "note")
+  );
+}
+
+function createProject(data) {
+  if (!data.projektnummer?.trim() || !data.projekt?.trim()) {
+    throw new Error("Projektnummer und Projektname fehlen.");
+  }
+
+  const entry = {
+    ...data,
+    id: uid(),
+    createdAt: now()
+  };
+
+  write(LS.projects, [entry, ...projects()]);
+  return entry;
+}
+
+function renderProjects(root) {
+  const c = card(root, "Projektordner");
+  const form = element("form");
+  const row = element("div", null, "row");
+
+  const pn = field(row, "Projektnummer", {required:true});
+  const name = field(row, "Projektname", {required:true});
+  const operator = field(row, "Betreiber");
+  const year = field(row, "Baujahr");
+
+  form.append(row);
+
+  const submit = element("button", "Projekt anlegen", "primary");
+  submit.type = "submit";
+  actions(form).append(submit);
+  c.append(form);
+
+  form.onsubmit = event => {
+    event.preventDefault();
+
+    try {
+      createProject({
+        projektnummer: pn.value.trim(),
+        projekt: name.value.trim(),
+        betreiber: operator.value.trim(),
+        baujahr: year.value.trim()
       });
 
-      card.appendChild(det); container.appendChild(card);
-    });
+      toast("Projekt angelegt.");
+      render();
+    } catch (error) {
+      notifyError(error);
+    }
+  };
+
+  const list = card(root, "Vorhandene Projekte");
+
+  if (!projects().length) {
+    list.append(element("p", "Noch keine Projekte.", "note"));
   }
 
-  /* ---------- Signatur ---------- */
-  function signatureBlock(label,key){
-    const wrap=document.createElement('div'); wrap.className='input sig-pad'; const lab=document.createElement('label'); lab.textContent='Unterschrift '+label;
-    const cv=document.createElement('canvas'); cv.className='sig-canvas'; const tools=document.createElement('div'); tools.className='sig-tools';
-    const clr=document.createElement('button'); clr.className='ghost'; clr.textContent='Löschen'; tools.appendChild(clr);
-    wrap.append(lab,cv,tools);
-    setTimeout(()=>initPad(cv,clr,key),0);
-    return wrap;
+  for (const p of projects()) {
+    const item = element("div", null, "list-item");
+    const info = element("div");
+
+    info.append(
+      element("strong", `${p.projektnummer} · ${p.projekt}`),
+      element("div", `Betreiber: ${p.betreiber || "–"}`, "note")
+    );
+
+    const a = actions(item);
+    item.prepend(info);
+
+    a.append(
+      button("Öffnen", () => {
+        openProjectId = p.id;
+        go("project");
+      }),
+      button("Löschen", () => {
+        const hasData =
+          drafts().some(d => d.projectId === p.id) ||
+          times(p.id).length > 0 ||
+          materials().some(m => m.projectId === p.id);
+
+        if (hasData) {
+          alert(
+            "Dieses Projekt enthält Protokolle, Arbeitszeiten oder " +
+            "Buchhaltungspositionen. Entferne oder ordne diese zuerst um."
+          );
+          return;
+        }
+
+        if (confirm("Leeren Projektordner löschen?")) {
+          write(LS.projects, projects().filter(x => x.id !== p.id));
+          render();
+        }
+      }, "danger")
+    );
+
+    list.append(item);
   }
-  function initPad(canvas,clearBtn,key){
-    const ctx=canvas.getContext('2d');
-    function resize(){ const r=canvas.getBoundingClientRect(); const ratio=Math.max(window.devicePixelRatio||1,1); canvas.width=r.width*ratio; canvas.height=r.height*ratio; ctx.setTransform(ratio,0,0,ratio,0,0); ctx.lineWidth=2; ctx.lineCap='round'; if(STATE.signatures[key]){const img=new Image(); img.onload=()=>ctx.drawImage(img,0,0,r.width,r.height); img.src=STATE.signatures[key];}}
-    let draw=false,lastX=0,lastY=0; const get=(e)=>{const b=canvas.getBoundingClientRect(); const x=(e.touches?e.touches[0].clientX:e.clientX)-b.left; const y=(e.touches?e.touches[0].clientY:e.clientY)-b.top; return {x,y}};
-    function start(e){draw=true;const p=get(e); lastX=p.x; lastY=p.y;}
-    function move(e){if(!draw)return;const p=get(e); ctx.beginPath(); ctx.moveTo(lastX,lastY); ctx.lineTo(p.x,p.y); ctx.stroke(); lastX=p.x; lastY=p.y;}
-    function end(){draw=false; STATE.signatures[key]=canvas.toDataURL('image/png'); autosave();}
-    clearBtn.onclick=()=>{ctx.clearRect(0,0,canvas.width,canvas.height); STATE.signatures[key]=null; autosave();}
-    window.addEventListener('resize',resize); resize();
-    canvas.addEventListener('mousedown',start); canvas.addEventListener('mousemove',move); window.addEventListener('mouseup',end);
-    canvas.addEventListener('touchstart',(e)=>{start(e);e.preventDefault()},{passive:false});
-    canvas.addEventListener('touchmove',(e)=>{move(e);e.preventDefault()},{passive:false});
-    canvas.addEventListener('touchend',end);
-  }
+}
 
-  /* ---------- Storage (Drafts/Projects/Times) ---------- */
-  function listDrafts(){return lsGet(LS_DRAFTS,[])}
-  function saveDraftSnapshot(projectId){
-    const drafts=listDrafts(); const idx=drafts.findIndex(d=>d.id===STATE.currentDraftId);
-    const data={id:idx>=0?drafts[idx].id:uid(),projectId:projectId??(idx>=0?drafts[idx].projectId:null),title:buildDraftTitle(),protocolType:STATE.protocolType,header:STATE.header,specs:STATE.specs,items:STATE.items,signatures:STATE.signatures,datum_ddmmyyyy:STATE.datum_ddmmyyyy||STATE.header.datum,updatedAt:now()};
-    if(idx>=0) drafts[idx]=data; else drafts.unshift(data);
-    lsSet(LS_DRAFTS,drafts); STATE.currentDraftId=data.id; STATE.dirty=false; toast('In Entwürfe gespeichert.');
-    return data.id;
-  }
-  function deleteDraft(id){ lsSet(LS_DRAFTS, listDrafts().filter(d=>d.id!==id)); }
-  function listProjects(){return lsGet(LS_PROJECTS,[])}
-  function saveProject(p){ const arr=listProjects(); if(!p.id){p.id=uid(); p.createdAt=now();} const i=arr.findIndex(x=>x.id===p.id); if(i>=0)arr[i]=p; else arr.unshift(p); lsSet(LS_PROJECTS,arr); if(!localStorage.getItem('sc_times:'+p.id)) lsSet('sc_times:'+p.id,[]); return p.id; }
-  function deleteProject(id){ lsSet(LS_PROJECTS, listProjects().filter(x=>x.id!==id)); }
-  function listTimes(pid){ return lsGet('sc_times:'+pid,[]) }
-  function addTime(pid,t){ const arr=listTimes(pid); t.id=uid(); t.createdAt=now(); arr.unshift(t); lsSet('sc_times:'+pid,arr); }
+function renderProject(root) {
+  const p = projects().find(x => x.id === openProjectId);
 
-  /* ---------- Accounting ---------- */
-  function openAccModal(){ $('#accModal').classList.add('open'); $('#accModal').setAttribute('aria-hidden','false'); }
-  function closeAccModal(){ $('#accModal').classList.remove('open'); $('#accModal').setAttribute('aria-hidden','true'); }
-  function unlockAccounting(){ const sec=lsGet(LS_SEC,{}); const pin=String($('#accLoginPin').value||''); if(!sec.accPin){alert('Keine Buchhaltung-PIN gesetzt (⚙️).');return;} if(pin!==String(sec.accPin)){alert('Falsche PIN.');return;} closeAccModal(); navigate('accounting'); }
-  function renderAccounting(root){
-    setTitle('Service Check','Buchhaltung');
-    const head=document.createElement('section'); head.className='card';
-    head.innerHTML='<h2 style="margin:6px 0 12px 0">Buchhaltung</h2>';
-    root.appendChild(head);
-
-    const mat=document.createElement('section'); mat.className='card';
-    const projs=listProjects();
-    const projSel=document.createElement('select'); projSel.innerHTML='<option value="">Projekt wählen…</option>'+projs.map(p=>`<option value="${p.id}">${p.projektnummer||''} · ${p.projekt||''}</option>`).join('');
-    const row=document.createElement('div'); row.className='row';
-    row.innerHTML=`<div class="input"><label>Datum</label><input id="m_date" type="date"></div>
-    <div class="input"><label>Artikel-Nr.</label><input id="m_art"></div>
-    <div class="input"><label>Bezeichnung</label><input id="m_name"></div>
-    <div class="input"><label>Menge</label><input id="m_qty" type="number" value="1"></div>
-    <div class="input"><label>Einheit</label><input id="m_unit" value="Stk"></div>
-    <div class="input"><label>Einzelpreis netto (€)</label><input id="m_price" type="number" value="0"></div>
-    <div class="input"><label>USt-Satz (%)</label><input id="m_vat" type="number" value="19"></div>
-    <div class="input"><label>Kostenstelle (optional)</label><input id="m_kst"></div>`;
-    const projBox=document.createElement('div'); projBox.className='input'; projBox.innerHTML='<label>Projektordner</label>'; projBox.appendChild(projSel);
-    mat.appendChild(row); mat.appendChild(projBox);
-    const add=document.createElement('button'); add.className='primary'; add.textContent='Eintrag hinzufügen';
-    add.onclick=()=>{ if(!projSel.value){alert('Projekt wählen.');return;} const m={projectId:projSel.value,date:$('#m_date').value||new Date().toISOString().slice(0,10),artnr:$('#m_art').value.trim(),name:$('#m_name').value.trim(),qty:parseFloat($('#m_qty').value||'1')||1,unit:$('#m_unit').value.trim()||'Stk',priceNet:parseFloat($('#m_price').value||'0')||0,vat:parseFloat($('#m_vat').value||'0')||0,kst:$('#m_kst').value.trim()||''}; saveMaterial(m); toast('Position erfasst.'); render(); };
-    mat.appendChild(add); root.appendChild(mat);
-
-    const list=document.createElement('section'); list.className='card';
-    const mats=listMaterials(); const pmap=Object.fromEntries(projs.map(p=>[p.id,p]));
-    const tbl=document.createElement('table'); tbl.className='table';
-    tbl.innerHTML='<thead><tr><th>Datum</th><th>Projekt</th><th>Art.-Nr.</th><th>Bezeichnung</th><th>Menge</th><th>Einheit</th><th>Einzelpreis</th><th>USt%</th><th>Netto</th><th>USt</th><th>Brutto</th><th></th></tr></thead>';
-    const tb=document.createElement('tbody');
-    let sN=0,sV=0,sB=0;
-    mats.forEach(m=>{ const p=pmap[m.projectId]; const net=(m.qty||0)*(m.priceNet||0), vv=net*(m.vat||0)/100, br=net+vv; sN+=net; sV+=vv; sB+=br;
-      const tr=document.createElement('tr'); tr.innerHTML=`<td>${m.date||''}</td><td>${p?(p.projektnummer||'')+' · '+(p.projekt||''):'–'}</td><td>${m.artnr||''}</td><td>${m.name||''}</td><td>${m.qty||0}</td><td>${m.unit||''}</td><td>${(m.priceNet||0).toFixed(2)}</td><td>${(m.vat||0).toFixed(0)}</td><td>${net.toFixed(2)}</td><td>${vv.toFixed(2)}</td><td>${br.toFixed(2)}</td><td><button class="ghost">✖</button></td>`;
-      tr.querySelector('button').onclick=()=>{ deleteMaterial(m.id); render(); }; tb.appendChild(tr);
-    });
-    const sum=document.createElement('tr'); sum.innerHTML=`<td colspan="8" style="text-align:right;font-weight:600">Summe</td><td style="font-weight:600">${sN.toFixed(2)}</td><td style="font-weight:600">${sV.toFixed(2)}</td><td style="font-weight:600">${sB.toFixed(2)}</td><td></td>`;
-    tb.appendChild(sum); tbl.appendChild(tb); list.appendChild(tbl);
-    const exp=document.createElement('button'); exp.className='ghost'; exp.textContent='CSV exportieren (Material/Leistungen)';
-    exp.onclick=()=>{ const headers=['Datum','Projektnummer','Projekt','Betreiber','Art.-Nr.','Bezeichnung','Menge','Einheit','Einzelpreis_netto','USt_%','Netto','USt','Brutto','Kostenstelle'];
-      const rows=mats.map(m=>{const p=pmap[m.projectId]; const net=(m.qty||0)*(m.priceNet||0), vv=net*(m.vat||0)/100, br=net+vv; return [m.date||'',p?.projektnummer||'',p?.projekt||'',p?.betreiber||'',m.artnr||'',m.name||'',m.qty||0,m.unit||'',(m.priceNet||0).toFixed(2),(m.vat||0).toFixed(0),net.toFixed(2),vv.toFixed(2),br.toFixed(2),m.kst||''];});
-      downloadCSV('Buchhaltung_Material_Leistungen.csv',headers,rows);
-    };
-    list.appendChild(document.createElement('br')); list.appendChild(exp); root.appendChild(list);
-  }
-
-  /* ---------- Settings ---------- */
-  function openSettings(){
-    const sec=lsGet(LS_SEC,{}); $('#accPin').value=sec.accPin||'';
-    $('#settingsModal').classList.add('open'); $('#settingsModal').setAttribute('aria-hidden','false');
-    $('#saveAccPin').onclick=()=>{ const v=String($('#accPin').value||'').trim(); if(v && v.length!==4){alert('Bitte genau 4 Ziffern.');return;} const s=lsGet(LS_SEC,{}); s.accPin=v||undefined; lsSet(LS_SEC,s); toast(v?'PIN gesetzt.':'PIN entfernt.'); };
-  }
-  function closeSettings(){ $('#settingsModal').classList.remove('open'); $('#settingsModal').setAttribute('aria-hidden','true'); }
-
-  /* ---------- Save In ---------- */
-  function openSaveInModal(){
-    const body=$('#saveInBody'); body.innerHTML='';
-    const projs=listProjects();
-    const sel=document.createElement('select'); sel.innerHTML='<option value="">–</option>'+projs.map(p=>`<option value="${p.id}">${p.projektnummer||''} · ${p.projekt||''}</option>`).join('');
-    const wrap=document.createElement('div'); wrap.className='row';
-    const a=document.createElement('div'); a.className='input'; a.innerHTML='<label>Projektordner</label>'; a.appendChild(sel);
-    const b=document.createElement('div'); b.className='input'; b.innerHTML='<label>Neues Projekt (optional)</label><input id="newPn" placeholder="Projektnummer"><input id="newPj" placeholder="Projektname"><input id="newBet" placeholder="Betreiber"><input id="newBj" placeholder="Baujahr">';
-    wrap.append(a,b); body.appendChild(wrap);
-    $('#saveInModal').classList.add('open'); $('#saveInModal').setAttribute('aria-hidden','false');
-    $('#saveInConfirm').onclick=()=>{ let pid=sel.value||null; if(!pid){ const pn=$('#newPn').value.trim(), pj=$('#newPj').value.trim(); if(pn&&pj){ pid=saveProject({projektnummer:pn,projekt:pj,betreiber:$('#newBet').value.trim(),baujahr:$('#newBj').value.trim()}); toast('Projektordner erstellt.'); } } saveDraftSnapshot(pid); closeSaveIn(); };
-    $('#saveInCancel').onclick=closeSaveIn; $('#closeSaveIn').onclick=closeSaveIn;
-  }
-  function closeSaveIn(){ $('#saveInModal').classList.remove('open'); $('#saveInModal').setAttribute('aria-hidden','true'); }
-
-  /* ---------- Leave Modal ---------- */
-  function openLeaveModal(onYes,onNo){ $('#leaveModal').classList.add('open'); $('#leaveModal').setAttribute('aria-hidden','false'); $('#leaveYes').onclick=onYes||(()=>{}); $('#leaveNo').onclick=onNo||(()=>{}); }
-  function closeLeaveModal(){ $('#leaveModal').classList.remove('open'); $('#leaveModal').setAttribute('aria-hidden','true'); }
-
-  /* ---------- Validation ---------- */
-  function validateRequiredHeadersOnly(){
-    for(const k of REQUIRED_HEADER_KEYS){ const v=STATE.header[k]; if(!v||!String(v).trim()) return false; if(k==='datum'&&!validDate(v)) return false; }
-    return true;
-  }
-  function togglePrintButton(){ const btn=$('#print'); if(btn) btn.disabled=!validateRequiredHeadersOnly(); }
-
-  /* ---------- Utils ---------- */
-  let saveTimer=null; function autosave(force){ if(force){doSave();return;} if(saveTimer) clearTimeout(saveTimer); saveTimer=setTimeout(doSave,300); STATE.dirty=true; }
-  function doSave(){ localStorage.setItem(LS_USER, JSON.stringify(STATE.user||{})); const key='sc_autosave:'+ (STATE.protocolType||'default'); localStorage.setItem(key, JSON.stringify({header:STATE.header,specs:STATE.specs,items:STATE.items,signatures:STATE.signatures,datum_ddmmyyyy:STATE.datum_ddmmyyyy})); }
-  function loadAutosaveFor(type){ try{ const raw=localStorage.getItem('sc_autosave:'+type); if(raw){ const o=JSON.parse(raw); STATE.header=o.header||{}; STATE.specs=o.specs||{}; STATE.items=o.items||{}; STATE.signatures=o.signatures||{sig1:null,sig2:null}; STATE.datum_ddmmyyyy=o.datum_ddmmyyyy||toDDMMYYYY(new Date()); if(!STATE.header.datum) STATE.header.datum=STATE.datum_ddmmyyyy; } else { STATE.header={}; STATE.items={}; STATE.specs={}; STATE.signatures={sig1:null,sig2:null}; STATE.datum_ddmmyyyy=toDDMMYYYY(new Date()); STATE.header.datum=STATE.datum_ddmmyyyy; } STATE.dirty=false; }catch(_){ } }
-  function buildDraftTitle(){ const t=PROTOCOLS[STATE.protocolType]?.name||'Protokoll'; const p=STATE.header?.projektnummer?' · '+STATE.header.projektnummer:''; return `${t}${p} – ${STATE.header?.datum||STATE.datum_ddmmyyyy||toDDMMYYYY(new Date())}`; }
-  function downloadCSV(name,headers,rows){ const csv=[headers.join(';')].concat(rows.map(r=>r.map(v=>String(v).replace(/;/g,',')).join(';'))).join('\n'); const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=name; a.click(); URL.revokeObjectURL(url); }
-  function downloadJSON(name,obj){ const blob=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=name; a.click(); URL.revokeObjectURL(url); }
-  function fileToDataURLScaled(file,maxSide=1600,q=0.75){return new Promise(res=>{const R=new FileReader();R.onload=()=>{const img=new Image();img.onload=()=>{let w=img.width,h=img.height; if(w>h&&w>maxSide){h=Math.round(h*maxSide/w);w=maxSide}else if(h>maxSide){w=Math.round(w*maxSide/h);h=maxSide} const cv=document.createElement('canvas');cv.width=w;cv.height=h;cv.getContext('2d').drawImage(img,0,0,w,h);res(cv.toDataURL('image/jpeg',q));};img.src=R.result;};R.readAsDataURL(file);});}
-
-  /* ---------- Events ---------- */
-  window.addEventListener('DOMContentLoaded',()=>{
-    try{ STATE.user=lsGet(LS_USER,null)||null; }catch(_){}
-    STATE.protocolType='rbg'; loadAutosaveFor('rbg');
-    STATE.page = STATE.user ? 'home' : 'start';
+  if (!p) {
+    STATE.page = "projects";
     render();
-    $('#backBtn').onclick=()=>{ if(STATE.page==='auth'){navigate('start');return;} if(STATE.page==='home'){navigate('start');return;} if(STATE.page==='specs'){navigate('home');return;} if(STATE.page==='protocol'){navigate('specs');return;} if(STATE.page==='projects'){navigate('home');return;} if(STATE.page==='project'){navigate('projects');return;} if(STATE.page==='drafts'){navigate('home');return;} if(STATE.page==='accounting'){navigate('home');return;} navigate('start'); };
-    $('#settingsBtn').onclick=openSettings; $('#closeSettings').onclick=closeSettings; $('#settingsSave').onclick=()=>{closeSettings();togglePrintButton();};
-    $('#accCancel').onclick=closeAccModal; $('#closeAcc').onclick=closeAccModal; $('#accUnlock').onclick=unlockAccounting;
+    return;
+  }
+
+  const c = card(root, `${p.projektnummer} · ${p.projekt}`);
+  c.append(element("p", `Betreiber: ${p.betreiber || "–"} · Baujahr: ${p.baujahr || "–"}`));
+
+  const a = actions(c);
+
+  for (const [type, protocol] of Object.entries(PROTOCOLS)) {
+    a.append(button(
+      protocol.name + " starten",
+      () => startProtocol(type, p.id)
+    ));
+  }
+
+  const list = card(root, "Gespeicherte Protokolle");
+  renderDraftList(list, drafts().filter(d => d.projectId === p.id));
+  renderTimes(root, p);
+}
+
+function renderDrafts(root) {
+  renderDraftList(card(root, "Gespeicherte Entwürfe"), drafts());
+}
+
+function renderDraftList(parent, list) {
+  list = [...list].sort((a,b) =>
+    (b.updatedAt || "").localeCompare(a.updatedAt || "")
+  );
+
+  if (!list.length) {
+    parent.append(element("p", "Noch keine Protokolle gespeichert.", "note"));
+    return;
+  }
+
+  for (const d of list) {
+    const item = element("div", null, "list-item");
+    const info = element("div");
+
+    info.append(
+      element("strong", d.title || "Protokoll"),
+      element("div",
+        d.updatedAt ? new Date(d.updatedAt).toLocaleString("de-DE") : "",
+        "note")
+    );
+
+    item.append(info);
+    actions(item).append(
+      button("Öffnen", () => openDraft(d.id)),
+      button("Löschen", () => {
+        try { deleteDraft(d.id); }
+        catch (error) { notifyError(error); }
+      }, "danger")
+    );
+
+    parent.append(item);
+  }
+}
+
+function renderProtocol(root) {
+  const protocol = PROTOCOLS[STATE.protocolType];
+  if (!protocol) {
+    STATE.page = "home";
+    render();
+    return;
+  }
+
+  const top = card(root, protocol.name + " – Protokoll");
+  top.append(element("p",
+    "Links / rechts: Ansicht vom Schaltschrank Richtung Hubrahmen. " +
+    "i.O. = in Ordnung · n.i.O. = nicht in Ordnung · n.v. = nicht vorhanden.",
+    "note"));
+
+  const saveStatus = element("p",
+    STATE.dirty ? "Lokaler Zwischenstand" : "Entwurf geöffnet",
+    "note");
+  saveStatus.id = "saveStatus";
+  top.append(saveStatus);
+
+  const head = card(root, "Grunddaten");
+  const row = element("div", null, "row");
+  head.append(row);
+
+  for (const [key, label, required] of HEADER_FIELDS) {
+    const input = field(row, label, {
+      required,
+      value: STATE.header[key] || "",
+      placeholder: key === "datum" ? "TT/MM/JJJJ" : "",
+      onchange: value => {
+        STATE.header[key] = value;
+        markChanged();
+      }
+    });
+
+    if (key === "datum") {
+      input.addEventListener("blur", () => {
+        const normalized = normalizeDate(input.value);
+
+        if (normalized) {
+          input.value = normalized;
+          STATE.header.datum = normalized;
+          markChanged();
+        }
+      });
+    }
+  }
+
+  const kindRow = element("div", null, "row");
+  head.append(kindRow);
+
+  field(kindRow, "Protokollart", {
+    value: STATE.header.protokollart || "Service / Wartung",
+    choices: [
+      "Service / Wartung",
+      "Wiederkehrende Prüfung / UVV",
+      "Instandsetzung",
+      "Inspektion"
+    ],
+    onchange: value => {
+      STATE.header.protokollart = value;
+      markChanged();
+    }
   });
+
+  const specsCard = card(root, "Spezifikation");
+  const specsRow = element("div", null, "row");
+  specsCard.append(specsRow);
+
+  for (const [key, label, type] of protocol.specs) {
+    field(specsRow, label, {
+      value: STATE.specs[key] ?? "",
+      choices: Array.isArray(type) ? type : undefined,
+      type: Array.isArray(type) ? undefined : type,
+      onchange: value => {
+        STATE.specs[key] = value;
+        markChanged();
+      }
+    });
+  }
+
+  for (const section of protocol.sections) {
+    const c = card(root);
+    const details = document.createElement("details");
+    details.append(element("summary", section.title));
+
+    for (const item of section.items) {
+      renderItem(details, item);
+    }
+
+    c.append(details);
+  }
+
+  const defects = card(root, "Festgestellte Mängel");
+  const body = element("div");
+  body.id = "defectSummary";
+  defects.append(body);
+  refreshDefects();
+
+  const final = card(root, "Zusammenfassung");
+  const finalRow = element("div", null, "row");
+  final.append(finalRow);
+
+  field(finalRow, "Maßnahmen / offene Arbeiten", {
+    multiline:true,
+    value: STATE.header.massnahmen || "",
+    onchange: value => {
+      STATE.header.massnahmen = value;
+      markChanged();
+    }
+  });
+
+  field(finalRow, "Beurteilung / Einschränkungen zum weiteren Betrieb", {
+    multiline:true,
+    value: STATE.header.betriebsbeurteilung || "",
+    onchange: value => {
+      STATE.header.betriebsbeurteilung = value;
+      markChanged();
+    }
+  });
+
+  const sig = card(root, "Unterschriften");
+  const sigRow = element("div", null, "row");
+  sig.append(sigRow);
+
+  signatureBlock(sigRow, "Prüfer", "sig1");
+  signatureBlock(sigRow, "Kunde", "sig2");
+
+  field(sig, "Datum der Unterschriften (TT/MM/JJJJ)", {
+    value: STATE.header.datum_unterschrift || STATE.header.datum || dateDE(),
+    onchange: value => {
+      STATE.header.datum_unterschrift = value;
+      markChanged();
+    }
+  });
+
+  const footer = element("div", null, "footer-actions");
+
+  footer.append(
+    button("In Entwürfe speichern", () => {
+      try { saveDraft(); }
+      catch (error) { notifyError(error); }
+    }),
+    button("Speichern in …", openSaveDialog),
+    button("Protokoll als JSON", exportProtocol),
+    button("JSON importieren", importProtocolPicker),
+    button("Drucken / PDF", printProtocol, "primary")
+  );
+
+  root.append(footer);
+}
+
+function renderItem(parent, item) {
+  const block = element("div", null, "protocol-item");
+  block.append(element("div", item.label, "item-title"));
+
+  const get = () => STATE.items[item.id] || {};
+  const set = (key, value) => {
+    STATE.items[item.id] ||= {};
+    STATE.items[item.id][key] = value;
+    markChanged();
+  };
+
+  if (item.status) {
+    const badge = element("div", null, "badge");
+    block.append(badge);
+
+    for (const [key, text] of [
+      ["io", "i.O."],
+      ["nio", "n.i.O."],
+      ["nv", "n.v."]
+    ]) {
+      const b = button(text, () => {
+        set("status", key);
+
+        for (const chip of badge.children) {
+          const selected = chip.dataset.status === key;
+          chip.classList.toggle("active", selected);
+          chip.setAttribute("aria-pressed", String(selected));
+        }
+
+        refreshDefects();
+      }, "chip");
+
+      b.dataset.status = key;
+      b.classList.toggle("active", get().status === key);
+      b.setAttribute("aria-pressed", String(get().status === key));
+      badge.append(b);
+    }
+
+    actions(block).append(button("Status zurücksetzen", () => {
+      set("status", "");
+
+      for (const chip of badge.children) {
+        chip.classList.remove("active");
+        chip.setAttribute("aria-pressed", "false");
+      }
+
+      refreshDefects();
+    }));
+  }
+
+  const row = element("div", null, "row");
+  row.style.marginTop = "10px";
+  block.append(row);
+
+  if (item.measurement) {
+    field(row, item.measurement + " (mm)", {
+      type:"number",
+      value:get()[item.measurement] ?? "",
+      onchange:value => set(item.measurement, value)
+    });
+  }
+
+  if (item.lubricated) {
+    const label = element("label");
+    label.style.cssText = "display:flex;align-items:center;gap:8px";
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.checked = !!get().geschmiert;
+    cb.onchange = () => set("geschmiert", cb.checked);
+    label.append(cb, document.createTextNode("geschmiert"));
+    row.append(label);
+  }
+
+  if (item.yesno) {
+    field(row, "Ja / Nein", {
+      value:get().yesno || "",
+      choices:["", "Ja", "Nein"],
+      onchange:value => set("yesno", value)
+    });
+  }
+
+  field(row, "Bemerkung", {
+    multiline:true,
+    value:get().note || "",
+    onchange:value => {
+      set("note", value);
+      refreshDefects();
+    }
+  });
+
+  renderPhoto(block, item);
+  parent.append(block);
+}
+
+function defectsList() {
+  const result = [];
+  const protocol = PROTOCOLS[STATE.protocolType];
+  if (!protocol) return result;
+
+  for (const section of protocol.sections) {
+    for (const item of section.items) {
+      const value = STATE.items[item.id] || {};
+
+      if (item.status && value.status === "nio") {
+        result.push({
+          label:item.label,
+          section:section.title,
+          note:value.note || ""
+        });
+      }
+    }
+  }
+
+  return result;
+}
+
+function refreshDefects() {
+  const target = $("#defectSummary");
+  if (!target) return;
+  target.replaceChildren();
+
+  const defects = defectsList();
+  const protocol = PROTOCOLS[STATE.protocolType];
+  const all = protocol.sections.flatMap(s => s.items).filter(i => i.status);
+  const unassessed = all.filter(i => !STATE.items[i.id]?.status).length;
+
+  target.append(element("p",
+    `${defects.length} als n.i.O. markiert · ` +
+    `${unassessed} Prüfpunkte noch ohne Bewertung`,
+    "note"));
+
+  if (!defects.length) {
+    target.append(element("p",
+      "Keine Prüfpunkte als n.i.O. markiert. " +
+      "Das ist keine automatische Bestätigung einer mängelfreien Anlage."));
+  }
+
+  defects.forEach((defect, index) => {
+    const box = element("div", null, "list-item");
+    const info = element("div");
+
+    info.append(
+      element("strong", `${index + 1}. ${defect.label}`),
+      element("div", defect.section, "note"),
+      element("p", defect.note || "Bemerkung noch nicht eingetragen.")
+    );
+
+    box.append(info);
+    target.append(box);
+  });
+}
+
+/* =========================================================
+   FOTOS
+   ========================================================= */
+
+function renderPhoto(parent, item) {
+  const area = element("div");
+  area.style.marginTop = "12px";
+
+  const a = actions(area);
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/*";
+  input.hidden = true;
+
+  const preview = element("img", null, "photo");
+  preview.alt = "Foto: " + item.label;
+  preview.hidden = true;
+  preview.style.display = "none";
+
+  const info = element("div", "", "note");
+  let busy = false;
+
+  const camera = button("Foto aufnehmen", () => {
+    input.setAttribute("capture", "environment");
+    input.click();
+  });
+
+  const gallery = button("Bild auswählen", () => {
+    input.removeAttribute("capture");
+    input.click();
+  });
+
+  function show() {
+    const photo = STATE.items[item.id]?.photo;
+    const exists = isPhoto(photo);
+
+    preview.hidden = !exists;
+    preview.style.display = exists ? "block" : "none";
+    remove.hidden = !exists;
+
+    if (exists) {
+      preview.src = photo;
+      info.textContent =
+        `JPEG: ${Math.ceil(dataUrlBytes(photo) / 1024)} KB`;
+    } else {
+      preview.removeAttribute("src");
+      info.textContent = "";
+    }
+  }
+
+  const remove = button("Foto entfernen", () => {
+    if (busy) return;
+    if (!confirm("Dieses Foto entfernen?")) return;
+
+    if (STATE.items[item.id]) delete STATE.items[item.id].photo;
+    markChanged();
+    show();
+  }, "danger");
+
+  a.append(camera, gallery, remove);
+  area.append(input, preview, info);
+  parent.append(area);
+  show();
+
+  input.onchange = async () => {
+    const file = input.files?.[0];
+    input.value = "";
+    if (!file || busy) return;
+
+    const targetItems = STATE.items;
+    busy = true;
+    camera.disabled = gallery.disabled = remove.disabled = true;
+    info.textContent = "Foto wird verkleinert …";
+
+    try {
+      const photo = await compressPhoto(file);
+
+      if (STATE.items !== targetItems || !area.isConnected) return;
+
+      STATE.items[item.id] ||= {};
+      STATE.items[item.id].photo = photo;
+      markChanged();
+      show();
+
+    } catch (error) {
+      if (area.isConnected) {
+        show();
+        notifyError(error);
+      }
+    } finally {
+      busy = false;
+      camera.disabled = gallery.disabled = remove.disabled = false;
+    }
+  };
+}
+
+function isPhoto(value) {
+  return typeof value === "string" &&
+    /^data:image\/(?:jpeg|jpg|png|webp);base64,/i.test(value);
+}
+
+function dataUrlBytes(value) {
+  const base64 = String(value).split(",")[1] || "";
+  const padding = base64.endsWith("==") ? 2 :
+                  base64.endsWith("=") ? 1 : 0;
+  return Math.max(0, Math.floor(base64.length * 3 / 4) - padding);
+}
+
+async function compressPhoto(file) {
+  if (file.type && !file.type.startsWith("image/")) {
+    throw new Error("Bitte eine Bilddatei auswählen.");
+  }
+
+  const url = URL.createObjectURL(file);
+  const image = new Image();
+
+  try {
+    await new Promise((resolve, reject) => {
+      image.onload = resolve;
+      image.onerror = () => reject(new Error(
+        "Dieses Bildformat konnte nicht geöffnet werden. " +
+        "Bitte ein JPEG- oder PNG-Bild verwenden."
+      ));
+      image.src = url;
+    });
+
+    const limit = 350 * 1024;
+    let scale = Math.min(1, 1280 / Math.max(image.width, image.height));
+    let width = Math.max(1, Math.round(image.width * scale));
+    let height = Math.max(1, Math.round(image.height * scale));
+
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Bildverarbeitung nicht verfügbar.");
+
+    for (let pass = 0; pass < 12; pass++) {
+      canvas.width = width;
+      canvas.height = height;
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(0, 0, width, height);
+      ctx.drawImage(image, 0, 0, width, height);
+
+      for (const quality of [.82, .74, .66, .58, .50, .42]) {
+        const result = canvas.toDataURL("image/jpeg", quality);
+        if (dataUrlBytes(result) <= limit) return result;
+      }
+
+      width = Math.max(1, Math.round(width * .8));
+      height = Math.max(1, Math.round(height * .8));
+    }
+
+    throw new Error("Das Bild konnte nicht ausreichend verkleinert werden.");
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+/* =========================================================
+   UNTERSCHRIFTEN
+   ========================================================= */
+
+function signatureBlock(parent, label, key) {
+  const wrap = element("div", null, "field");
+  wrap.append(element("label", "Unterschrift " + label));
+
+  const canvas = document.createElement("canvas");
+  canvas.className = "signature";
+  canvas.setAttribute("aria-label", "Unterschrift " + label);
+
+  const image = new Image();
+  const ctx = canvas.getContext("2d");
+  let drawing = false;
+  let ready = true;
+  let last = null;
+  let restoreVersion = 0;
+
+  function restore() {
+    const version = ++restoreVersion;
+    const width = canvas.clientWidth || 300;
+    const height = 165;
+    const ratio = window.devicePixelRatio || 1;
+
+    canvas.width = Math.round(width * ratio);
+    canvas.height = Math.round(height * ratio);
+
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = "#111";
+    ctx.fillStyle = "#111";
+
+    const stored = STATE.signatures[key];
+    ready = !stored;
+
+    if (isPhoto(stored)) {
+      image.onload = () => {
+        if (version !== restoreVersion || !canvas.isConnected) return;
+        ctx.drawImage(image, 0, 0, width, height);
+        ready = true;
+      };
+      image.onerror = () => { ready = true; };
+      image.src = stored;
+    } else {
+      ready = true;
+    }
+  }
+
+  function point(event) {
+    const rect = canvas.getBoundingClientRect();
+    return {x:event.clientX - rect.left, y:event.clientY - rect.top};
+  }
+
+  function finish(event) {
+    if (!drawing) return;
+    drawing = false;
+
+    if (event && canvas.hasPointerCapture(event.pointerId)) {
+      canvas.releasePointerCapture(event.pointerId);
+    }
+
+    STATE.signatures[key] = canvas.toDataURL("image/png");
+    markChanged();
+  }
+
+  canvas.onpointerdown = event => {
+    if (!ready) return;
+    event.preventDefault();
+    canvas.setPointerCapture(event.pointerId);
+    drawing = true;
+    last = point(event);
+
+    ctx.beginPath();
+    ctx.arc(last.x, last.y, 1, 0, Math.PI * 2);
+    ctx.fill();
+  };
+
+  canvas.onpointermove = event => {
+    if (!drawing) return;
+    event.preventDefault();
+    const p = point(event);
+
+    ctx.beginPath();
+    ctx.moveTo(last.x, last.y);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+    last = p;
+  };
+
+  canvas.onpointerup = finish;
+  canvas.onpointercancel = finish;
+  canvas.onlostpointercapture = () => finish();
+
+  wrap.append(canvas);
+
+  actions(wrap).append(button("Unterschrift löschen", () => {
+    restoreVersion++;
+    drawing = false;
+    STATE.signatures[key] = null;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ready = true;
+    markChanged();
+  }));
+
+  parent.append(wrap);
+
+  const timer = setTimeout(restore, 0);
+
+  let resizeTimer;
+  const onResize = () => {
+    if (!canvas.isConnected || drawing) return;
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(restore, 150);
+  };
+
+  window.addEventListener("resize", onResize);
+
+  viewCleanups.push(() => {
+    clearTimeout(timer);
+    clearTimeout(resizeTimer);
+    window.removeEventListener("resize", onResize);
+    image.onload = null;
+  });
+}
+
+/* =========================================================
+   PROJEKTZUORDNUNG
+   ========================================================= */
+
+function openSaveDialog() {
+  const select = $("#targetProject");
+  select.replaceChildren(new Option("Ohne Projektordner", ""));
+
+  for (const p of projects()) {
+    select.append(new Option(
+      `${p.projektnummer} · ${p.projekt}`, p.id
+    ));
+  }
+
+  select.value = STATE.projectId || "";
+  $("#newProjectNumber").value = "";
+  $("#newProjectName").value = "";
+  $("#saveDialog").showModal();
+}
+
+$("#confirmSave").onclick = () => {
+  try {
+    const pn = $("#newProjectNumber").value.trim();
+    const name = $("#newProjectName").value.trim();
+    let projectId = $("#targetProject").value || null;
+
+    if (pn || name) {
+      if (!pn || !name) {
+        throw new Error(
+          "Für einen neuen Ordner bitte Projektnummer und Projektname ausfüllen."
+        );
+      }
+
+      projectId = createProject({
+        projektnummer:pn,
+        projekt:name,
+        betreiber:STATE.header.betreiber || "",
+        baujahr:STATE.header.baujahr || ""
+      }).id;
+    }
+
+    saveDraft(projectId);
+    $("#saveDialog").close();
+  } catch (error) {
+    notifyError(error);
+  }
+};
+
+$("#cancelSave").onclick = () => $("#saveDialog").close();
+
+/* =========================================================
+   ARBEITSZEITEN
+   ========================================================= */
+
+function timeMinutes(value) {
+  const m = String(value).match(/^(\d{2}):(\d{2})$/);
+  if (!m || +m[1] > 23 || +m[2] > 59) return NaN;
+  return +m[1] * 60 + +m[2];
+}
+
+function hoursFor(entry) {
+  const start = timeMinutes(entry.start);
+  const end = timeMinutes(entry.end);
+  if (!Number.isFinite(start) || !Number.isFinite(end)) return null;
+
+  let minutes = end - start;
+  if (minutes < 0) minutes += 24 * 60;
+  minutes -= Number(entry.breakMin || 0);
+
+  return minutes >= 0 ? minutes / 60 : null;
+}
+
+function renderTimes(root, project) {
+  const c = card(root, "Arbeitszeit erfassen");
+  const form = element("form");
+  const row = element("div", null, "row");
+
+  const date = field(row, "Datum", {type:"date", value:today()});
+  const name = field(row, "Mitarbeiter", {value:STATE.user?.name || ""});
+  const task = field(row, "Tätigkeit");
+  const start = field(row, "Start", {type:"time"});
+  const end = field(row, "Ende", {type:"time"});
+  const pause = field(row, "Pause (Minuten)", {type:"number", value:30});
+
+  form.append(row);
+  const submit = element("button", "Eintrag hinzufügen", "primary");
+  submit.type = "submit";
+  actions(form).append(submit);
+  c.append(form);
+
+  c.append(element("p",
+    "Liegt die Endzeit vor der Startzeit, wird eine Schicht über Mitternacht angenommen.",
+    "note"));
+
+  form.onsubmit = event => {
+    event.preventDefault();
+
+    try {
+      const entry = {
+        id:uid(),
+        createdAt:now(),
+        date:date.value,
+        staff:name.value.trim(),
+        task:task.value.trim(),
+        start:start.value,
+        end:end.value,
+        breakMin:Number(pause.value || 0)
+      };
+
+      if (
+        !entry.date || !entry.staff ||
+        !entry.start || !entry.end ||
+        !Number.isInteger(entry.breakMin) ||
+        entry.breakMin < 0 ||
+        hoursFor(entry) === null
+      ) {
+        throw new Error("Bitte Datum, Name und gültige Zeiten / Pause eingeben.");
+      }
+
+      write("sc_times:" + project.id, [entry, ...times(project.id)]);
+      toast("Arbeitszeit gespeichert.");
+      render();
+    } catch (error) {
+      notifyError(error);
+    }
+  };
+
+  const list = card(root, "Arbeitszeiteinträge");
+  const entries = times(project.id);
+  const wrap = element("div", null, "table-wrap");
+  const table = document.createElement("table");
+  const head = document.createElement("tr");
+
+  for (const title of [
+    "Datum", "Name", "Tätigkeit", "Start", "Ende", "Pause", "Stunden", ""
+  ]) head.append(element("th", title));
+
+  const thead = document.createElement("thead");
+  thead.append(head);
+  table.append(thead);
+  const tbody = document.createElement("tbody");
+  let sum = 0;
+
+  for (const entry of entries) {
+    const tr = document.createElement("tr");
+    const hours = hoursFor(entry);
+    sum += hours || 0;
+
+    for (const value of [
+      entry.date, entry.staff, entry.task,
+      entry.start, entry.end, entry.breakMin,
+      hours === null ? "–" : hours.toFixed(2)
+    ]) tr.append(element("td", String(value ?? "")));
+
+    const td = document.createElement("td");
+    td.append(button("Löschen", () => {
+      if (!confirm("Arbeitszeiteintrag löschen?")) return;
+      try {
+        write("sc_times:" + project.id,
+          times(project.id).filter(x => x.id !== entry.id));
+        render();
+      } catch (error) { notifyError(error); }
+    }));
+
+    tr.append(td);
+    tbody.append(tr);
+  }
+
+  table.append(tbody);
+  wrap.append(table);
+  list.append(wrap, element("p", `Summe: ${sum.toFixed(2)} Stunden`));
+
+  actions(list).append(button("CSV exportieren", () => {
+    downloadCSV(
+      `Arbeitszeit_${project.projektnummer}.csv`,
+      ["Datum", "Mitarbeiter", "Tätigkeit", "Start", "Ende",
+       "PauseMin", "Stunden", "Projektnummer", "Projekt", "Betreiber"],
+      entries.map(e => [
+        e.date, e.staff, e.task, e.start, e.end, e.breakMin,
+        hoursFor(e)?.toFixed(2) ?? "",
+        project.projektnummer, project.projekt, project.betreiber
+      ])
+    );
+  }));
+}
+
+/* =========================================================
+   BUCHHALTUNG
+   ========================================================= */
+
+function unlockAccounting() {
+  try {
+    const sec = read(LS.security, {});
+
+    if (!sec.accPin) {
+      alert("Bitte zuerst in den Einstellungen eine Buchhaltung-PIN setzen.");
+      openSettings();
+      return;
+    }
+
+    const pin = prompt("Buchhaltung-PIN eingeben:");
+    if (pin === null) return;
+    if (pin !== String(sec.accPin)) {
+      alert("Falsche PIN.");
+      return;
+    }
+
+    accountingUnlocked = true;
+    go("accounting");
+  } catch (error) { notifyError(error); }
+}
+
+function renderAccounting(root) {
+  if (!accountingUnlocked) {
+    STATE.page = "home";
+    render();
+    return;
+  }
+
+  const c = card(root, "Material / Leistungen");
+  const form = element("form");
+  const row = element("div", null, "row");
+  const allProjects = projects();
+
+  const project = field(row, "Projektordner", {
+    choices:[
+      ["", "Projekt wählen …"],
+      ...allProjects.map(p => [p.id, `${p.projektnummer} · ${p.projekt}`])
+    ]
+  });
+
+  const date = field(row, "Datum", {type:"date", value:today()});
+  const article = field(row, "Artikelnummer");
+  const name = field(row, "Bezeichnung");
+  const qty = field(row, "Menge", {type:"number", value:1});
+  const unit = field(row, "Einheit", {value:"Stk"});
+  const price = field(row, "Einzelpreis netto (€)", {type:"number", value:0});
+  const vat = field(row, "Umsatzsteuer (%)", {type:"number", value:19});
+  const kst = field(row, "Kostenstelle");
+
+  form.append(row);
+  const submit = element("button", "Position hinzufügen", "primary");
+  submit.type = "submit";
+  actions(form).append(submit);
+  c.append(form);
+
+  form.onsubmit = event => {
+    event.preventDefault();
+
+    try {
+      const entry = {
+        id:uid(),
+        createdAt:now(),
+        projectId:project.value,
+        date:date.value,
+        artnr:article.value.trim(),
+        name:name.value.trim(),
+        qty:Number(qty.value),
+        unit:unit.value.trim() || "Stk",
+        priceNet:Number(price.value),
+        vat:Number(vat.value),
+        kst:kst.value.trim()
+      };
+
+      if (!entry.projectId || !entry.name || !entry.date) {
+        throw new Error("Bitte Projekt, Datum und Bezeichnung eingeben.");
+      }
+
+      if (
+        !Number.isFinite(entry.qty) || entry.qty <= 0 ||
+        !Number.isFinite(entry.priceNet) || entry.priceNet < 0 ||
+        !Number.isFinite(entry.vat) || entry.vat < 0 || entry.vat > 100
+      ) throw new Error("Bitte gültige Mengen und Preise eingeben.");
+
+      write(LS.materials, [entry, ...materials()]);
+      toast("Position gespeichert.");
+      render();
+
+    } catch (error) { notifyError(error); }
+  };
+
+  const list = card(root, "Erfasste Positionen");
+  const entries = materials();
+  const projectMap = new Map(allProjects.map(p => [p.id, p]));
+  let total = 0;
+
+  for (const entry of entries) {
+    const p = projectMap.get(entry.projectId);
+    const net = Number(entry.qty || 0) * Number(entry.priceNet || 0);
+    const gross = net * (1 + Number(entry.vat || 0) / 100);
+    total += gross;
+
+    const item = element("div", null, "list-item");
+    const info = element("div");
+
+    info.append(
+      element("strong", entry.name || "Position"),
+      element("div",
+        `${entry.date || ""} · ${p?.projektnummer || "Ohne Projekt"} · ` +
+        `${entry.qty} ${entry.unit} · ${gross.toFixed(2)} € brutto`,
+        "note")
+    );
+
+    item.append(info);
+    actions(item).append(button("Löschen", () => {
+      if (!confirm("Diese Buchhaltungsposition löschen?")) return;
+      try {
+        write(LS.materials, materials().filter(m => m.id !== entry.id));
+        render();
+      } catch (error) { notifyError(error); }
+    }));
+
+    list.append(item);
+  }
+
+  list.append(element("p", `Gesamtsumme brutto: ${total.toFixed(2)} €`));
+
+  actions(list).append(
+    button("CSV exportieren", () => {
+      downloadCSV("Buchhaltung_Material_Leistungen.csv", [
+        "Datum", "Projektnummer", "Projekt", "Betreiber", "Artikelnummer",
+        "Bezeichnung", "Menge", "Einheit", "Einzelpreis_netto",
+        "USt_Prozent", "Netto", "USt", "Brutto", "Kostenstelle"
+      ], entries.map(m => {
+        const p = projectMap.get(m.projectId);
+        const net = Number(m.qty || 0) * Number(m.priceNet || 0);
+        const tax = net * Number(m.vat || 0) / 100;
+
+        return [
+          m.date, p?.projektnummer, p?.projekt, p?.betreiber,
+          m.artnr, m.name, m.qty, m.unit, m.priceNet, m.vat,
+          net.toFixed(2), tax.toFixed(2), (net + tax).toFixed(2), m.kst
+        ];
+      }));
+    }),
+    button("Buchhaltung sperren", () => {
+      accountingUnlocked = false;
+      go("home");
+    })
+  );
+}
+
+/* =========================================================
+   PDF / DRUCKEN
+   ========================================================= */
+
+function validateHeader() {
+  for (const key of ["projektnummer", "projekt", "betreiber", "datum"]) {
+    if (!String(STATE.header[key] || "").trim()) return false;
+  }
+
+  return !!normalizeDate(STATE.header.datum);
+}
+
+function printValue(parent, label, value) {
+  const text = `${label}: ${value === "" || value === undefined ||
+    value === null ? "–" : value}`;
+  parent.append(element("div", text, "print-value"));
+}
+
+function printImage(parent, data, className) {
+  if (!isPhoto(data)) return;
+  const img = element("img", null, className);
+  img.src = data;
+  img.alt = className === "print-signature" ? "Unterschrift" : "Prüffoto";
+  parent.append(img);
+}
+
+async function printProtocol() {
+  try {
+    if (!validateHeader()) {
+      alert(
+        "Bitte Projektnummer, Projekt, Betreiber und ein gültiges " +
+        "Datum ausfüllen."
+      );
+      return;
+    }
+
+    STATE.header.datum = normalizeDate(STATE.header.datum);
+    flushAutosave();
+
+    const root = $("#printRoot");
+    root.replaceChildren();
+
+    const protocol = PROTOCOLS[STATE.protocolType];
+
+    root.append(
+      element("h1", "Service Check"),
+      element("h2",
+        `${protocol.name} – ${STATE.header.protokollart || "Service / Wartung"}`)
+    );
+
+    const meta = element("div", null, "print-meta");
+    root.append(meta);
+
+    for (const [key, label] of HEADER_FIELDS) {
+      printValue(meta, label, STATE.header[key]);
+    }
+
+    root.append(element("h2", "Spezifikation"));
+
+    for (const [key, label] of protocol.specs) {
+      printValue(root, label, STATE.specs[key]);
+    }
+
+    const statusNames = {
+      io:"i.O.", nio:"n.i.O.", nv:"n.v."
+    };
+
+    for (const section of protocol.sections) {
+      root.append(element("h2", section.title));
+
+      for (const item of section.items) {
+        const values = STATE.items[item.id] || {};
+        const entry = element("div", null, "print-entry");
+
+        entry.append(element("h3", item.label));
+
+        if (item.status) {
+          printValue(entry, "Bewertung",
+            statusNames[values.status] || "Nicht bewertet");
+        }
+
+        if (item.measurement) {
+          printValue(entry, item.measurement,
+            values[item.measurement] === "" ||
+            values[item.measurement] === undefined
+              ? "–" : values[item.measurement] + " mm");
+        }
+
+        if (item.lubricated) {
+          printValue(entry, "Als geschmiert dokumentiert",
+            values.geschmiert ? "Ja" : "Nein");
+        }
+
+        if (item.yesno) printValue(entry, "Antwort", values.yesno);
+
+        printValue(entry, "Bemerkung", values.note);
+        printImage(entry, values.photo, "print-photo");
+        root.append(entry);
+      }
+    }
+
+    root.append(element("h2", "Automatische Mängelübersicht"));
+    const defects = defectsList();
+
+    if (!defects.length) {
+      root.append(element("p",
+        "Keine Prüfpunkte als n.i.O. markiert. " +
+        "Nicht bewertete Prüfpunkte sind dadurch nicht bestätigt."));
+    }
+
+    defects.forEach((defect, index) => {
+      const entry = element("div", null, "print-entry");
+      entry.append(element("h3", `${index + 1}. ${defect.label}`));
+      printValue(entry, "Bereich", defect.section);
+      printValue(entry, "Bemerkung",
+        defect.note || "Noch nicht eingetragen");
+      root.append(entry);
+    });
+
+    root.append(element("h2", "Zusammenfassung"));
+    printValue(root, "Maßnahmen / offene Arbeiten", STATE.header.massnahmen);
+    printValue(root, "Beurteilung / Einschränkungen zum weiteren Betrieb",
+      STATE.header.betriebsbeurteilung);
+
+    root.append(element("h2", "Unterschriften"));
+
+    for (const [key, label] of [["sig1", "Prüfer"], ["sig2", "Kunde"]]) {
+      const entry = element("div", null, "print-entry");
+      entry.append(element("h3", label));
+      printImage(entry, STATE.signatures[key], "print-signature");
+
+      if (!STATE.signatures[key]) {
+        entry.append(element("p", "Keine Unterschrift vorhanden."));
+      }
+
+      root.append(entry);
+    }
+
+    printValue(root, "Unterschriftsdatum",
+      STATE.header.datum_unterschrift || STATE.header.datum);
+
+    root.append(element("p",
+      "Erstellt mit Service Check v3.0",
+      "print-muted"));
+
+    await Promise.all(
+      [...root.querySelectorAll("img")].map(img =>
+        img.decode ? img.decode().catch(() => {}) :
+        Promise.resolve()
+      )
+    );
+
+    const previousTitle = document.title;
+    document.title = (
+      `Service_Check_${STATE.header.projektnummer}_${STATE.header.datum}`
+    ).replace(/[\\/:*?"<>|]/g, "-");
+
+    const restoreTitle = () => {
+      document.title = previousTitle;
+      window.removeEventListener("afterprint", restoreTitle);
+    };
+
+    window.addEventListener("afterprint", restoreTitle);
+    window.print();
+    setTimeout(restoreTitle, 60000);
+
+  } catch (error) {
+    notifyError(error);
+  }
+}
+
+/* =========================================================
+   EXPORT / IMPORT / BACKUP
+   ========================================================= */
+
+function download(name, blob) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+
+  a.href = url;
+  a.download = name.replace(/[\\/:*?"<>|]/g, "_");
+  document.body.append(a);
+  a.click();
+  a.remove();
+
+  setTimeout(() => URL.revokeObjectURL(url), 30000);
+}
+
+function downloadJSON(name, value) {
+  download(name, new Blob(
+    [JSON.stringify(value, null, 2)],
+    {type:"application/json"}
+  ));
+}
+
+function downloadCSV(name, headers, rows) {
+  const cell = value => {
+    let text = String(value ?? "");
+
+    if (/^[=+@-]/.test(text)) text = "'" + text;
+    return '"' + text.replace(/"/g, '""') + '"';
+  };
+
+  const csv = [headers, ...rows]
+    .map(row => row.map(cell).join(";"))
+    .join("\r\n");
+
+  download(name, new Blob(
+    ["\uFEFF" + csv],
+    {type:"text/csv;charset=utf-8"}
+  ));
+}
+
+function isObject(value) {
+  return value !== null && typeof value === "object" &&
+    !Array.isArray(value);
+}
+
+function validateProtocol(data) {
+  if (!isObject(data) || !PROTOCOLS[data.protocolType]) {
+    throw new Error("Die Datei enthält keinen bekannten Protokolltyp.");
+  }
+
+  for (const key of ["header", "specs", "items"]) {
+    if (!isObject(data[key])) {
+      throw new Error("Ungültige Protokolldaten: " + key);
+    }
+  }
+
+  if (data.signatures !== undefined && !isObject(data.signatures)) {
+    throw new Error("Ungültige Unterschriften.");
+  }
+}
+
+function exportProtocol() {
+  try {
+    flushAutosave();
+    downloadJSON(
+      `Service_Check_${STATE.header.projektnummer || "Protokoll"}_${today()}.json`,
+      {
+        app:"service-check-protocol",
+        version:1,
+        ...snapshot(),
+        exportedAt:now()
+      }
+    );
+  } catch (error) { notifyError(error); }
+}
+
+function importProtocolPicker() {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = ".json,application/json";
+
+  input.onchange = async () => {
+    const file = input.files?.[0];
+    if (!file) return;
+
+    try {
+      const data = JSON.parse(await file.text());
+      validateProtocol(data);
+
+      if (STATE.dirty) {
+        if (!confirm("Aktuelles Protokoll vor dem Import als Entwurf speichern?")) {
+          return;
+        }
+        saveDraft();
+      }
+
+      /*
+        Import wird als neuer Entwurf behandelt.
+        Eine importierte ID überschreibt keinen vorhandenen Entwurf.
+      */
+      applySnapshot({
+        ...data,
+        id:null,
+        currentDraftId:null,
+        projectId:null
+      });
+
+      STATE.dirty = true;
+      flushAutosave();
+      STATE.page = "protocol";
+      render();
+      toast("Protokoll importiert. Bitte als Entwurf speichern.");
+
+    } catch (error) { notifyError(error); }
+  };
+
+  input.click();
+}
+
+function allLocalData() {
+  const data = {};
+
+  for (const key of Object.keys(localStorage).sort()) {
+    if (key.startsWith("sc_")) data[key] = localStorage.getItem(key);
+  }
+
+  return data;
+}
+
+function exportBackup() {
+  try {
+    flushAutosave();
+
+    downloadJSON(`Service_Check_Backup_${today()}.json`, {
+      app:"service-check",
+      version:1,
+      exportedAt:now(),
+      data:allLocalData()
+    });
+
+    toast("Backup-Download gestartet.");
+  } catch (error) { notifyError(error); }
+}
+
+function validateBackup(backup) {
+  if (
+    !isObject(backup) ||
+    backup.app !== "service-check" ||
+    backup.version !== 1 ||
+    !isObject(backup.data)
+  ) {
+    throw new Error("Dies ist kein unterstütztes Service-Check-Backup.");
+  }
+
+  const entries = Object.entries(backup.data);
+  if (!entries.length) throw new Error("Das Backup enthält keine Daten.");
+
+  const allowed = key => [
+    "sc_user", "sc_drafts", "sc_projects", "sc_sec", "sc_mat", "sc_trash"
+  ].includes(key) || /^sc_(autosave|times):.+$/.test(key);
+
+  for (const [key, raw] of entries) {
+    if (!allowed(key) || typeof raw !== "string") {
+      throw new Error("Unzulässiger Backup-Eintrag: " + key);
+    }
+
+    let parsed;
+    try { parsed = JSON.parse(raw); }
+    catch { throw new Error("Beschädigter Backup-Eintrag: " + key); }
+
+    if (
+      ["sc_drafts", "sc_projects", "sc_mat", "sc_trash"].includes(key) ||
+      key.startsWith("sc_times:")
+    ) {
+      if (!Array.isArray(parsed)) {
+        throw new Error("Ungültige Liste im Backup: " + key);
+      }
+
+      if (parsed.some(entry => !isObject(entry))) {
+        throw new Error("Ungültiger Listeneintrag: " + key);
+      }
+    }
+
+    if (key === "sc_drafts") {
+      for (const draft of parsed) validateProtocol(draft);
+    }
+
+    if (key.startsWith("sc_autosave:")) {
+      const type = key.slice("sc_autosave:".length);
+      if (!isObject(parsed)) throw new Error("Ungültiger Zwischenstand.");
+
+      if (PROTOCOLS[type]) {
+        validateProtocol({...parsed, protocolType:type});
+      }
+    }
+
+    if (["sc_user", "sc_sec"].includes(key) && !isObject(parsed)) {
+      throw new Error("Ungültige Einstellungen im Backup.");
+    }
+  }
+
+  return backup.data;
+}
+
+async function restoreBackup(file) {
+  if (!file) return;
+
+  let oldData = null;
+  let mutationStarted = false;
+
+  try {
+    const backup = JSON.parse(await file.text());
+    const incoming = validateBackup(backup);
+
+    if (!confirm(
+      "Dieses Backup ersetzt die lokalen Service-Check-Daten. " +
+      "Hast du deine aktuellen Daten vorher gesichert und möchtest fortfahren?"
+    )) return;
+
+    flushAutosave();
+    oldData = allLocalData();
+
+    /*
+      Schreiben vor dem Entfernen alter Schlüssel.
+      Bei einem Schreibfehler wird der vorherige Zustand wiederhergestellt.
+    */
+    mutationStarted = true;
+
+    for (const [key, value] of Object.entries(incoming)) {
+      localStorage.setItem(key, value);
+    }
+
+    for (const key of Object.keys(localStorage)) {
+      if (key.startsWith("sc_") &&
+          !Object.prototype.hasOwnProperty.call(incoming, key)) {
+        localStorage.removeItem(key);
+      }
+    }
+
+    STATE.dirty = false;
+    alert("Backup wiederhergestellt. Die App wird neu geladen.");
+    location.reload();
+
+  } catch (error) {
+    if (mutationStarted && oldData) {
+      try {
+        for (const key of Object.keys(localStorage)) {
+          if (key.startsWith("sc_") &&
+              !Object.prototype.hasOwnProperty.call(oldData, key)) {
+            localStorage.removeItem(key);
+          }
+        }
+
+        /*
+          Geänderte Schlüssel zuerst entfernen, damit für die
+          Wiederherstellung wieder Platz verfügbar ist.
+        */
+        for (const [key, value] of Object.entries(oldData)) {
+          if (localStorage.getItem(key) !== value) {
+            localStorage.removeItem(key);
+          }
+        }
+
+        for (const [key, value] of Object.entries(oldData)) {
+          if (localStorage.getItem(key) !== value) {
+            localStorage.setItem(key, value);
+          }
+        }
+
+      } catch (rollbackError) {
+        console.error(rollbackError);
+        alert(
+          "Die Wiederherstellung ist fehlgeschlagen; auch die Rücksetzung " +
+          "konnte nicht vollständig abgeschlossen werden. " +
+          "Bitte die vorhandenen Backup-Dateien aufbewahren."
+        );
+        return;
+      }
+    }
+
+    notifyError(error);
+  }
+}
+
+/* =========================================================
+   EINSTELLUNGEN / OFFLINE / START
+   ========================================================= */
+
+function openSettings() {
+  try {
+    const user = STATE.user || {};
+    const sec = read(LS.security, {});
+
+    $("#profileName").value = user.name || "";
+    $("#profileEmail").value = user.email || "";
+    $("#accountingPin").value = sec.accPin || "";
+    $("#offlineStatus").textContent = offlineMessage;
+    $("#settingsDialog").showModal();
+
+  } catch (error) { notifyError(error); }
+}
+
+$("#saveSettings").onclick = () => {
+  try {
+    const pin = $("#accountingPin").value.trim();
+
+    if (pin && !/^\d{4}$/.test(pin)) {
+      throw new Error("Die Buchhaltung-PIN muss aus genau 4 Ziffern bestehen.");
+    }
+
+    const user = {
+      name:$("#profileName").value.trim() || "Gast",
+      email:$("#profileEmail").value.trim()
+    };
+
+    write(LS.user, user);
+    write(LS.security, {accPin:pin || null});
+    STATE.user = user;
+    accountingUnlocked = false;
+
+    toast("Einstellungen gespeichert.");
+
+  } catch (error) { notifyError(error); }
+};
+
+$("#settingsBtn").onclick = openSettings;
+$("#closeSettings").onclick = () => $("#settingsDialog").close();
+$("#backupAll").onclick = exportBackup;
+
+$("#restoreAll").onchange = event => {
+  const file = event.target.files?.[0];
+  event.target.value = "";
+  restoreBackup(file);
+};
+
+$("#backBtn").onclick = () => {
+  if (STATE.page === "protocol") {
+    go(STATE.projectId ? "project" : "home");
+
+    if (STATE.page === "project") {
+      openProjectId = STATE.projectId;
+      render();
+    }
+  } else if (STATE.page === "project") {
+    go("projects");
+  } else {
+    go("home");
+  }
+};
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState !== "hidden") return;
+
+  try { flushAutosave(); }
+  catch (error) { console.error("Zwischenspeichern fehlgeschlagen", error); }
+});
+
+window.addEventListener("pagehide", () => {
+  try { flushAutosave(); }
+  catch (error) { console.error(error); }
+});
+
+window.addEventListener("beforeunload", event => {
+  try {
+    flushAutosave();
+  } catch {
+    event.preventDefault();
+    event.returnValue = "";
+  }
+});
+
+async function prepareOffline() {
+  if (!("serviceWorker" in navigator)) {
+    offlineMessage =
+      "Dieser Browser unterstützt die Offline-Vorbereitung nicht.";
+    return;
+  }
+
+  if (!window.isSecureContext || location.protocol === "file:") {
+    offlineMessage =
+      "Für den Offline-Start bitte die HTTPS-Adresse der veröffentlichten " +
+      "App öffnen, zum Beispiel deine GitHub-Pages-Adresse.";
+    return;
+  }
+
+  try {
+    const registration = await navigator.serviceWorker.register("./sw.js");
+
+    function updateStatus() {
+      offlineMessage = registration.active
+        ? "Offline-Dateien vorbereitet. Bitte den Start im Flugmodus testen."
+        : "Offline-Dateien werden vorbereitet. App anschließend erneut öffnen.";
+
+      const target = $("#offlineStatus");
+      if (target) target.textContent = offlineMessage;
+    }
+
+    updateStatus();
+
+    registration.addEventListener("updatefound", () => {
+      const worker = registration.installing;
+      worker?.addEventListener("statechange", updateStatus);
+    });
+
+    navigator.serviceWorker.addEventListener("controllerchange", updateStatus);
+
+  } catch (error) {
+    console.error(error);
+
+    offlineMessage =
+      "Offline-Vorbereitung fehlgeschlagen. Bitte prüfen, ob sw.js, " +
+      "manifest.webmanifest und index.html im selben Ordner liegen.";
+
+    $("#offlineStatus").textContent = offlineMessage;
+  }
+}
+
+try {
+  STATE.user = read(LS.user, null);
+  render();
+} catch (error) {
+  notifyError(error);
+}
+
+prepareOffline();
 </script>
 </body>
 </html>
